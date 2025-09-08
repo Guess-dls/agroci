@@ -58,6 +58,11 @@ export const BuyerDashboard = () => {
       }
 
       console.log('Résultats trouvés:', data);
+      console.log('Premier produit:', data?.[0]);
+      if (data?.[0]) {
+        console.log('Profiles du premier produit:', data[0].profiles);
+        console.log('WhatsApp du premier produit:', data[0].profiles?.whatsapp);
+      }
       setSearchResults(data || []);
       toast.success(`${data?.length || 0} produit(s) trouvé(s)`);
     } catch (error) {
@@ -272,16 +277,28 @@ export const BuyerDashboard = () => {
                             )}
                           </div>
                           
-                          {product.profiles?.whatsapp && (
-                            <Button 
-                              size="sm" 
-                              className="bg-green-600 hover:bg-green-700 text-white"
-                              onClick={() => handleWhatsAppClick(product)}
-                            >
-                              <MessageCircle className="mr-2 h-4 w-4" />
-                              Contacter sur WhatsApp
-                            </Button>
-                          )}
+                          {/* Bouton WhatsApp - toujours affiché avec une logique de fallback */}
+                          <div className="flex gap-2">
+                            {product.profiles?.whatsapp ? (
+                              <Button 
+                                size="sm" 
+                                className="bg-green-600 hover:bg-green-700 text-white"
+                                onClick={() => handleWhatsAppClick(product)}
+                              >
+                                <MessageCircle className="mr-2 h-4 w-4" />
+                                Contacter sur WhatsApp
+                              </Button>
+                            ) : (
+                              <Button 
+                                size="sm" 
+                                variant="outline"
+                                disabled
+                              >
+                                <MessageCircle className="mr-2 h-4 w-4" />
+                                WhatsApp non disponible
+                              </Button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </Card>

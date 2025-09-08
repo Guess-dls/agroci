@@ -3,8 +3,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, History, Filter, ShoppingCart, MapPin, Phone } from "lucide-react";
+import { Search, Heart, History, Filter, ShoppingCart, MapPin, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
 interface Product {
@@ -28,6 +29,7 @@ export const BuyerDashboard = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<Product[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const { user } = useAuth();
 
   const handleSearch = async (query?: string) => {
     const searchTerm = query || searchQuery.trim();
@@ -69,6 +71,37 @@ export const BuyerDashboard = () => {
   const handleProductClick = (productName: string) => {
     setSearchQuery(productName);
     handleSearch(productName); // Passer directement le terme de recherche
+  };
+
+  const handleWhatsAppClick = async (product: any) => {
+    try {
+      // Enregistrer le clic pour les statistiques
+      await supabase
+        .from('whatsapp_clicks')
+        .insert({
+          product_id: product.id,
+          clicker_id: user?.id
+        });
+
+      // Incrémenter le compteur de clics WhatsApp
+      await supabase
+        .from('products')
+        .update({ whatsapp_clicks: (product.whatsapp_clicks || 0) + 1 })
+        .eq('id', product.id);
+
+      // Ouvrir WhatsApp
+      const phoneNumber = product.profiles?.whatsapp?.replace(/\s+/g, '');
+      const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par votre produit: ${product.nom} (${product.prix} FCFA)`);
+      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+      
+      toast.success("Redirection vers WhatsApp...");
+    } catch (error) {
+      console.error('Erreur lors du clic WhatsApp:', error);
+      // Ouvrir WhatsApp même si l'enregistrement échoue
+      const phoneNumber = product.profiles?.whatsapp?.replace(/\s+/g, '');
+      const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par votre produit: ${product.nom}`);
+      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+    }
   };
 
   return (
@@ -242,12 +275,10 @@ export const BuyerDashboard = () => {
                           {product.profiles?.whatsapp && (
                             <Button 
                               size="sm" 
-                              className="bg-green-600 hover:bg-green-700"
-                              onClick={() => {
-                                window.open(`https://wa.me/${product.profiles?.whatsapp.replace(/\s+/g, '')}?text=Bonjour, je suis intéressé(e) par votre produit: ${product.nom}`, '_blank');
-                              }}
+                              className="bg-green-600 hover:bg-green-700 text-white"
+                              onClick={() => handleWhatsAppClick(product)}
                             >
-                              <Phone className="mr-2 h-4 w-4" />
+                              <MessageCircle className="mr-2 h-4 w-4" />
                               Contacter sur WhatsApp
                             </Button>
                           )}

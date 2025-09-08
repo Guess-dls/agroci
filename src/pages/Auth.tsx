@@ -74,7 +74,7 @@ const Auth = () => {
           title: "Connexion réussie",
           description: "Bienvenue sur AgroConnect !",
         });
-        navigate('/');
+        navigate('/dashboard'); // Redirection vers le dashboard
       }
     } catch (error) {
       toast({

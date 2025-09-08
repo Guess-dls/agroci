@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Plus, Package, BarChart3, Eye, MessageCircle } from "lucide-react";
+import { AddProductForm } from "./AddProductForm";
 
 export const ProducerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
@@ -144,26 +145,7 @@ export const ProducerDashboard = () => {
         </TabsContent>
 
         <TabsContent value="add-product" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <CardTitle>Ajouter un nouveau produit</CardTitle>
-              <CardDescription>
-                Publiez vos produits pour les rendre visibles aux acheteurs
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center py-8">
-                <Plus className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Formulaire d'ajout de produit</h3>
-                <p className="text-muted-foreground mb-4">
-                  Cette fonctionnalité sera bientôt disponible
-                </p>
-                <Button variant="outline" disabled>
-                  Bientôt disponible
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
+          <AddProductForm onProductAdded={() => setActiveTab("products")} />
         </TabsContent>
       </Tabs>
     </div>

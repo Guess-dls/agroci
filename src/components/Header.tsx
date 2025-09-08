@@ -1,7 +1,24 @@
-import { Menu, Phone } from "lucide-react";
+import { Menu, Phone, LogOut, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 export const Header = () => {
+  const { user, signOut, loading } = useAuth();
+  const navigate = useNavigate();
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
   return (
     <header className="bg-background border-b shadow-soft sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
@@ -32,12 +49,42 @@ export const Header = () => {
               <Phone className="h-4 w-4" />
               <span>+225 0789363442</span>
             </div>
-            <Button variant="outline" size="sm">
-              Connexion
-            </Button>
-            <Button variant="accent" size="sm">
-              Inscription
-            </Button>
+            
+            {loading ? (
+              <div className="flex space-x-2">
+                <div className="w-16 h-8 bg-muted rounded animate-pulse" />
+                <div className="w-20 h-8 bg-muted rounded animate-pulse" />
+              </div>
+            ) : user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span>Mon compte</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem>
+                    <User className="mr-2 h-4 w-4" />
+                    <span>Profil</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Déconnexion</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button variant="outline" size="sm" onClick={() => navigate('/auth')}>
+                  Connexion
+                </Button>
+                <Button variant="accent" size="sm" onClick={() => navigate('/auth')}>
+                  Inscription
+                </Button>
+              </>
+            )}
           </div>
 
           <Button variant="ghost" size="sm" className="md:hidden">

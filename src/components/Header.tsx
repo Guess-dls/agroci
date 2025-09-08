@@ -24,24 +24,24 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <h1 className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+            <button onClick={() => navigate('/')} className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
               AgroConnect
-            </h1>
+            </button>
           </div>
           
           <nav className="hidden md:flex items-center space-x-6">
-            <a href="#accueil" className="text-foreground hover:text-primary transition-colors">
+            <button onClick={() => navigate('/')} className="text-foreground hover:text-primary transition-colors">
               Accueil
-            </a>
-            <a href="#produits" className="text-foreground hover:text-primary transition-colors">
+            </button>
+            <button onClick={() => navigate('/')} className="text-foreground hover:text-primary transition-colors">
               Produits
-            </a>
-            <a href="#producteurs" className="text-foreground hover:text-primary transition-colors">
+            </button>
+            <button onClick={() => navigate('/')} className="text-foreground hover:text-primary transition-colors">
               Producteurs
-            </a>
-            <a href="#acheteurs" className="text-foreground hover:text-primary transition-colors">
+            </button>
+            <button onClick={() => navigate('/')} className="text-foreground hover:text-primary transition-colors">
               Acheteurs
-            </a>
+            </button>
           </nav>
 
           <div className="hidden md:flex items-center space-x-4">
@@ -63,11 +63,11 @@ export const Header = () => {
                     <span>Mon compte</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
-                  <DropdownMenuItem>
-                    <User className="mr-2 h-4 w-4" />
-                    <span>Profil</span>
-                  </DropdownMenuItem>
+                 <DropdownMenuContent align="end" className="w-48">
+                   <DropdownMenuItem onClick={() => navigate('/dashboard')}>
+                     <User className="mr-2 h-4 w-4" />
+                     <span>Tableau de bord</span>
+                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />

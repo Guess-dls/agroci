@@ -20,7 +20,7 @@ interface Product {
   profiles?: {
     nom: string;
     prenom: string;
-    whatsapp: string;
+    verified: boolean;
   };
 }
 
@@ -45,7 +45,7 @@ export const BuyerDashboard = () => {
           profiles:producteur_id (
             nom,
             prenom,
-            whatsapp
+            verified
           )
         `)
         .eq('status', 'approuve')
@@ -61,7 +61,7 @@ export const BuyerDashboard = () => {
       console.log('Premier produit:', data?.[0]);
       if (data?.[0]) {
         console.log('Profiles du premier produit:', data[0].profiles);
-        console.log('WhatsApp du premier produit:', data[0].profiles?.whatsapp);
+        console.log('Verified du premier produit:', data[0].profiles?.verified);
       }
       setSearchResults(data || []);
       toast.success(`${data?.length || 0} produit(s) trouvé(s)`);
@@ -80,32 +80,48 @@ export const BuyerDashboard = () => {
 
   const handleWhatsAppClick = async (product: any) => {
     try {
-      // Enregistrer le clic pour les statistiques
-      await supabase
-        .from('whatsapp_clicks')
-        .insert({
-          product_id: product.id,
-          clicker_id: user?.id
-        });
+      // Obtenir les informations de contact sécurisées
+      const { data: contactInfo, error } = await supabase.rpc(
+        'get_producer_contact_info',
+        { 
+          producer_profile_id: product.producteur_id,
+          product_id: product.id 
+        }
+      );
 
+      if (error) {
+        console.error('Erreur lors de la récupération des infos de contact:', error);
+        toast.error("Impossible d'obtenir les informations de contact");
+        return;
+      }
+
+      if (!contactInfo || contactInfo.length === 0) {
+        toast.error("Informations de contact non disponibles");
+        return;
+      }
+
+      const contact = contactInfo[0];
+      
       // Incrémenter le compteur de clics WhatsApp
       await supabase
         .from('products')
         .update({ whatsapp_clicks: (product.whatsapp_clicks || 0) + 1 })
         .eq('id', product.id);
 
-      // Ouvrir WhatsApp
-      const phoneNumber = product.profiles?.whatsapp?.replace(/\s+/g, '');
-      const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par votre produit: ${product.nom} (${product.prix} FCFA)`);
+      // Ouvrir WhatsApp avec le numéro récupéré de manière sécurisée
+      const phoneNumber = contact.whatsapp?.replace(/\s+/g, '');
+      if (!phoneNumber) {
+        toast.error("Numéro WhatsApp non disponible");
+        return;
+      }
+
+      const message = encodeURIComponent(`Bonjour ${contact.prenom} ${contact.nom}, je suis intéressé(e) par votre produit: ${product.nom} (${product.prix} FCFA)`);
       window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
       
       toast.success("Redirection vers WhatsApp...");
     } catch (error) {
       console.error('Erreur lors du clic WhatsApp:', error);
-      // Ouvrir WhatsApp même si l'enregistrement échoue
-      const phoneNumber = product.profiles?.whatsapp?.replace(/\s+/g, '');
-      const message = encodeURIComponent(`Bonjour, je suis intéressé(e) par votre produit: ${product.nom}`);
-      window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
+      toast.error("Erreur lors de l'ouverture de WhatsApp");
     }
   };
 
@@ -277,9 +293,9 @@ export const BuyerDashboard = () => {
                             )}
                           </div>
                           
-                          {/* Bouton WhatsApp - toujours affiché avec une logique de fallback */}
+                          {/* Bouton WhatsApp - toujours affiché pour les producteurs vérifiés */}
                           <div className="flex gap-2">
-                            {product.profiles?.whatsapp ? (
+                            {product.profiles?.verified ? (
                               <Button 
                                 size="sm" 
                                 className="bg-green-600 hover:bg-green-700 text-white"
@@ -295,7 +311,7 @@ export const BuyerDashboard = () => {
                                 disabled
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" />
-                                WhatsApp non disponible
+                                Producteur non vérifié
                               </Button>
                             )}
                           </div>

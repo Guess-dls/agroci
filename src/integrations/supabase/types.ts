@@ -48,13 +48,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "favorites_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_producer_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       product_views: {
@@ -89,13 +82,6 @@ export type Database = {
             columns: ["viewer_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "product_views_viewer_id_fkey"
-            columns: ["viewer_id"]
-            isOneToOne: false
-            referencedRelation: "public_producer_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -152,13 +138,6 @@ export type Database = {
             columns: ["producteur_id"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "products_producteur_id_fkey"
-            columns: ["producteur_id"]
-            isOneToOne: false
-            referencedRelation: "public_producer_profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -244,13 +223,6 @@ export type Database = {
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "subscriptions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "public_producer_profiles"
-            referencedColumns: ["id"]
-          },
         ]
       }
       whatsapp_clicks: {
@@ -281,13 +253,6 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "whatsapp_clicks_clicker_id_fkey"
-            columns: ["clicker_id"]
-            isOneToOne: false
-            referencedRelation: "public_producer_profiles"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "whatsapp_clicks_product_id_fkey"
             columns: ["product_id"]
             isOneToOne: false
@@ -298,42 +263,7 @@ export type Database = {
       }
     }
     Views: {
-      public_producer_profiles: {
-        Row: {
-          created_at: string | null
-          id: string | null
-          nom: string | null
-          pays: string | null
-          prenom: string | null
-          region: string | null
-          type_activite: string | null
-          user_type: Database["public"]["Enums"]["user_type"] | null
-          verified: boolean | null
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string | null
-          nom?: string | null
-          pays?: string | null
-          prenom?: string | null
-          region?: string | null
-          type_activite?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"] | null
-          verified?: boolean | null
-        }
-        Update: {
-          created_at?: string | null
-          id?: string | null
-          nom?: string | null
-          pays?: string | null
-          prenom?: string | null
-          region?: string | null
-          type_activite?: string | null
-          user_type?: Database["public"]["Enums"]["user_type"] | null
-          verified?: boolean | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       get_interested_buyers: {
@@ -360,6 +290,18 @@ export type Database = {
           pays: string
           prenom: string
           region: string
+          verified: boolean
+        }[]
+      }
+      get_public_producer_info_for_product: {
+        Args: { product_id_param: string }
+        Returns: {
+          id: string
+          nom: string
+          pays: string
+          prenom: string
+          region: string
+          type_activite: string
           verified: boolean
         }[]
       }

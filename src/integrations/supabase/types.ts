@@ -266,6 +266,16 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_admin_profile: {
+        Args: {
+          admin_email: string
+          admin_nom: string
+          admin_pays?: string
+          admin_prenom: string
+          admin_whatsapp?: string
+        }
+        Returns: string
+      }
       get_interested_buyers: {
         Args: { producer_user_id: string }
         Returns: {
@@ -307,6 +317,10 @@ export type Database = {
       }
       get_user_type: {
         Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      promote_to_admin: {
+        Args: { user_email: string }
         Returns: string
       }
     }

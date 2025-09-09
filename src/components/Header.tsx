@@ -1,7 +1,9 @@
-import { Menu, Phone, LogOut, User } from "lucide-react";
+import { Menu, Phone, LogOut, User, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,6 +15,31 @@ import {
 export const Header = () => {
   const { user, signOut, loading } = useAuth();
   const navigate = useNavigate();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      checkAdminStatus();
+    } else {
+      setIsAdmin(false);
+    }
+  }, [user]);
+
+  const checkAdminStatus = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('user_type')
+        .eq('user_id', user!.id)
+        .single();
+
+      if (!error && data?.user_type === 'admin') {
+        setIsAdmin(true);
+      }
+    } catch (error) {
+      console.error('Error checking admin status:', error);
+    }
+  };
 
   const handleSignOut = async () => {
     await signOut();
@@ -73,6 +100,12 @@ export const Header = () => {
                      <User className="mr-2 h-4 w-4" />
                      <span>Tableau de bord</span>
                    </DropdownMenuItem>
+                   {isAdmin && (
+                     <DropdownMenuItem onClick={() => navigate('/admin')}>
+                       <Shield className="mr-2 h-4 w-4" />
+                       <span>Administration</span>
+                     </DropdownMenuItem>
+                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleSignOut}>
                     <LogOut className="mr-2 h-4 w-4" />

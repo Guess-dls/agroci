@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -89,6 +89,7 @@ export const AdminDashboard = () => {
   const [updatingProduct, setUpdatingProduct] = useState<string | null>(null);
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [productFilter, setProductFilter] = useState<'all' | 'approuve' | 'rejete' | 'en_attente'>('all');
 
   useEffect(() => {
     fetchPendingProducts();
@@ -392,6 +393,18 @@ export const AdminDashboard = () => {
     }
   };
 
+  const navigateToTab = (tab: string, filter?: string) => {
+    setActiveTab(tab);
+    if (filter && tab === 'products') {
+      setProductFilter(filter as 'all' | 'approuve' | 'rejete' | 'en_attente');
+    }
+  };
+
+  const filteredProducts = allProducts.filter(product => {
+    if (productFilter === 'all') return true;
+    return product.status === productFilter;
+  });
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -405,31 +418,46 @@ export const AdminDashboard = () => {
 
       {/* Quick Stats */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigateToTab('validation')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Produits en attente</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-orange-600">{stats.pendingProducts}</div>
-            <p className="text-xs text-muted-foreground">Nécessitent une validation</p>
+            <p className="text-xs text-muted-foreground">Cliquez pour valider</p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigateToTab('products', 'all')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
             <Package className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{stats.totalProducts}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.approvedProducts} approuvés, {stats.rejectedProducts} refusés
+            <p className="text-xs text-muted-foreground cursor-pointer" onClick={(e) => {
+              e.stopPropagation();
+              navigateToTab('products', 'approuve');
+            }}>
+              {stats.approvedProducts} approuvés, <span className="cursor-pointer" onClick={(e) => {
+                e.stopPropagation();
+                navigateToTab('products', 'rejete');
+              }}>{stats.rejectedProducts} refusés</span>
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-shadow"
+          onClick={() => navigateToTab('users')}
+        >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
@@ -759,11 +787,45 @@ export const AdminDashboard = () => {
             <CardHeader>
               <CardTitle className="flex items-center justify-between">
                 Tous les produits
-                <Badge variant="secondary">{allProducts.length} produit(s)</Badge>
+                <Badge variant="secondary">{filteredProducts.length} produit(s)</Badge>
               </CardTitle>
               <CardDescription>
                 Gérer tous les produits de la plateforme
               </CardDescription>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  size="sm"
+                  variant={productFilter === 'all' ? 'default' : 'outline'}
+                  onClick={() => setProductFilter('all')}
+                >
+                  <Filter className="h-4 w-4 mr-2" />
+                  Tous ({allProducts.length})
+                </Button>
+                <Button
+                  size="sm"
+                  variant={productFilter === 'approuve' ? 'default' : 'outline'}
+                  onClick={() => setProductFilter('approuve')}
+                >
+                  <Check className="h-4 w-4 mr-2" />
+                  Approuvés ({allProducts.filter(p => p.status === 'approuve').length})
+                </Button>
+                <Button
+                  size="sm"
+                  variant={productFilter === 'rejete' ? 'default' : 'outline'}
+                  onClick={() => setProductFilter('rejete')}
+                >
+                  <X className="h-4 w-4 mr-2" />
+                  Refusés ({allProducts.filter(p => p.status === 'rejete').length})
+                </Button>
+                <Button
+                  size="sm"
+                  variant={productFilter === 'en_attente' ? 'default' : 'outline'}
+                  onClick={() => setProductFilter('en_attente')}
+                >
+                  <Clock className="h-4 w-4 mr-2" />
+                  En attente ({allProducts.filter(p => p.status === 'en_attente').length})
+                </Button>
+              </div>
             </CardHeader>
             <CardContent>
               {loadingAllProducts ? (
@@ -771,10 +833,16 @@ export const AdminDashboard = () => {
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
                   <span className="ml-2 text-muted-foreground">Chargement des produits...</span>
                 </div>
-              ) : allProducts.length === 0 ? (
+              ) : filteredProducts.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
                   <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
                   <p>Aucun produit trouvé</p>
+                  <p className="text-sm">
+                    {productFilter === 'all' ? 
+                      'Aucun produit dans la base de données' : 
+                      `Aucun produit avec le statut "${productFilter}"`
+                    }
+                  </p>
                 </div>
               ) : (
                 <Table>
@@ -790,7 +858,7 @@ export const AdminDashboard = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allProducts.map((product) => (
+                    {filteredProducts.map((product) => (
                       <TableRow key={product.id}>
                         <TableCell>
                           {product.image_url ? (

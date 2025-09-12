@@ -8,8 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { ContactProducerModal } from "@/components/ContactProducerModal";
+import { ProductDetailsModal } from "@/components/ProductDetailsModal";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Filter, MapPin, MessageSquare, Loader2, Package } from "lucide-react";
+import { Search, Filter, MapPin, MessageSquare, Loader2, Package, Eye } from "lucide-react";
 
 interface Product {
   id: string;
@@ -21,6 +22,12 @@ interface Product {
   image_url: string;
   producteur_id: string;
   created_at: string;
+  profiles?: {
+    nom: string;
+    prenom: string;
+    whatsapp: string;
+    verified: boolean;
+  };
 }
 
 interface Producer {
@@ -38,6 +45,8 @@ const Products = () => {
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedProducer, setSelectedProducer] = useState<Producer | null>(null);
   const [selectedProductName, setSelectedProductName] = useState("");
+  const [detailsModalOpen, setDetailsModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   useEffect(() => {
     fetchProducts();
@@ -61,7 +70,8 @@ const Products = () => {
           profiles!products_producteur_id_fkey (
             nom,
             prenom,
-            whatsapp
+            whatsapp,
+            verified
           )
         `)
         .eq('status', 'approuve')
@@ -123,6 +133,41 @@ const Products = () => {
         variant: "destructive"
       });
     }
+  };
+
+  const handleViewProduct = async (product: Product) => {
+    // Record the view
+    if (user) {
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (profile) {
+          await supabase
+            .from('product_views')
+            .insert({
+              product_id: product.id,
+              viewer_id: profile.id
+            });
+
+          // Increment views count
+          await supabase
+            .from('products')
+            .update({ 
+              views_count: (product as any).views_count ? (product as any).views_count + 1 : 1 
+            })
+            .eq('id', product.id);
+        }
+      } catch (error) {
+        console.error('Error recording view:', error);
+      }
+    }
+
+    setSelectedProduct(product);
+    setDetailsModalOpen(true);
   };
 
   const filteredProducts = products.filter(product =>
@@ -225,13 +270,23 @@ const Products = () => {
                           </span>
                         </div>
                       )}
-                      <Button 
-                        onClick={() => handleContactProducer(product.id, product.nom)}
-                        className="w-full mt-4"
-                      >
-                        <MessageSquare className="h-4 w-4 mr-2" />
-                        Contacter le producteur
-                      </Button>
+                      <div className="flex gap-2 mt-4">
+                        <Button 
+                          variant="outline"
+                          onClick={() => handleViewProduct(product)}
+                          className="flex-1"
+                        >
+                          <Eye className="h-4 w-4 mr-2" />
+                          Voir
+                        </Button>
+                        <Button 
+                          onClick={() => handleContactProducer(product.id, product.nom)}
+                          className="flex-1"
+                        >
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          Contacter
+                        </Button>
+                      </div>
                     </div>
                   </CardContent>
                 </Card>
@@ -247,6 +302,13 @@ const Products = () => {
         onOpenChange={setContactModalOpen}
         producer={selectedProducer}
         productName={selectedProductName}
+      />
+      
+      <ProductDetailsModal
+        product={selectedProduct}
+        isOpen={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        onContactProducer={handleContactProducer}
       />
     </div>
   );

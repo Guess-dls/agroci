@@ -23,6 +23,7 @@ interface Product {
   views_count: number;
   whatsapp_clicks: number;
   actualWhatsappClicks?: number;
+  actualViews?: number;
 }
 
 export const ProducerDashboard = () => {
@@ -76,17 +77,25 @@ export const ProducerDashboard = () => {
       
       const products = productsData || [];
       
-      // Fetch WhatsApp clicks for each product
+      // Fetch WhatsApp clicks and views for each product
       const productIds = products.map(p => p.id);
       let clicksData: any[] = [];
+      let viewsData: any[] = [];
       
       if (productIds.length > 0) {
-        const { data: whatsappClicks } = await supabase
-          .from('whatsapp_clicks')
-          .select('product_id')
-          .in('product_id', productIds);
+        const [whatsappClicksResult, viewsResult] = await Promise.all([
+          supabase
+            .from('whatsapp_clicks')
+            .select('product_id')
+            .in('product_id', productIds),
+          supabase
+            .from('product_views')
+            .select('product_id')
+            .in('product_id', productIds)
+        ]);
         
-        clicksData = whatsappClicks || [];
+        clicksData = whatsappClicksResult.data || [];
+        viewsData = viewsResult.data || [];
       }
       
       // Count clicks per product
@@ -95,17 +104,24 @@ export const ProducerDashboard = () => {
         return acc;
       }, {});
       
-      // Add click counts to products
-      const productsWithClicks = products.map(product => ({
+      // Count views per product
+      const viewCounts = viewsData.reduce((acc: Record<string, number>, view) => {
+        acc[view.product_id] = (acc[view.product_id] || 0) + 1;
+        return acc;
+      }, {});
+      
+      // Add click and view counts to products
+      const productsWithStats = products.map(product => ({
         ...product,
-        actualWhatsappClicks: clickCounts[product.id] || 0
+        actualWhatsappClicks: clickCounts[product.id] || 0,
+        actualViews: viewCounts[product.id] || 0
       }));
       
-      setProducts(productsWithClicks);
+      setProducts(productsWithStats);
       
       // Calculate stats
       const totalProducts = products.length;
-      const totalViews = products.reduce((sum, p) => sum + (p.views_count || 0), 0);
+      const totalViews = (Object.values(viewCounts) as number[]).reduce((sum: number, count: number) => sum + count, 0);
       const totalClicks = (Object.values(clickCounts) as number[]).reduce((sum: number, count: number) => sum + count, 0);
       const conversionRate = totalViews > 0 ? Math.round((totalClicks / totalViews) * 100) : 0;
       
@@ -345,7 +361,7 @@ export const ProducerDashboard = () => {
                             {product.status === 'approuve' ? 'Approuvé' :
                              product.status === 'en_attente' ? 'En attente' : 'Rejeté'}
                           </span>
-                           <span>{product.views_count || 0} vues</span>
+                           <span>{product.actualViews || 0} vues</span>
                            <span>{product.actualWhatsappClicks || 0} clics</span>
                         </div>
                       </div>

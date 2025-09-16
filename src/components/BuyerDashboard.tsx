@@ -116,14 +116,9 @@ export const BuyerDashboard = () => {
 
       const contact = contactInfo[0];
       
-      // Incrémenter le compteur de clics WhatsApp
-      await supabase
-        .from('products')
-        .update({ whatsapp_clicks: (product.whatsapp_clicks || 0) + 1 })
-        .eq('id', product.id);
-
       // Ouvrir WhatsApp avec le numéro récupéré de manière sécurisée
-      const phoneNumber = contact.whatsapp?.replace(/\s+/g, '');
+      const raw = contact.whatsapp || '';
+      const phoneNumber = raw.replace(/[^\d]/g, ''); // wa.me exige uniquement des chiffres
       if (!phoneNumber) {
         toast.error("Numéro WhatsApp non disponible");
         return;

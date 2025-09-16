@@ -4,8 +4,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Badge } from "lucide-react";
+import { useState } from "react";
 
 const Producers = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+
+  const handleSearch = () => {
+    if (searchTerm.trim()) {
+      // TODO: Implémenter la logique de recherche
+      console.log("Recherche pour:", searchTerm);
+    }
+  };
+
+  const handleRegionFilter = () => {
+    // TODO: Implémenter le filtre par région
+    console.log("Filtrage par région");
+  };
   return (
     <div className="min-h-screen bg-background">
       <Header />
@@ -24,13 +38,16 @@ const Producers = () => {
             <Input 
               placeholder="Rechercher un producteur ou une région..." 
               className="w-full"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
-          <Button>
+          <Button onClick={handleSearch}>
             <Search className="mr-2 h-4 w-4" />
             Rechercher
           </Button>
-          <Button variant="outline">
+          <Button variant="outline" onClick={handleRegionFilter}>
             <MapPin className="mr-2 h-4 w-4" />
             Par région
           </Button>

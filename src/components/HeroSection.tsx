@@ -1,8 +1,10 @@
 import { ArrowRight, Users, Shield, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-agriculture.jpg";
 
 export const HeroSection = () => {
+  const navigate = useNavigate();
   return (
     <section id="accueil" className="relative overflow-hidden bg-gradient-hero min-h-[600px] flex items-center">
       <div className="container mx-auto px-4 py-20">
@@ -21,11 +23,20 @@ export const HeroSection = () => {
             </div>
 
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button size="lg" className="bg-primary hover:bg-primary-dark text-primary-foreground shadow-medium">
+              <Button 
+                size="lg" 
+                className="bg-primary hover:bg-primary-dark text-primary-foreground shadow-medium"
+                onClick={() => navigate('/auth?type=producteur')}
+              >
                 Je suis producteur
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button variant="accent" size="lg" className="shadow-medium">
+              <Button 
+                variant="accent" 
+                size="lg" 
+                className="shadow-medium"
+                onClick={() => navigate('/auth?type=acheteur')}
+              >
                 Je suis acheteur
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>

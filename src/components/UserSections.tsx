@@ -1,8 +1,10 @@
 import { ArrowRight, Leaf, ShoppingCart, CheckCircle, BarChart3 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { useNavigate } from "react-router-dom";
 
 export const UserSections = () => {
+  const navigate = useNavigate();
   return (
     <section className="py-20">
       <div className="container mx-auto px-4">
@@ -60,7 +62,10 @@ export const UserSections = () => {
                 </div>
               </div>
               
-              <Button className="w-full bg-primary hover:bg-primary-dark text-primary-foreground">
+              <Button 
+                className="w-full bg-primary hover:bg-primary-dark text-primary-foreground"
+                onClick={() => navigate('/auth?type=producteur')}
+              >
                 S'inscrire comme producteur
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>
@@ -110,7 +115,11 @@ export const UserSections = () => {
                 </div>
               </div>
               
-              <Button variant="accent" className="w-full">
+              <Button 
+                variant="accent" 
+                className="w-full"
+                onClick={() => navigate('/auth?type=acheteur')}
+              >
                 S'inscrire comme acheteur
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Button>

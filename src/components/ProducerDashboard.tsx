@@ -221,7 +221,7 @@ export const ProducerDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Produits publiés</CardTitle>
@@ -277,11 +277,11 @@ export const ProducerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Aperçu</TabsTrigger>
-          <TabsTrigger value="products">Mes Produits</TabsTrigger>
-          <TabsTrigger value="add-product">Ajouter Produit</TabsTrigger>
-          <TabsTrigger value="profile">Mon Profil</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1">
+          <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2">Aperçu</TabsTrigger>
+          <TabsTrigger value="products" className="text-xs sm:text-sm px-2 py-2">Mes Produits</TabsTrigger>
+          <TabsTrigger value="add-product" className="text-xs sm:text-sm px-2 py-2">Ajouter</TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2">Profil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -306,7 +306,7 @@ export const ProducerDashboard = () => {
                 </Button>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="p-4 border rounded-lg">
                   <h4 className="font-medium mb-2">Badge Vérifié</h4>
                   <p className="text-sm text-muted-foreground mb-3">
@@ -360,50 +360,56 @@ export const ProducerDashboard = () => {
               ) : (
                 <div className="space-y-4">
                   {products.map((product) => (
-                    <div key={product.id} className="border rounded-lg p-4 flex items-center space-x-4">
-                      {product.image_url && (
-                        <img 
-                          src={product.image_url} 
-                          alt={product.nom}
-                          className="w-16 h-16 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="flex-1">
-                        <h4 className="font-semibold">{product.nom}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {product.prix} FCFA • {product.quantite}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {product.localisation}
-                        </p>
-                        <div className="flex items-center space-x-4 mt-2 text-xs text-muted-foreground">
-                          <span className={`px-2 py-1 rounded text-xs ${
-                            product.status === 'approuve' ? 'bg-green-100 text-green-800' :
-                            product.status === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-red-100 text-red-800'
-                          }`}>
-                            {product.status === 'approuve' ? 'Approuvé' :
-                             product.status === 'en_attente' ? 'En attente' : 'Rejeté'}
-                          </span>
-                           <span>{product.actualViews || 0} vues</span>
-                           <span>{product.actualWhatsappClicks || 0} clics</span>
+                    <div key={product.id} className="border rounded-lg p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
+                        {product.image_url && (
+                          <img 
+                            src={product.image_url} 
+                            alt={product.nom}
+                            className="w-full sm:w-16 sm:h-16 h-32 object-cover rounded-lg"
+                          />
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-sm sm:text-base truncate">{product.nom}</h4>
+                          <p className="text-xs sm:text-sm text-muted-foreground">
+                            {product.prix} FCFA • {product.quantite}
+                          </p>
+                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
+                            {product.localisation}
+                          </p>
+                          <div className="flex flex-wrap items-center gap-2 mt-2">
+                            <span className={`px-2 py-1 rounded text-xs ${
+                              product.status === 'approuve' ? 'bg-green-100 text-green-800' :
+                              product.status === 'en_attente' ? 'bg-yellow-100 text-yellow-800' :
+                              'bg-red-100 text-red-800'
+                            }`}>
+                              {product.status === 'approuve' ? 'Approuvé' :
+                               product.status === 'en_attente' ? 'En attente' : 'Rejeté'}
+                            </span>
+                            <span className="text-xs text-muted-foreground">{product.actualViews || 0} vues</span>
+                            <span className="text-xs text-muted-foreground">{product.actualWhatsappClicks || 0} clics</span>
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => handleEditProduct(product)}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="destructive" 
-                          size="sm"
-                          onClick={() => deleteProduct(product.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="flex flex-row sm:flex-col space-x-2 sm:space-x-0 sm:space-y-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleEditProduct(product)}
+                            className="flex-1 sm:flex-none"
+                          >
+                            <Edit className="h-4 w-4 sm:mr-0 mr-2" />
+                            <span className="sm:hidden">Modifier</span>
+                          </Button>
+                          <Button 
+                            variant="destructive" 
+                            size="sm"
+                            onClick={() => deleteProduct(product.id)}
+                            className="flex-1 sm:flex-none"
+                          >
+                            <Trash2 className="h-4 w-4 sm:mr-0 mr-2" />
+                            <span className="sm:hidden">Supprimer</span>
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   ))}

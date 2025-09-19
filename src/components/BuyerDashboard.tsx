@@ -179,7 +179,7 @@ export const BuyerDashboard = () => {
   return (
     <div className="space-y-6">
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Favoris</CardTitle>
@@ -235,11 +235,11 @@ export const BuyerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="search">Rechercher</TabsTrigger>
-          <TabsTrigger value="favorites">Favoris</TabsTrigger>
-          <TabsTrigger value="history">Historique</TabsTrigger>
-          <TabsTrigger value="profile">Profil</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1">
+          <TabsTrigger value="search" className="text-xs sm:text-sm px-2 py-2">Rechercher</TabsTrigger>
+          <TabsTrigger value="favorites" className="text-xs sm:text-sm px-2 py-2">Favoris</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2">Historique</TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2">Profil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="search" className="space-y-6">
@@ -251,7 +251,7 @@ export const BuyerDashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4">
                 <div className="flex-1">
                   <Input 
                     value={searchQuery}
@@ -261,44 +261,44 @@ export const BuyerDashboard = () => {
                     className="w-full"
                   />
                 </div>
-                <Button onClick={() => handleSearch()} disabled={isSearching}>
+                <Button onClick={() => handleSearch()} disabled={isSearching} className="w-full sm:w-auto">
                   <Search className="mr-2 h-4 w-4" />
                   {isSearching ? "Recherche..." : "Rechercher"}
                 </Button>
               </div>
               
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4">
                 <Button 
                   variant="outline" 
-                  className="h-auto p-4 flex flex-col"
+                  className="h-auto p-2 sm:p-4 flex flex-col min-h-16 sm:min-h-20"
                   onClick={() => handleProductClick('Maïs')}
                 >
-                  <div className="text-2xl mb-2">🌽</div>
-                  <span>Maïs</span>
+                  <div className="text-lg sm:text-2xl mb-1 sm:mb-2">🌽</div>
+                  <span className="text-xs sm:text-sm">Maïs</span>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-auto p-4 flex flex-col"
+                  className="h-auto p-2 sm:p-4 flex flex-col min-h-16 sm:min-h-20"
                   onClick={() => handleProductClick('Riz')}
                 >
-                  <div className="text-2xl mb-2">🍚</div>
-                  <span>Riz</span>
+                  <div className="text-lg sm:text-2xl mb-1 sm:mb-2">🍚</div>
+                  <span className="text-xs sm:text-sm">Riz</span>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-auto p-4 flex flex-col"
+                  className="h-auto p-2 sm:p-4 flex flex-col min-h-16 sm:min-h-20"
                   onClick={() => handleProductClick('Manioc')}
                 >
-                  <div className="text-2xl mb-2">🍠</div>
-                  <span>Manioc</span>
+                  <div className="text-lg sm:text-2xl mb-1 sm:mb-2">🍠</div>
+                  <span className="text-xs sm:text-sm">Manioc</span>
                 </Button>
                 <Button 
                   variant="outline" 
-                  className="h-auto p-4 flex flex-col"
+                  className="h-auto p-2 sm:p-4 flex flex-col min-h-16 sm:min-h-20"
                   onClick={() => handleProductClick('Igname')}
                 >
-                  <div className="text-2xl mb-2">🥔</div>
-                  <span>Igname</span>
+                  <div className="text-lg sm:text-2xl mb-1 sm:mb-2">🥔</div>
+                  <span className="text-xs sm:text-sm">Igname</span>
                 </Button>
               </div>
 
@@ -307,50 +307,50 @@ export const BuyerDashboard = () => {
                 <div className="grid gap-4">
                   <h3 className="text-lg font-semibold">Résultats de recherche ({searchResults.length})</h3>
                   {searchResults.map((product) => (
-                    <Card key={product.id} className="p-4">
-                      <div className="flex gap-4">
+                    <Card key={product.id} className="p-3 sm:p-4">
+                      <div className="flex flex-col sm:flex-row gap-3 sm:gap-4">
                         {product.image_url && (
                           <img 
                             src={product.image_url} 
                             alt={product.nom}
-                            className="w-20 h-20 object-cover rounded-md"
+                            className="w-full sm:w-20 sm:h-20 h-32 object-cover rounded-md"
                           />
                         )}
-                        <div className="flex-1">
-                          <div className="flex justify-between items-start mb-2">
-                            <h4 className="font-semibold text-lg">{product.nom}</h4>
-                            <div className="text-right">
+                        <div className="flex-1 min-w-0">
+                          <div className="flex flex-col sm:flex-row sm:justify-between sm:items-start mb-2 space-y-1 sm:space-y-0">
+                            <h4 className="font-semibold text-base sm:text-lg truncate pr-0 sm:pr-4">{product.nom}</h4>
+                            <div className="text-left sm:text-right flex-shrink-0">
                               <div className="text-lg font-bold text-primary">{product.prix} FCFA</div>
                               <div className="text-sm text-muted-foreground">{product.quantite}</div>
                             </div>
                           </div>
                           
                           {product.description && (
-                            <p className="text-muted-foreground mb-3">{product.description}</p>
+                            <p className="text-muted-foreground mb-3 text-sm line-clamp-2">{product.description}</p>
                           )}
                           
-                          <div className="flex items-center gap-4 mb-3">
+                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mb-3">
                             {product.localisation && (
                               <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                                <MapPin className="h-4 w-4" />
-                                {product.localisation}
+                                <MapPin className="h-4 w-4 flex-shrink-0" />
+                                <span className="truncate">{product.localisation}</span>
                               </div>
                             )}
                             
                             {product.profiles && (
-                              <div className="text-sm text-muted-foreground">
+                              <div className="text-sm text-muted-foreground truncate">
                                 Par {product.profiles.prenom} {product.profiles.nom}
                               </div>
                             )}
                           </div>
                           
                           {/* Boutons d'action */}
-                          <div className="flex gap-2">
+                          <div className="flex flex-col sm:flex-row gap-2">
                             <Button 
                               variant="outline"
                               size="sm"
                               onClick={() => handleViewProduct(product)}
-                              className="flex-1"
+                              className="w-full sm:flex-1"
                             >
                               <Eye className="mr-2 h-4 w-4" />
                               Voir
@@ -358,7 +358,7 @@ export const BuyerDashboard = () => {
                             {product.profiles?.verified ? (
                               <Button 
                                 size="sm" 
-                                className="bg-green-600 hover:bg-green-700 text-white flex-1"
+                                className="bg-green-600 hover:bg-green-700 text-white w-full sm:flex-1"
                                 onClick={() => handleWhatsAppClick(product)}
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" />
@@ -369,7 +369,7 @@ export const BuyerDashboard = () => {
                                 size="sm" 
                                 variant="outline"
                                 disabled
-                                className="flex-1"
+                                className="w-full sm:flex-1"
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" />
                                 Non vérifié

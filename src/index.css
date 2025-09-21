@@ -23,13 +23,23 @@ All colors MUST be HSL.
     --primary-light: 142 76% 73%;
     --primary-dark: 142 69% 45%;
 
-    --secondary: 0 0% 98%;
+    --secondary: 220 14% 96%;
     --secondary-foreground: 222.2 84% 4.9%;
 
     --accent: 25 95% 53%; /* Orange - #F97316 */
     --accent-foreground: 0 0% 100%;
     --accent-light: 25 95% 63%;
     --accent-dark: 25 95% 43%;
+
+    /* Dashboard colors */
+    --success: 142 76% 36%; /* Green success */
+    --success-foreground: 0 0% 100%;
+    --warning: 45 93% 58%; /* Yellow warning */
+    --warning-foreground: 222.2 84% 4.9%;
+    --info: 221 83% 53%; /* Blue info */
+    --info-foreground: 0 0% 100%;
+    --purple: 262 83% 58%; /* Purple stats */
+    --purple-foreground: 0 0% 100%;
 
     --muted: 210 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
@@ -45,11 +55,20 @@ All colors MUST be HSL.
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-light)));
     --gradient-accent: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--accent-light)));
     --gradient-hero: linear-gradient(135deg, hsl(var(--primary)) 0%, hsl(var(--background)) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(var(--success)), hsl(142 76% 50%));
+    --gradient-warning: linear-gradient(135deg, hsl(var(--warning)), hsl(45 93% 70%));
+    --gradient-info: linear-gradient(135deg, hsl(var(--info)), hsl(221 83% 65%));
+    --gradient-purple: linear-gradient(135deg, hsl(var(--purple)), hsl(262 83% 70%));
+    --gradient-card: linear-gradient(135deg, hsl(var(--card)) 0%, hsl(var(--secondary)) 100%);
 
     /* Shadows */
     --shadow-soft: 0 4px 6px -1px hsl(var(--primary) / 0.1);
     --shadow-medium: 0 10px 15px -3px hsl(var(--primary) / 0.1);
     --shadow-glow: 0 0 20px hsl(var(--accent) / 0.3);
+    --shadow-success: 0 4px 14px 0 hsl(var(--success) / 0.2);
+    --shadow-warning: 0 4px 14px 0 hsl(var(--warning) / 0.2);
+    --shadow-info: 0 4px 14px 0 hsl(var(--info) / 0.2);
+    --shadow-purple: 0 4px 14px 0 hsl(var(--purple) / 0.2);
 
     --radius: 0.5rem;
 

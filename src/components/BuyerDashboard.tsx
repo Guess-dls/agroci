@@ -180,53 +180,61 @@ export const BuyerDashboard = () => {
     <div className="space-y-6">
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-        <Card>
+        <Card className="bg-gradient-to-br from-rose-50 to-rose-100 border-rose-200 shadow-lg hover:shadow-rose-200/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Favoris</CardTitle>
-            <Heart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-rose-700">Favoris</CardTitle>
+            <div className="p-2 bg-rose-100 rounded-lg">
+              <Heart className="h-4 w-4 text-rose-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-rose-800">0</div>
+            <p className="text-xs text-rose-600">
               Producteurs sauvegardés
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 shadow-lg hover:shadow-cyan-200/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Recherches</CardTitle>
-            <Search className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-cyan-700">Recherches</CardTitle>
+            <div className="p-2 bg-cyan-100 rounded-lg">
+              <Search className="h-4 w-4 text-cyan-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-cyan-800">0</div>
+            <p className="text-xs text-cyan-600">
               Ce mois-ci
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-indigo-50 to-indigo-100 border-indigo-200 shadow-lg hover:shadow-indigo-200/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Contacts</CardTitle>
-            <ShoppingCart className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-indigo-700">Contacts</CardTitle>
+            <div className="p-2 bg-indigo-100 rounded-lg">
+              <ShoppingCart className="h-4 w-4 text-indigo-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">0</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-indigo-800">0</div>
+            <p className="text-xs text-indigo-600">
               Producteurs contactés
             </p>
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 shadow-lg hover:shadow-amber-200/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Abonnement</CardTitle>
-            <Filter className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium text-amber-700">Abonnement</CardTitle>
+            <div className="p-2 bg-amber-100 rounded-lg">
+              <Filter className="h-4 w-4 text-amber-600" />
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">Gratuit</div>
-            <p className="text-xs text-muted-foreground">
+            <div className="text-2xl font-bold text-amber-800">Gratuit</div>
+            <p className="text-xs text-amber-600">
               Plan Découverte
             </p>
           </CardContent>
@@ -235,11 +243,11 @@ export const BuyerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1">
-          <TabsTrigger value="search" className="text-xs sm:text-sm px-2 py-2">Rechercher</TabsTrigger>
-          <TabsTrigger value="favorites" className="text-xs sm:text-sm px-2 py-2">Favoris</TabsTrigger>
-          <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2">Historique</TabsTrigger>
-          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2">Profil</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-gradient-to-r from-rose-100 to-amber-100">
+          <TabsTrigger value="search" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-cyan-500 data-[state=active]:text-white">Rechercher</TabsTrigger>
+          <TabsTrigger value="favorites" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">Favoris</TabsTrigger>
+          <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Historique</TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-amber-500 data-[state=active]:text-white">Profil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="search" className="space-y-6">

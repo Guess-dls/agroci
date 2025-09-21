@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Leaf, ShoppingCart, Loader2 } from "lucide-react";
+import { countries, getCountryByCode } from "@/data/countries";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -30,9 +31,23 @@ const Auth = () => {
     pays: "",
     region: "",
     whatsapp: "",
+    phoneCode: "+225", // Code par défaut pour la Côte d'Ivoire
     userType: "acheteur" as "producteur" | "acheteur",
     typeActivite: ""
   });
+
+  // Fonction pour mettre à jour le code téléphonique quand le pays change
+  const handleCountryChange = (countryCode: string) => {
+    const country = getCountryByCode(countryCode);
+    if (country) {
+      setSignupForm({
+        ...signupForm,
+        pays: country.name,
+        phoneCode: country.phoneCode,
+        whatsapp: country.phoneCode + " " // Reset le numéro avec le nouveau code
+      });
+    }
+  };
 
   useEffect(() => {
     // Check if user is already logged in
@@ -295,13 +310,25 @@ const Auth = () => {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="pays">Pays</Label>
-                      <Input
-                        id="pays"
-                        placeholder="Pays"
-                        value={signupForm.pays}
-                        onChange={(e) => setSignupForm({ ...signupForm, pays: e.target.value })}
-                        required
-                      />
+                      <Select
+                        value={countries.find(c => c.name === signupForm.pays)?.code || ""}
+                        onValueChange={handleCountryChange}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Sélectionnez votre pays" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[200px] overflow-y-auto">
+                          {countries.map((country) => (
+                            <SelectItem key={country.code} value={country.code}>
+                              <div className="flex items-center gap-2">
+                                <span>{country.flag}</span>
+                                <span>{country.name}</span>
+                                <span className="text-muted-foreground text-sm">({country.phoneCode})</span>
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div className="space-y-2">
                       <Label htmlFor="region">Région</Label>
@@ -316,15 +343,31 @@ const Auth = () => {
 
                   <div className="space-y-2">
                     <Label htmlFor="whatsapp">
-                      WhatsApp {signupForm.userType === 'producteur' && <span className="text-destructive">*</span>}
+                      Contact WhatsApp {signupForm.userType === 'producteur' && <span className="text-destructive">*</span>}
                     </Label>
-                    <Input
-                      id="whatsapp"
-                      placeholder="+225 XX XX XX XX XX"
-                      value={signupForm.whatsapp}
-                      onChange={(e) => setSignupForm({ ...signupForm, whatsapp: e.target.value })}
-                      required={signupForm.userType === 'producteur'}
-                    />
+                    <div className="flex gap-2">
+                      <div className="w-20">
+                        <Input
+                          value={signupForm.phoneCode}
+                          readOnly
+                          className="text-center bg-muted text-muted-foreground font-mono"
+                        />
+                      </div>
+                      <Input
+                        id="whatsapp"
+                        placeholder="XX XX XX XX XX"
+                        value={signupForm.whatsapp.replace(signupForm.phoneCode, '').trim()}
+                        onChange={(e) => setSignupForm({ 
+                          ...signupForm, 
+                          whatsapp: signupForm.phoneCode + " " + e.target.value.replace(/[^\d\s]/g, '') 
+                        })}
+                        required={signupForm.userType === 'producteur'}
+                        className="flex-1"
+                      />
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      Le code pays est automatiquement ajouté selon votre sélection
+                    </p>
                   </div>
 
                   {signupForm.userType === 'acheteur' && (

@@ -1,1 +1,14 @@
 project_id = "xmvnaawqhqyrxgaeeebm"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "graphql_public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[functions.create-paystack-payment]
+verify_jwt = true
+
+[functions.paystack-webhook]
+verify_jwt = false

@@ -3,11 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
-import { Search, Heart, History, Filter, ShoppingCart, MapPin, MessageCircle, Eye } from "lucide-react";
+import { Search, Heart, History, Filter, ShoppingCart, MapPin, MessageCircle, Eye, User, Crown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ProductDetailsModal } from "./ProductDetailsModal";
+import { EditProfileModal } from "./EditProfileModal";
+import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
 
 interface Product {
   id: string;
@@ -34,6 +36,9 @@ export const BuyerDashboard = () => {
   const [isSearching, setIsSearching] = useState(false);
   const [detailsModalOpen, setDetailsModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [profile, setProfile] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
+  const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const { user } = useAuth();
 
   // Debug logs pour les onglets
@@ -43,6 +48,33 @@ export const BuyerDashboard = () => {
     console.log('Changement d\'onglet de', activeTab, 'vers', value);
     setActiveTab(value);
   };
+
+  // Fetch profile and subscription data
+  useEffect(() => {
+    const fetchProfileData = async () => {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('*')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (profile) {
+        setProfile(profile);
+        
+        const { data: subscriptionData } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', profile.id)
+          .maybeSingle();
+        
+        setSubscription(subscriptionData);
+      }
+    };
+    
+    fetchProfileData();
+  }, [user]);
 
   const handleSearch = async (query?: string) => {
     const searchTerm = query || searchQuery.trim();
@@ -243,10 +275,11 @@ export const BuyerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-gradient-to-r from-rose-100 to-amber-100">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-gradient-to-r from-rose-100 to-amber-100">
           <TabsTrigger value="search" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-cyan-500 data-[state=active]:text-white">Rechercher</TabsTrigger>
           <TabsTrigger value="favorites" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">Favoris</TabsTrigger>
           <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Historique</TabsTrigger>
+          <TabsTrigger value="subscription" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">Abonnement</TabsTrigger>
           <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-amber-500 data-[state=active]:text-white">Profil</TabsTrigger>
         </TabsList>
 
@@ -458,6 +491,41 @@ export const BuyerDashboard = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="subscription" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-accent rounded-full flex items-center justify-center">
+                  <Crown className="h-4 w-4 text-white" />
+                </div>
+                Mon abonnement
+                {subscription && (
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    subscription.plan === 'premium' ? 'bg-yellow-100 text-yellow-800' :
+                    subscription.plan === 'pro' ? 'bg-purple-100 text-purple-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {subscription.plan === 'premium' ? 'Premium' : 
+                     subscription.plan === 'pro' ? 'Pro' : 'Gratuit'}
+                  </span>
+                )}
+              </CardTitle>
+              <CardDescription>
+                Gérez votre abonnement et accédez à plus de fonctionnalités
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {profile && (
+                <SubscriptionUpgrade 
+                  userEmail={user?.email || ''} 
+                  profileId={profile.id}
+                  currentPlan={subscription?.plan || 'gratuit'}
+                />
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="profile" className="space-y-6">
           <Card>
             <CardHeader>
@@ -471,21 +539,14 @@ export const BuyerDashboard = () => {
                 <div className="p-4 border rounded-lg">
                   <h4 className="font-medium mb-2">Informations personnelles</h4>
                   <p className="text-sm text-muted-foreground mb-3">
-                    Nom, prénom, pays, région, type d'activité
+                    Mettez à jour vos informations de contact
                   </p>
-                  <Button variant="outline" size="sm" disabled>
-                    Modifier le profil (bientôt)
-                  </Button>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2">Abonnement Business</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Accès illimité aux producteurs vérifiés
-                  </p>
-                  <Button variant="accent" size="sm">
-                    Voir les plans
-                  </Button>
+                  {profile && (
+                    <Button onClick={() => setIsEditProfileModalOpen(true)}>
+                      <User className="mr-2 h-4 w-4" />
+                      Modifier le profil
+                    </Button>
+                  )}
                 </div>
               </div>
             </CardContent>
@@ -499,6 +560,16 @@ export const BuyerDashboard = () => {
         isOpen={detailsModalOpen}
         onClose={() => setDetailsModalOpen(false)}
         onContactProducer={handleContactProducer}
+      />
+
+      {/* Modal pour éditer le profil */}
+      <EditProfileModal
+        isOpen={isEditProfileModalOpen}
+        onClose={() => setIsEditProfileModalOpen(false)}
+        onProfileUpdated={() => {
+          setIsEditProfileModalOpen(false);
+          // Refresh profile data if needed
+        }}
       />
     </div>
   );

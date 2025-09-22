@@ -2,10 +2,11 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Package, BarChart3, Eye, MessageCircle, Edit, Trash2, User } from "lucide-react";
+import { Plus, Package, BarChart3, Eye, MessageCircle, Edit, Trash2, User, Crown } from "lucide-react";
 import { AddProductForm } from "./AddProductForm";
 import { EditProductModal } from "./EditProductModal";
 import { EditProfileModal } from "./EditProfileModal";
+import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -39,6 +40,8 @@ export const ProducerDashboard = () => {
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
+  const [profile, setProfile] = useState<any>(null);
+  const [subscription, setSubscription] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -55,7 +58,7 @@ export const ProducerDashboard = () => {
       // Get user profile first
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id')
+        .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -71,6 +74,16 @@ export const ProducerDashboard = () => {
       }
       
       console.log('Profile found:', profile.id);
+      setProfile(profile);
+
+      // Get subscription
+      const { data: subscriptionData } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', profile.id)
+        .maybeSingle();
+      
+      setSubscription(subscriptionData);
       
       // Fetch products
       const { data: productsData, error } = await supabase
@@ -285,11 +298,12 @@ export const ProducerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100">
           <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">Aperçu</TabsTrigger>
           <TabsTrigger value="products" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white">Mes Produits</TabsTrigger>
           <TabsTrigger value="add-product" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">Ajouter</TabsTrigger>
-          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">Profil</TabsTrigger>
+          <TabsTrigger value="subscription" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">Abonnement</TabsTrigger>
+          <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Profil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -429,6 +443,41 @@ export const ProducerDashboard = () => {
 
         <TabsContent value="add-product" className="space-y-6">
           <AddProductForm onProductAdded={handleProductAdded} />
+        </TabsContent>
+
+        <TabsContent value="subscription" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <div className="w-8 h-8 bg-gradient-accent rounded-full flex items-center justify-center">
+                  <Crown className="h-4 w-4 text-white" />
+                </div>
+                Mon abonnement
+                {subscription && (
+                  <span className={`px-2 py-1 rounded text-xs ${
+                    subscription.plan === 'premium' ? 'bg-yellow-100 text-yellow-800' :
+                    subscription.plan === 'pro' ? 'bg-purple-100 text-purple-800' :
+                    'bg-gray-100 text-gray-800'
+                  }`}>
+                    {subscription.plan === 'premium' ? 'Premium' : 
+                     subscription.plan === 'pro' ? 'Pro' : 'Gratuit'}
+                  </span>
+                )}
+              </CardTitle>
+              <CardDescription>
+                Gérez votre abonnement et débloquez plus de fonctionnalités
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {profile && (
+                <SubscriptionUpgrade 
+                  userEmail={user?.email || ''} 
+                  profileId={profile.id}
+                  currentPlan={subscription?.plan || 'gratuit'}
+                />
+              )}
+            </CardContent>
+          </Card>
         </TabsContent>
 
         <TabsContent value="profile" className="space-y-6">

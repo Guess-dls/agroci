@@ -10,13 +10,13 @@ export const HeroSection = () => {
       <div className="container mx-auto px-4 py-20">
         <div className="grid lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <div className="space-y-4">
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground leading-tight">
+            <div className="space-y-4 bg-white/90 backdrop-blur-sm rounded-2xl p-8 shadow-medium">
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
                 Connectez directement 
                 <span className="bg-gradient-primary bg-clip-text text-transparent"> producteurs</span> et 
                 <span className="bg-gradient-accent bg-clip-text text-transparent"> acheteurs</span>
               </h1>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl">
+              <p className="text-lg md:text-xl text-gray-700 max-w-2xl">
                 La première plateforme de mise en relation pour les produits vivriers en gros. 
                 Contact direct via WhatsApp, transactions sécurisées, producteurs vérifiés.
               </p>

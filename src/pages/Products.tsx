@@ -11,6 +11,7 @@ import { ContactProducerModal } from "@/components/ContactProducerModal";
 import { ProductDetailsModal } from "@/components/ProductDetailsModal";
 import { useToast } from "@/hooks/use-toast";
 import { Search, Filter, MapPin, MessageSquare, Loader2, Package, Eye } from "lucide-react";
+import { ProducerBadge } from "@/components/ProducerBadge";
 
 interface Product {
   id: string;
@@ -27,6 +28,7 @@ interface Product {
     prenom: string;
     whatsapp: string;
     verified: boolean;
+    id: string;
   };
 }
 
@@ -71,7 +73,8 @@ const Products = () => {
             nom,
             prenom,
             whatsapp,
-            verified
+            verified,
+            id
           )
         `)
         .eq('status', 'approuve')
@@ -240,12 +243,15 @@ const Products = () => {
                     )}
                   </div>
                   <CardHeader>
-                    <CardTitle className="flex items-center justify-between">
-                      {product.nom}
+                    <div className="flex items-start justify-between mb-2">
+                      <div className="flex items-center gap-2">
+                        <h3 className="text-lg font-semibold">{product.nom}</h3>
+                        {producer?.id && <ProducerBadge producerId={producer.id} />}
+                      </div>
                       <Badge variant="secondary" className="text-lg font-bold">
                         {product.prix.toLocaleString()} FCFA
                       </Badge>
-                    </CardTitle>
+                    </div>
                     <CardDescription>
                       {product.description}
                     </CardDescription>

@@ -245,7 +245,11 @@ export const ProducerDashboard = () => {
           <CardContent>
             <div className="text-2xl font-bold text-emerald-800">{stats.totalProducts}</div>
             <p className="text-xs text-emerald-600">
-              Total publié
+              {(() => {
+                const limits = { gratuit: 3, premium: 20, pro: 'Illimité' };
+                const limit = limits[subscription?.plan as keyof typeof limits] || 3;
+                return limit === 'Illimité' ? 'Limite: Aucune' : `Limite: ${limit}`;
+              })()}
             </p>
           </CardContent>
         </Card>

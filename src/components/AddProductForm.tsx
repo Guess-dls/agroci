@@ -127,6 +127,49 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         throw new Error("Profil non trouvé. Veuillez vous reconnecter.");
       }
 
+      // Check subscription and product count limit
+      const { data: subscription, error: subError } = await supabase
+        .from('subscriptions')
+        .select('plan')
+        .eq('user_id', profile.id)
+        .eq('status', 'actif')
+        .maybeSingle();
+
+      if (subError) {
+        console.error('Subscription error:', subError);
+      }
+
+      const currentPlan = subscription?.plan || 'gratuit';
+
+      // Check current product count
+      const { count: productCount, error: countError } = await supabase
+        .from('products')
+        .select('*', { count: 'exact', head: true })
+        .eq('producteur_id', profile.id);
+
+      if (countError) {
+        throw new Error(`Erreur lors du comptage des produits: ${countError.message}`);
+      }
+
+      // Check limits based on plan
+      const limits = {
+        gratuit: 3,
+        premium: 20,
+        pro: Infinity
+      };
+
+      const limit = limits[currentPlan as keyof typeof limits] || 3;
+
+      if ((productCount || 0) >= limit) {
+        toast({
+          title: "Limite atteinte",
+          description: `Vous avez atteint la limite de ${limit} produits pour votre plan ${currentPlan}. Passez à un plan supérieur pour publier plus de produits.`,
+          variant: "destructive"
+        });
+        return;
+      }
+
+
       // Upload images first
       setUploadingImage(true);
       const imageUrls = await uploadImages();

@@ -153,6 +153,7 @@ export type Database = {
           pays: string
           prenom: string
           region: string | null
+          subscription_required: boolean
           suspended: boolean | null
           type_activite: string | null
           updated_at: string | null
@@ -168,6 +169,7 @@ export type Database = {
           pays: string
           prenom: string
           region?: string | null
+          subscription_required?: boolean
           suspended?: boolean | null
           type_activite?: string | null
           updated_at?: string | null
@@ -183,6 +185,7 @@ export type Database = {
           pays?: string
           prenom?: string
           region?: string | null
+          subscription_required?: boolean
           suspended?: boolean | null
           type_activite?: string | null
           updated_at?: string | null
@@ -230,6 +233,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      system_settings: {
+        Row: {
+          created_at: string
+          id: string
+          setting_key: string
+          setting_value: boolean
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          setting_key: string
+          setting_value?: boolean
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          setting_key?: string
+          setting_value?: boolean
+          updated_at?: string
+        }
+        Relationships: []
       }
       whatsapp_clicks: {
         Row: {

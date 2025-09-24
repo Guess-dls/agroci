@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -57,6 +57,7 @@ interface User {
   user_type: 'producteur' | 'acheteur' | 'admin';
   verified: boolean;
   suspended: boolean;
+  subscription_required: boolean;
   created_at: string;
 }
 
@@ -90,10 +91,13 @@ export const AdminDashboard = () => {
   const [updatingUser, setUpdatingUser] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [productFilter, setProductFilter] = useState<'all' | 'approuve' | 'rejete' | 'en_attente'>('all');
+  const [subscriptionRestrictionsEnabled, setSubscriptionRestrictionsEnabled] = useState(false);
+  const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
     fetchPendingProducts();
     fetchStats();
+    fetchSystemSettings();
     if (activeTab === 'users') {
       fetchAllUsers();
     }
@@ -214,6 +218,24 @@ export const AdminDashboard = () => {
       });
     } finally {
       setUpdatingProduct(null);
+    }
+  };
+
+  const fetchSystemSettings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'subscription_restrictions_enabled')
+        .single();
+
+      if (error) throw error;
+
+      setSubscriptionRestrictionsEnabled(data.setting_value);
+    } catch (error: any) {
+      console.error('Error fetching system settings:', error);
+    } finally {
+      setLoadingSettings(false);
     }
   };
 
@@ -427,76 +449,167 @@ export const AdminDashboard = () => {
     }
   };
 
+  const toggleSubscriptionRestrictions = async () => {
+    try {
+      const { error } = await supabase
+        .from('system_settings')
+        .update({ setting_value: !subscriptionRestrictionsEnabled })
+        .eq('setting_key', 'subscription_restrictions_enabled');
+
+      if (error) throw error;
+
+      setSubscriptionRestrictionsEnabled(!subscriptionRestrictionsEnabled);
+      toast({
+        title: "Paramètres mis à jour",
+        description: `Restrictions d'abonnement ${!subscriptionRestrictionsEnabled ? 'activées' : 'désactivées'}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les paramètres",
+        variant: "destructive"
+      });
+    }
+  };
+
+  const toggleUserSubscriptionRequirement = async (userId: string) => {
+    setUpdatingUser(userId);
+    try {
+      const user = users.find(u => u.id === userId);
+      if (!user) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ subscription_required: !user.subscription_required })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Paramètre utilisateur mis à jour",
+        description: `Obligation d'abonnement ${!user.subscription_required ? 'activée' : 'désactivée'} pour ${user.prenom} ${user.nom}`,
+      });
+
+      fetchAllUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le paramètre utilisateur",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
+
   const filteredProducts = allProducts.filter(product => {
     if (productFilter === 'all') return true;
     return product.status === productFilter;
   });
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center space-x-2">
-        <Shield className="h-8 w-8 text-primary" />
-        <div>
-          <h2 className="text-2xl font-bold text-foreground">Administration</h2>
-          <p className="text-muted-foreground">Gestion de la plateforme AgroConnect</p>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
+      <div className="space-y-6">
+        {/* Header Section with Gradient */}
+        <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 border border-primary/20">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-4">
+              <Shield className="h-10 w-10 text-primary" />
+              <div>
+                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                  Administration
+                </h1>
+                <p className="text-muted-foreground">Gestion de la plateforme AgroConnect</p>
+              </div>
+            </div>
+            
+            {/* Global Subscription Settings */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Settings className="h-5 w-5 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Restrictions d'abonnement:</span>
+              </div>
+              <Button
+                onClick={toggleSubscriptionRestrictions}
+                variant={subscriptionRestrictionsEnabled ? "default" : "outline"}
+                size="sm"
+                className={subscriptionRestrictionsEnabled 
+                  ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white" 
+                  : ""}
+                disabled={loadingSettings}
+              >
+                {loadingSettings ? (
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                ) : subscriptionRestrictionsEnabled ? (
+                  <>
+                    <Check className="h-4 w-4 mr-2" />
+                    Activées
+                  </>
+                ) : (
+                  <>
+                    <X className="h-4 w-4 mr-2" />
+                    Désactivées
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
         </div>
-      </div>
 
-      {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigateToTab('validation')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Produits en attente</CardTitle>
-            <Clock className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.pendingProducts}</div>
-            <p className="text-xs text-muted-foreground">Cliquez pour valider</p>
-          </CardContent>
-        </Card>
+        {/* Quick Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-orange-200/50"
+            onClick={() => navigateToTab('validation')}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-orange-800">Produits en attente</CardTitle>
+              <Clock className="h-4 w-4 text-orange-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-orange-900">{stats.pendingProducts}</div>
+              <p className="text-xs text-orange-600">Cliquez pour valider</p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigateToTab('products', 'all')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Produits</CardTitle>
-            <Package className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProducts}</div>
-            <p className="text-xs text-muted-foreground cursor-pointer" onClick={(e) => {
-              e.stopPropagation();
-              navigateToTab('products', 'approuve');
-            }}>
-              {stats.approvedProducts} approuvés, <span className="cursor-pointer" onClick={(e) => {
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-blue-200/50"
+            onClick={() => navigateToTab('products', 'all')}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-blue-800">Total Produits</CardTitle>
+              <Package className="h-4 w-4 text-blue-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-blue-900">{stats.totalProducts}</div>
+              <p className="text-xs text-blue-600 cursor-pointer" onClick={(e) => {
                 e.stopPropagation();
-                navigateToTab('products', 'rejete');
-              }}>{stats.rejectedProducts} refusés</span>
-            </p>
-          </CardContent>
-        </Card>
+                navigateToTab('products', 'approuve');
+              }}>
+                {stats.approvedProducts} approuvés, <span className="cursor-pointer" onClick={(e) => {
+                  e.stopPropagation();
+                  navigateToTab('products', 'rejete');
+                }}>{stats.rejectedProducts} refusés</span>
+              </p>
+            </CardContent>
+          </Card>
 
-        <Card 
-          className="cursor-pointer hover:shadow-lg transition-shadow"
-          onClick={() => navigateToTab('users')}
-        >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Utilisateurs</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{stats.totalProducers + stats.totalBuyers}</div>
-            <p className="text-xs text-muted-foreground">
-              {stats.totalProducers} producteurs, {stats.totalBuyers} acheteurs
-            </p>
-          </CardContent>
-        </Card>
-      </div>
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-purple-200/50"
+            onClick={() => navigateToTab('users')}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-purple-800">Utilisateurs</CardTitle>
+              <Users className="h-4 w-4 text-purple-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-purple-900">{stats.totalProducers + stats.totalBuyers}</div>
+              <p className="text-xs text-purple-600">
+                {stats.totalProducers} producteurs, {stats.totalBuyers} acheteurs
+              </p>
+            </CardContent>
+          </Card>
+        </div>
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -714,6 +827,7 @@ export const AdminDashboard = () => {
                       <TableHead>Type</TableHead>
                       <TableHead>Localisation</TableHead>
                       <TableHead>Statut</TableHead>
+                      <TableHead>Abonnement requis</TableHead>
                       <TableHead>Date d'inscription</TableHead>
                       <TableHead>Actions</TableHead>
                     </TableRow>
@@ -749,6 +863,11 @@ export const AdminDashboard = () => {
                           </div>
                         </TableCell>
                         <TableCell>
+                          <Badge variant={user.subscription_required ? "default" : "outline"} className="text-xs">
+                            {user.subscription_required ? "Obligatoire" : "Optionnel"}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
                           {new Date(user.created_at).toLocaleDateString('fr-FR')}
                         </TableCell>
                         <TableCell>
@@ -768,21 +887,37 @@ export const AdminDashboard = () => {
                                     <Check className="h-4 w-4" />
                                   )}
                                 </Button>
-                              )}
-                              <Button
-                                size="sm"
-                                variant={user.suspended ? "default" : "outline"}
-                                onClick={() => toggleUserSuspension(user.id)}
-                                disabled={updatingUser === user.id}
-                              >
-                                {updatingUser === user.id ? (
-                                  <Loader2 className="h-4 w-4 animate-spin" />
-                                ) : user.suspended ? (
-                                  <UserCheck className="h-4 w-4" />
-                                ) : (
-                                  <Ban className="h-4 w-4" />
-                                )}
-                              </Button>
+                               )}
+                               <Button
+                                 size="sm"
+                                 variant={user.subscription_required ? "default" : "outline"}
+                                 onClick={() => toggleUserSubscriptionRequirement(user.id)}
+                                 disabled={updatingUser === user.id}
+                                 className={user.subscription_required 
+                                   ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white" 
+                                   : ""}
+                                 title={user.subscription_required ? "Désactiver l'obligation d'abonnement" : "Activer l'obligation d'abonnement"}
+                               >
+                                 {updatingUser === user.id ? (
+                                   <Loader2 className="h-4 w-4 animate-spin" />
+                                 ) : (
+                                   <CreditCard className="h-4 w-4" />
+                                 )}
+                               </Button>
+                               <Button
+                                 size="sm"
+                                 variant={user.suspended ? "default" : "outline"}
+                                 onClick={() => toggleUserSuspension(user.id)}
+                                 disabled={updatingUser === user.id}
+                               >
+                                 {updatingUser === user.id ? (
+                                   <Loader2 className="h-4 w-4 animate-spin" />
+                                 ) : user.suspended ? (
+                                   <UserCheck className="h-4 w-4" />
+                                 ) : (
+                                   <Ban className="h-4 w-4" />
+                                 )}
+                               </Button>
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button
@@ -1007,6 +1142,7 @@ export const AdminDashboard = () => {
           </Card>
         </TabsContent>
       </Tabs>
+      </div>
     </div>
   );
 };

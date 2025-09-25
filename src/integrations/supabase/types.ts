@@ -14,6 +14,93 @@ export type Database = {
   }
   public: {
     Tables: {
+      abonnements: {
+        Row: {
+          actif: boolean
+          created_at: string
+          credits: number
+          description: string | null
+          duree_jours: number
+          id: string
+          montant: number
+          nom: string
+          updated_at: string
+        }
+        Insert: {
+          actif?: boolean
+          created_at?: string
+          credits: number
+          description?: string | null
+          duree_jours?: number
+          id?: string
+          montant: number
+          nom: string
+          updated_at?: string
+        }
+        Update: {
+          actif?: boolean
+          created_at?: string
+          credits?: number
+          description?: string | null
+          duree_jours?: number
+          id?: string
+          montant?: number
+          nom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories_acheteurs: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          nom: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          nom: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          nom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      categories_produits: {
+        Row: {
+          created_at: string
+          description: string | null
+          icone: string | null
+          id: string
+          nom: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icone?: string | null
+          id?: string
+          nom: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icone?: string | null
+          id?: string
+          nom?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string | null
@@ -88,6 +175,8 @@ export type Database = {
       }
       products: {
         Row: {
+          acheteurs_cibles: string[] | null
+          categorie_id: string | null
           created_at: string | null
           description: string | null
           hidden: boolean | null
@@ -104,6 +193,8 @@ export type Database = {
           whatsapp_clicks: number | null
         }
         Insert: {
+          acheteurs_cibles?: string[] | null
+          categorie_id?: string | null
           created_at?: string | null
           description?: string | null
           hidden?: boolean | null
@@ -120,6 +211,8 @@ export type Database = {
           whatsapp_clicks?: number | null
         }
         Update: {
+          acheteurs_cibles?: string[] | null
+          categorie_id?: string | null
           created_at?: string | null
           description?: string | null
           hidden?: boolean | null
@@ -137,6 +230,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "products_categorie_id_fkey"
+            columns: ["categorie_id"]
+            isOneToOne: false
+            referencedRelation: "categories_produits"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "products_producteur_id_fkey"
             columns: ["producteur_id"]
             isOneToOne: false
@@ -148,6 +248,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          credits: number
           id: string
           nom: string
           pays: string
@@ -155,6 +256,7 @@ export type Database = {
           region: string | null
           subscription_required: boolean
           suspended: boolean | null
+          type_acheteur: string | null
           type_activite: string | null
           updated_at: string | null
           user_id: string
@@ -164,6 +266,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          credits?: number
           id?: string
           nom: string
           pays: string
@@ -171,6 +274,7 @@ export type Database = {
           region?: string | null
           subscription_required?: boolean
           suspended?: boolean | null
+          type_acheteur?: string | null
           type_activite?: string | null
           updated_at?: string | null
           user_id: string
@@ -180,6 +284,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          credits?: number
           id?: string
           nom?: string
           pays?: string
@@ -187,6 +292,7 @@ export type Database = {
           region?: string | null
           subscription_required?: boolean
           suspended?: boolean | null
+          type_acheteur?: string | null
           type_activite?: string | null
           updated_at?: string | null
           user_id?: string
@@ -194,7 +300,15 @@ export type Database = {
           verified?: boolean | null
           whatsapp?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_type_acheteur_fkey"
+            columns: ["type_acheteur"]
+            isOneToOne: false
+            referencedRelation: "categories_acheteurs"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       subscriptions: {
         Row: {
@@ -258,6 +372,66 @@ export type Database = {
         }
         Relationships: []
       }
+      transactions: {
+        Row: {
+          abonnement_id: string | null
+          created_at: string
+          credits_ajoutes: number | null
+          credits_utilises: number | null
+          description: string | null
+          id: string
+          montant: number | null
+          reference_paiement: string | null
+          statut: string
+          type_transaction: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          abonnement_id?: string | null
+          created_at?: string
+          credits_ajoutes?: number | null
+          credits_utilises?: number | null
+          description?: string | null
+          id?: string
+          montant?: number | null
+          reference_paiement?: string | null
+          statut?: string
+          type_transaction: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          abonnement_id?: string | null
+          created_at?: string
+          credits_ajoutes?: number | null
+          credits_utilises?: number | null
+          description?: string | null
+          id?: string
+          montant?: number | null
+          reference_paiement?: string | null
+          statut?: string
+          type_transaction?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_abonnement_id_fkey"
+            columns: ["abonnement_id"]
+            isOneToOne: false
+            referencedRelation: "abonnements"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       whatsapp_clicks: {
         Row: {
           clicked_at: string | null
@@ -306,6 +480,14 @@ export type Database = {
           admin_pays?: string
           admin_prenom: string
           admin_whatsapp?: string
+        }
+        Returns: string
+      }
+      crediter_utilisateur: {
+        Args: {
+          abonnement_id_param: string
+          reference_paiement_param?: string
+          user_profile_id: string
         }
         Returns: string
       }

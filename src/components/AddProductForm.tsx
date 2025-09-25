@@ -1,10 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -14,6 +15,17 @@ interface AddProductFormProps {
   onProductAdded: () => void;
 }
 
+interface Category {
+  id: string;
+  nom: string;
+  icone: string;
+}
+
+interface AcheteurCategory {
+  id: string;
+  nom: string;
+}
+
 export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -21,19 +33,51 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
   const [uploadingImage, setUploadingImage] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [acheteurCategories, setAcheteurCategories] = useState<AcheteurCategory[]>([]);
+  const [selectedAcheteurs, setSelectedAcheteurs] = useState<string[]>([]);
 
   const [formData, setFormData] = useState({
     nom: "",
     prix: "",
     quantite: "",
     description: "",
-    localisation: ""
+    localisation: "",
+    categorie_id: ""
   });
 
-  const productTypes = [
-    "Maïs", "Riz", "Manioc", "Igname", "Tomates", "Oignons",
-    "Banane plantain", "Arachide", "Haricot", "Soja", "Cacao", "Café"
-  ];
+  useEffect(() => {
+    fetchCategories();
+    fetchAcheteurCategories();
+  }, []);
+
+  const fetchCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories_produits')
+        .select('id, nom, icone')
+        .order('nom');
+      
+      if (error) throw error;
+      setCategories(data || []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des catégories:', error);
+    }
+  };
+
+  const fetchAcheteurCategories = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('categories_acheteurs')
+        .select('id, nom')
+        .order('nom');
+      
+      if (error) throw error;
+      setAcheteurCategories(data || []);
+    } catch (error) {
+      console.error('Erreur lors du chargement des catégories d\'acheteurs:', error);
+    }
+  };
 
   const handleInputChange = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -100,7 +144,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!formData.nom || !formData.prix || !formData.quantite) {
+    if (!formData.nom || !formData.prix || !formData.quantite || !formData.categorie_id) {
       toast({
         title: "Champs requis",
         description: "Veuillez remplir tous les champs obligatoires",
@@ -169,7 +213,6 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         return;
       }
 
-
       // Upload images first
       setUploadingImage(true);
       const imageUrls = await uploadImages();
@@ -184,6 +227,8 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
           quantite: formData.quantite,
           description: formData.description,
           localisation: formData.localisation,
+          categorie_id: formData.categorie_id,
+          acheteurs_cibles: selectedAcheteurs,
           image_url: imageUrls.length > 0 ? imageUrls[0] : null, // Use first image as main image
           producteur_id: profile.id
         });
@@ -203,8 +248,10 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         prix: "",
         quantite: "",
         description: "",
-        localisation: ""
+        localisation: "",
+        categorie_id: ""
       });
+      setSelectedAcheteurs([]);
       setImageFiles([]);
       setImagePreviews([]);
       
@@ -235,23 +282,39 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="nom">Nom du produit *</Label>
+              <Input
+                id="nom"
+                placeholder="Ex: Riz parfumé, Maïs blanc..."
+                value={formData.nom}
+                onChange={(e) => handleInputChange('nom', e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="categorie">Catégorie *</Label>
               <Select 
-                value={formData.nom} 
-                onValueChange={(value) => handleInputChange('nom', value)}
+                value={formData.categorie_id} 
+                onValueChange={(value) => handleInputChange('categorie_id', value)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Choisir un produit" />
+                  <SelectValue placeholder="Choisir une catégorie" />
                 </SelectTrigger>
                 <SelectContent>
-                  {productTypes.map(type => (
-                    <SelectItem key={type} value={type}>
-                      {type}
+                  {categories.map(category => (
+                    <SelectItem key={category.id} value={category.id}>
+                      <span className="flex items-center gap-2">
+                        <span>{category.icone}</span>
+                        {category.nom}
+                      </span>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
+          </div>
 
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="prix">Prix (FCFA/unité) *</Label>
               <Input
@@ -263,9 +326,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
                 required
               />
             </div>
-          </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="quantite">Quantité disponible *</Label>
               <Input
@@ -276,16 +337,16 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
                 required
               />
             </div>
+          </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="localisation">Localisation</Label>
-              <Input
-                id="localisation"
-                placeholder="Ville, région..."
-                value={formData.localisation}
-                onChange={(e) => handleInputChange('localisation', e.target.value)}
-              />
-            </div>
+          <div className="space-y-2">
+            <Label htmlFor="localisation">Localisation</Label>
+            <Input
+              id="localisation"
+              placeholder="Ville, région..."
+              value={formData.localisation}
+              onChange={(e) => handleInputChange('localisation', e.target.value)}
+            />
           </div>
 
           <div className="space-y-2">
@@ -297,6 +358,37 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
               onChange={(e) => handleInputChange('description', e.target.value)}
               rows={3}
             />
+          </div>
+
+          {/* Section ciblage des acheteurs */}
+          <div className="space-y-3">
+            <Label>Cibler des types d'acheteurs (optionnel)</Label>
+            <div className="text-sm text-gray-600 mb-3">
+              Si vous ne sélectionnez aucun type, votre produit sera visible par tous les acheteurs.
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {acheteurCategories.map((category) => (
+                <div key={category.id} className="flex items-center space-x-2">
+                  <Checkbox
+                    id={`acheteur-${category.id}`}
+                    checked={selectedAcheteurs.includes(category.id)}
+                    onCheckedChange={(checked) => {
+                      if (checked) {
+                        setSelectedAcheteurs(prev => [...prev, category.id]);
+                      } else {
+                        setSelectedAcheteurs(prev => prev.filter(id => id !== category.id));
+                      }
+                    }}
+                  />
+                  <Label 
+                    htmlFor={`acheteur-${category.id}`}
+                    className="text-sm font-normal cursor-pointer"
+                  >
+                    {category.nom}
+                  </Label>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Image Upload Section */}

@@ -10,8 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { ContactProducerModal } from "@/components/ContactProducerModal";
 import { ProductDetailsModal } from "@/components/ProductDetailsModal";
 import { useToast } from "@/hooks/use-toast";
-import { Search, Filter, MapPin, MessageSquare, Loader2, Package, Eye } from "lucide-react";
+import { Search, MapPin, MessageSquare, Loader2, Package, Eye } from "lucide-react";
 import { ProducerBadge } from "@/components/ProducerBadge";
+import CategoryFilter from "@/components/CategoryFilter";
 
 interface Product {
   id: string;
@@ -22,6 +23,7 @@ interface Product {
   localisation: string;
   image_url: string;
   producteur_id: string;
+  categorie_id: string;
   created_at: string;
   profiles?: {
     nom: string;
@@ -29,6 +31,10 @@ interface Product {
     whatsapp: string;
     verified: boolean;
     id: string;
+  };
+  categories_produits?: {
+    nom: string;
+    icone: string;
   };
 }
 
@@ -44,6 +50,7 @@ const Products = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [contactModalOpen, setContactModalOpen] = useState(false);
   const [selectedProducer, setSelectedProducer] = useState<Producer | null>(null);
   const [selectedProductName, setSelectedProductName] = useState("");
@@ -60,21 +67,20 @@ const Products = () => {
       const { data, error } = await supabase
         .from('products')
         .select(`
-          id,
-          nom,
-          prix,
-          quantite,
-          description,
-          localisation,
-          image_url,
-          producteur_id,
-          created_at,
-          profiles!products_producteur_id_fkey (
+          *,
+          profiles:producteur_id (
+            id,
             nom,
             prenom,
-            whatsapp,
+            pays,
+            region,
             verified,
-            id
+            type_activite,
+            whatsapp
+          ),
+          categories_produits:categorie_id (
+            nom,
+            icone
           )
         `)
         .eq('status', 'approuve')
@@ -173,63 +179,70 @@ const Products = () => {
     setDetailsModalOpen(true);
   };
 
-  const filteredProducts = products.filter(product =>
-    product.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    product.localisation?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  // Filter products based on search term and category
+  const filteredProducts = products.filter(product => {
+    const matchesSearch = product.nom.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      product.localisation?.toLowerCase().includes(searchTerm.toLowerCase());
+    
+    const matchesCategory = selectedCategory === null || product.categorie_id === selectedCategory;
+    
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <Header />
       <main className="container mx-auto px-4 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Produits Disponibles
+          <h1 className="text-3xl font-bold text-center mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
+            Produits Agricoles Disponibles
           </h1>
-          <p className="text-muted-foreground">
-            Découvrez tous les produits proposés par nos producteurs vérifiés
+          <p className="text-gray-600 text-center mb-6">
+            Découvrez une large gamme de produits agricoles frais et de qualité
           </p>
-        </div>
-
-        <div className="flex flex-col md:flex-row gap-4 mb-8">
-          <div className="flex-1">
-            <Input 
-              placeholder="Rechercher un produit..." 
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full"
-            />
+          
+          <div className="max-w-md mx-auto mb-6">
+            <div className="relative">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+              <Input
+                placeholder="Rechercher des produits..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10"
+              />
+            </div>
           </div>
-          <Button variant="outline">
-            <Filter className="mr-2 h-4 w-4" />
-            Filtrer
-          </Button>
+
+          <CategoryFilter 
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+          />
         </div>
 
         {loading ? (
           <div className="flex items-center justify-center py-12">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
-            <span className="ml-2 text-muted-foreground">Chargement des produits...</span>
+            <span className="ml-2 text-gray-600">Chargement des produits...</span>
           </div>
         ) : filteredProducts.length === 0 ? (
-          <Card>
+          <Card className="bg-white/80 backdrop-blur-sm">
             <CardContent className="text-center py-12">
               <Package className="h-12 w-12 mx-auto mb-4 opacity-50" />
-              <p className="text-muted-foreground">
-                {searchTerm ? "Aucun produit trouvé pour votre recherche" : "Aucun produit disponible pour le moment"}
+              <p className="text-gray-600">
+                {searchTerm || selectedCategory ? "Aucun produit trouvé pour vos critères" : "Aucun produit disponible pour le moment"}
               </p>
             </CardContent>
           </Card>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredProducts.map((product) => {
-              const productData = product as any;
-              const producer = productData.profiles;
+              const producer = product.profiles;
+              const category = product.categories_produits;
               
               return (
-                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="aspect-video relative bg-muted">
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm border-0">
+                  <div className="aspect-video relative bg-gray-100">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -238,40 +251,48 @@ const Products = () => {
                       />
                     ) : (
                       <div className="flex items-center justify-center h-full">
-                        <Package className="h-12 w-12 text-muted-foreground" />
+                        <Package className="h-12 w-12 text-gray-400" />
+                      </div>
+                    )}
+                    {category && (
+                      <div className="absolute top-2 left-2">
+                        <Badge className="bg-white/90 text-gray-800 hover:bg-white">
+                          <span className="mr-1">{category.icone}</span>
+                          {category.nom}
+                        </Badge>
                       </div>
                     )}
                   </div>
                   <CardHeader>
                     <div className="flex items-start justify-between mb-2">
                       <div className="flex items-center gap-2">
-                        <h3 className="text-lg font-semibold">{product.nom}</h3>
+                        <h3 className="text-lg font-semibold text-gray-800">{product.nom}</h3>
                         {producer?.id && <ProducerBadge producerId={producer.id} />}
                       </div>
-                      <Badge variant="secondary" className="text-lg font-bold">
+                      <Badge className="text-lg font-bold bg-gradient-to-r from-green-600 to-blue-600 text-white">
                         {product.prix.toLocaleString()} FCFA
                       </Badge>
                     </div>
-                    <CardDescription>
+                    <CardDescription className="text-gray-600">
                       {product.description}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-3">
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Quantité:</span>
-                        <span className="font-medium">{product.quantite}</span>
+                        <span className="text-gray-500">Quantité:</span>
+                        <span className="font-medium text-gray-800">{product.quantite}</span>
                       </div>
                       {product.localisation && (
-                        <div className="flex items-center text-sm text-muted-foreground">
+                        <div className="flex items-center text-sm text-gray-500">
                           <MapPin className="h-4 w-4 mr-1" />
                           {product.localisation}
                         </div>
                       )}
                       {producer && (
                         <div className="text-sm">
-                          <span className="text-muted-foreground">Producteur:</span>
-                          <span className="font-medium ml-1">
+                          <span className="text-gray-500">Producteur:</span>
+                          <span className="font-medium ml-1 text-gray-800">
                             {producer.prenom} {producer.nom}
                           </span>
                         </div>
@@ -280,14 +301,14 @@ const Products = () => {
                         <Button 
                           variant="outline"
                           onClick={() => handleViewProduct(product)}
-                          className="flex-1"
+                          className="flex-1 hover:bg-gray-100"
                         >
                           <Eye className="h-4 w-4 mr-2" />
                           Voir
                         </Button>
                         <Button 
                           onClick={() => handleContactProducer(product.id, product.nom)}
-                          className="flex-1"
+                          className="flex-1 bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
                         >
                           <MessageSquare className="h-4 w-4 mr-2" />
                           Contacter

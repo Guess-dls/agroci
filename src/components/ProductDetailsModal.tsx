@@ -20,7 +20,7 @@ interface Product {
   profiles?: {
     nom: string;
     prenom: string;
-    whatsapp: string;
+    whatsapp?: string;
     verified: boolean;
   };
 }

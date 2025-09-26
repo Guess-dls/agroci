@@ -542,6 +542,14 @@ export type Database = {
           verified: boolean
         }[]
       }
+      get_secure_producer_contact: {
+        Args: { producer_profile_id: string; product_id: string }
+        Returns: {
+          nom: string
+          prenom: string
+          whatsapp: string
+        }[]
+      }
       get_user_type: {
         Args: Record<PropertyKey, never>
         Returns: string

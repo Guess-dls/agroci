@@ -28,7 +28,7 @@ interface Product {
   profiles?: {
     nom: string;
     prenom: string;
-    whatsapp: string;
+    whatsapp?: string;
     verified: boolean;
     id: string;
   };
@@ -77,8 +77,7 @@ const Products = () => {
             pays,
             region,
             verified,
-            type_activite,
-            whatsapp
+            type_activite
           ),
           categories_produits:categorie_id (
             nom,
@@ -115,7 +114,7 @@ const Products = () => {
 
     try {
       const product = products.find(p => p.id === productId);
-      if (!product) {
+      if (!product || !product.profiles) {
         toast({
           title: "Erreur",
           description: "Produit non trouvé",
@@ -124,31 +123,17 @@ const Products = () => {
         return;
       }
 
-      const { data, error } = await supabase.rpc('get_producer_contact_info', {
-        producer_profile_id: product.profiles.id,
-        product_id: productId
+      // Set basic producer info for modal display (without WhatsApp for security)
+      setSelectedProducer({
+        id: product.profiles.id,
+        nom: product.profiles.nom,
+        prenom: product.profiles.prenom,
+        whatsapp: '' // Will be obtained securely when contact is initiated
       });
-
-      if (error) throw error;
-
-      if (data && data.length > 0) {
-        const producerInfo = data[0];
-        setSelectedProducer({
-          id: product.profiles.id,
-          nom: producerInfo.nom,
-          prenom: producerInfo.prenom,
-          whatsapp: producerInfo.whatsapp
-        });
-        setSelectedProductName(productName);
-        setSelectedProductId(productId);
-        setContactModalOpen(true);
-      } else {
-        toast({
-          title: "Erreur",
-          description: "Impossible de récupérer les informations du producteur",
-          variant: "destructive"
-        });
-      }
+      setSelectedProductName(productName);
+      setSelectedProductId(productId);
+      setContactModalOpen(true);
+      
     } catch (error: any) {
       toast({
         title: "Erreur",

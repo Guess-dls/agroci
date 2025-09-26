@@ -57,46 +57,41 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
     setLoading(true);
 
     try {
-      // Obtenir les IDs des profils
-      const { data: buyerProfile, error: buyerError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (buyerError || !buyerProfile) {
-        throw new Error('Profil acheteur non trouvé');
-      }
-
-      // Déduire les crédits via la fonction SQL
-      const { data: result, error: deductError } = await supabase
-        .rpc('deduct_credits_for_contact', {
-          buyer_profile_id: buyerProfile.id,
+      // Call the secure RPC function that handles authentication, credit deduction, and contact info
+      const { data, error } = await supabase
+        .rpc('get_secure_producer_contact', {
           producer_profile_id: producer.id,
           product_id: productId
         });
 
-      if (deductError) {
-        throw deductError;
-      }
-
-      // Vérifier si la déduction a réussi
-      if (result.includes('Crédits insuffisants')) {
+      if (error) {
         toast({
-          title: "Crédits insuffisants",
-          description: "Vous devez avoir au moins 1 crédit pour contacter ce producteur. Rechargez votre compte depuis la page Abonnements.",
-          variant: "destructive"
+          title: "Erreur",
+          description: error.message,
+          variant: "destructive",
         });
         return;
       }
 
-      // Si tout est OK, procéder au contact WhatsApp
+      if (!data || data.length === 0) {
+        toast({
+          title: "Erreur",
+          description: "Impossible d'obtenir les informations de contact",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Get contact info from secure function response
+      const contactInfo = data[0];
+      
+      // Generate WhatsApp message and URL
       const message = encodeURIComponent(
-        `Bonjour ${producer.prenom},\n\nJe suis intéressé(e) par votre produit "${productName}" que j'ai vu sur AgroConnect. Pourriez-vous me donner plus d'informations ?\n\nMerci !`
+        `Bonjour ${contactInfo.prenom},\n\nJe suis intéressé(e) par votre produit "${productName}" que j'ai vu sur AgroConnect. Pourriez-vous me donner plus d'informations ?\n\nMerci !`
       );
       
       // Format WhatsApp number - ensure it starts with + and remove any extra characters
-      let whatsappNumber = producer.whatsapp.replace(/[^\d+]/g, '');
+      let whatsappNumber = contactInfo.whatsapp.replace(/[^\d+]/g, '');
       if (!whatsappNumber.startsWith('+')) {
         whatsappNumber = '+' + whatsappNumber;
       }
@@ -140,10 +135,10 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
         </DialogHeader>
         
         <div className="space-y-4">
-          <div className="bg-muted p-4 rounded-lg">
+            <div className="bg-muted p-4 rounded-lg">
             <h4 className="font-semibold mb-2">Informations du producteur</h4>
             <p><strong>Nom :</strong> {producer.prenom} {producer.nom}</p>
-            <p><strong>WhatsApp :</strong> {producer.whatsapp}</p>
+            <p><strong>Statut :</strong> Producteur vérifié</p>
           </div>
 
           {userCredits !== null && (

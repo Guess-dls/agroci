@@ -57,6 +57,8 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
     setLoading(true);
 
     try {
+      console.log('Attempting to contact producer:', producer.id, 'for product:', productId);
+      
       // Call the secure RPC function that handles authentication, credit deduction, and contact info
       const { data, error } = await supabase
         .rpc('get_secure_producer_contact', {
@@ -64,7 +66,10 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
           product_id: productId
         });
 
+      console.log('RPC response:', { data, error });
+
       if (error) {
+        console.error('RPC error:', error);
         toast({
           title: "Erreur",
           description: error.message,

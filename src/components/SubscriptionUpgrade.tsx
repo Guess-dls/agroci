@@ -18,29 +18,30 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
 
   const plans = [
     {
-      id: 'gratuit',
-      name: 'Gratuit',
-      price: '0 CFA',
-      description: 'Fonctionnalités de base',
+      id: 'starter',
+      name: 'Pack Starter',
+      price: '5,000 CFA',
+      credits: 50,
+      description: 'Parfait pour débuter',
       features: [
-        'Publier 3 produits maximum',
-        'Contact direct via WhatsApp',
-        'Profil de base'
+        '50 crédits inclus',
+        '1 crédit par contact WhatsApp',
+        'Support standard'
       ],
       icon: <Star className="h-6 w-6" />,
-      disabled: true
+      disabled: false
     },
     {
       id: 'premium',
-      name: 'Premium',
-      price: '10,000 CFA/mois',
-      description: 'Idéal pour les producteurs individuels',
+      name: 'Pack Premium',
+      price: '10,000 CFA',
+      credits: 100,
+      description: 'Le plus populaire',
       features: [
-        'Publier jusqu\'à 20 produits',
-        'Profil vérifié prioritaire',
-        'Statistiques avancées',
+        '100 crédits inclus',
+        '1 crédit par contact WhatsApp',
         'Support prioritaire',
-        'Badge "Producteur Premium"'
+        'Meilleur rapport qualité-prix'
       ],
       icon: <Crown className="h-6 w-6" />,
       disabled: false,
@@ -48,17 +49,15 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
     },
     {
       id: 'pro',
-      name: 'Pro',
-      price: '20,000 CFA/3 mois',
-      description: 'Parfait pour les coopératives',
+      name: 'Pack Pro',
+      price: '20,000 CFA',
+      credits: 200,
+      description: 'Pour les gros volumes',
       features: [
-        'Produits illimités',
-        'Profil vérifié VIP',
-        'Analytics détaillées',
+        '200 crédits inclus',
+        '1 crédit par contact WhatsApp',
         'Support 24/7',
-        'Badge "Producteur Pro"',
-        'Mise en avant des produits',
-        'Gestion multi-utilisateurs'
+        'Économies importantes'
       ],
       icon: <Zap className="h-6 w-6" />,
       disabled: false
@@ -66,7 +65,6 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
   ];
 
   const handleUpgrade = async (planId: string) => {
-    if (planId === 'gratuit') return;
     
     setLoading(planId);
     
@@ -105,9 +103,9 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
   return (
     <div className="space-y-6">
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold text-foreground">Choisissez votre plan</h2>
+        <h2 className="text-2xl font-bold text-foreground">Achetez des crédits</h2>
         <p className="text-muted-foreground">
-          Débloquez plus de fonctionnalités avec nos plans premium
+          1 crédit = 1 contact WhatsApp avec un producteur
         </p>
       </div>
 
@@ -136,6 +134,7 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
               </div>
               <CardTitle className="text-xl">{plan.name}</CardTitle>
               <div className="text-2xl font-bold text-primary">{plan.price}</div>
+              <div className="text-lg font-semibold text-success">{plan.credits} crédits</div>
               <CardDescription>{plan.description}</CardDescription>
             </CardHeader>
 
@@ -149,29 +148,21 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
                 ))}
               </ul>
 
-              {currentPlan === plan.id ? (
-                <Badge variant="outline" className="w-full justify-center py-2">
-                  Plan actuel
-                </Badge>
-              ) : (
-                <Button
-                  onClick={() => handleUpgrade(plan.id)}
-                  disabled={plan.disabled || loading === plan.id}
-                  className={`w-full ${
-                    plan.id === 'premium' ? 'bg-gradient-primary hover:opacity-90' :
-                    plan.id === 'pro' ? 'bg-gradient-accent hover:opacity-90' : ''
-                  }`}
-                  variant={plan.id === 'gratuit' ? 'outline' : 'default'}
-                >
-                  {loading === plan.id ? (
-                    "Traitement..."
-                  ) : plan.id === 'gratuit' ? (
-                    "Plan actuel"
-                  ) : (
-                    `Passer à ${plan.name}`
-                  )}
-                </Button>
-              )}
+              <Button
+                onClick={() => handleUpgrade(plan.id)}
+                disabled={loading === plan.id}
+                className={`w-full ${
+                  plan.id === 'starter' ? 'bg-gradient-primary hover:opacity-90' :
+                  plan.id === 'premium' ? 'bg-gradient-primary hover:opacity-90' :
+                  plan.id === 'pro' ? 'bg-gradient-accent hover:opacity-90' : ''
+                }`}
+              >
+                {loading === plan.id ? (
+                  "Traitement..."
+                ) : (
+                  `Acheter ${plan.credits} crédits`
+                )}
+              </Button>
             </CardContent>
           </Card>
         ))}

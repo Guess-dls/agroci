@@ -25,8 +25,9 @@ serve(async (req) => {
 
     // Plan pricing (in kobo - Paystack uses kobo for CFA)
     const planPricing = {
-      'premium': { amount: 1000000, name: 'Premium' }, // 10,000 CFA
-      'pro': { amount: 2000000, name: 'Pro' }          // 20,000 CFA
+      'starter': { amount: 500000, credits: 50, name: 'Pack Starter' },   // 5,000 CFA = 50 crédits
+      'premium': { amount: 1000000, credits: 100, name: 'Pack Premium' }, // 10,000 CFA = 100 crédits
+      'pro': { amount: 2000000, credits: 200, name: 'Pack Pro' }          // 20,000 CFA = 200 crédits
     };
 
     const selectedPlan = planPricing[plan as keyof typeof planPricing];
@@ -47,11 +48,12 @@ serve(async (req) => {
         currency: 'XOF', // CFA Franc
         metadata: {
           plan: plan,
+          credits: selectedPlan.credits,
           profile_id: profileId,
           custom_fields: [
             {
-              display_name: "Plan d'abonnement",
-              variable_name: "subscription_plan",
+              display_name: "Pack de crédits",
+              variable_name: "credit_pack",
               value: selectedPlan.name
             }
           ]
@@ -79,7 +81,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in create-paystack-payment function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message 
+      error: error instanceof Error ? error.message : 'Une erreur est survenue'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

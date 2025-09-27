@@ -28,9 +28,9 @@ serve(async (req) => {
 
     if (data.event === 'charge.success') {
       const { reference, metadata, customer } = data.data;
-      const { plan, profile_id } = metadata;
+      const { plan, credits, profile_id } = metadata;
       
-      console.log('Processing successful payment:', { reference, plan, profile_id });
+      console.log('Processing successful payment:', { reference, plan, credits, profile_id });
 
       // Verify the transaction with Paystack
       const verifyResponse = await fetch(`https://api.paystack.co/transaction/verify/${reference}`, {
@@ -42,35 +42,36 @@ serve(async (req) => {
       const verifyData = await verifyResponse.json();
       
       if (verifyData.status && verifyData.data.status === 'success') {
-        // Calculate subscription end date based on plan
-        const now = new Date();
-        const endDate = new Date(now);
-        
-        if (plan === 'premium') {
-          endDate.setMonth(endDate.getMonth() + 1); // 1 month
-        } else if (plan === 'pro') {
-          endDate.setMonth(endDate.getMonth() + 3); // 3 months
+        // Add credits to user profile
+        const { error: profileError } = await supabase.rpc('increment_user_credits', {
+          user_profile_id: profile_id,
+          credits_to_add: credits
+        });
+
+        if (profileError) {
+          console.error('Error updating user credits:', profileError);
+          throw profileError;
         }
 
-        // Update or create subscription
-        const { error } = await supabase
-          .from('subscriptions')
-          .upsert({
+        // Record the transaction
+        const { error: transactionError } = await supabase
+          .from('transactions')
+          .insert({
             user_id: profile_id,
-            plan: plan,
-            status: 'actif',
-            start_date: now.toISOString(),
-            end_date: endDate.toISOString()
-          }, {
-            onConflict: 'user_id'
+            type_transaction: 'achat_credits',
+            credits_ajoutes: credits,
+            montant: verifyData.data.amount / 100, // Convert from kobo to CFA
+            description: `Achat de ${credits} crédits (${plan})`,
+            statut: 'valide',
+            reference_paiement: reference
           });
 
-        if (error) {
-          console.error('Error updating subscription:', error);
-          throw error;
+        if (transactionError) {
+          console.error('Error recording transaction:', transactionError);
+          throw transactionError;
         }
 
-        console.log('Subscription updated successfully for profile:', profile_id);
+        console.log(`Successfully added ${credits} credits to profile:`, profile_id);
       }
     }
 
@@ -81,7 +82,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in paystack-webhook function:', error);
     return new Response(JSON.stringify({ 
-      error: error.message 
+      error: error instanceof Error ? error.message : 'Une erreur est survenue'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

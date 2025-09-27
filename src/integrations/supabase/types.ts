@@ -554,6 +554,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      increment_user_credits: {
+        Args: { credits_to_add: number; user_profile_id: string }
+        Returns: undefined
+      }
       promote_to_admin: {
         Args: { user_email: string }
         Returns: string

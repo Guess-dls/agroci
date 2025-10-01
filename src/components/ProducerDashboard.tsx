@@ -7,6 +7,7 @@ import { AddProductForm } from "./AddProductForm";
 import { EditProductModal } from "./EditProductModal";
 import { EditProfileModal } from "./EditProfileModal";
 import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
+import { ContactRequestsList } from "./ContactRequestsList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -298,13 +299,18 @@ export const ProducerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-5 h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-6 h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100">
           <TabsTrigger value="overview" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white">Aperçu</TabsTrigger>
+          <TabsTrigger value="requests" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white">Demandes</TabsTrigger>
           <TabsTrigger value="products" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white">Mes Produits</TabsTrigger>
           <TabsTrigger value="add-product" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white">Ajouter</TabsTrigger>
           <TabsTrigger value="subscription" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white">Abonnement</TabsTrigger>
           <TabsTrigger value="profile" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Profil</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="requests" className="space-y-6">
+          <ContactRequestsList />
+        </TabsContent>
 
         <TabsContent value="overview" className="space-y-6">
           <Card>

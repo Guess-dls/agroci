@@ -101,6 +101,61 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_requests: {
+        Row: {
+          buyer_id: string
+          created_at: string | null
+          id: string
+          message: string | null
+          producer_id: string
+          product_id: string
+          status: string
+          updated_at: string | null
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          producer_id: string
+          product_id: string
+          status?: string
+          updated_at?: string | null
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string | null
+          id?: string
+          message?: string | null
+          producer_id?: string
+          product_id?: string
+          status?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_requests_buyer_id_fkey"
+            columns: ["buyer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_requests_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "contact_requests_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       favorites: {
         Row: {
           created_at: string | null
@@ -473,6 +528,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_contact_request: {
+        Args: { request_id_param: string }
+        Returns: {
+          buyer_name: string
+          nom: string
+          prenom: string
+          whatsapp: string
+        }[]
+      }
       create_admin_profile: {
         Args: {
           admin_email: string
@@ -482,6 +546,14 @@ export type Database = {
           admin_whatsapp?: string
         }
         Returns: string
+      }
+      create_contact_request: {
+        Args: {
+          message_text?: string
+          producer_profile_id: string
+          product_id_param: string
+        }
+        Returns: Json
       }
       crediter_utilisateur: {
         Args: {
@@ -542,14 +614,6 @@ export type Database = {
           verified: boolean
         }[]
       }
-      get_secure_producer_contact: {
-        Args: { producer_profile_id: string; product_id: string }
-        Returns: {
-          nom: string
-          prenom: string
-          whatsapp: string
-        }[]
-      }
       get_user_type: {
         Args: Record<PropertyKey, never>
         Returns: string
@@ -561,6 +625,10 @@ export type Database = {
       promote_to_admin: {
         Args: { user_email: string }
         Returns: string
+      }
+      reject_contact_request: {
+        Args: { request_id_param: string }
+        Returns: Json
       }
       toggle_product_visibility: {
         Args: { product_id: string }

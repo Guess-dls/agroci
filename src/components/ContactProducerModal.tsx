@@ -57,19 +57,15 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
     setLoading(true);
 
     try {
-      console.log('Attempting to contact producer:', producer.id, 'for product:', productId);
-      
-      // Call the secure RPC function that handles authentication, credit deduction, and contact info
+      // Créer une demande de contact
       const { data, error } = await supabase
-        .rpc('get_secure_producer_contact', {
+        .rpc('create_contact_request', {
           producer_profile_id: producer.id,
-          product_id: productId
+          product_id_param: productId,
+          message_text: `Intéressé(e) par le produit: ${productName}`
         });
 
-      console.log('RPC response:', { data, error });
-
       if (error) {
-        console.error('RPC error:', error);
         toast({
           title: "Erreur",
           description: error.message,
@@ -78,45 +74,17 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
         return;
       }
 
-      if (!data || data.length === 0) {
-        toast({
-          title: "Erreur",
-          description: "Impossible d'obtenir les informations de contact",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Get contact info from secure function response
-      const contactInfo = data[0];
-      
-      // Generate WhatsApp message and URL
-      const message = encodeURIComponent(
-        `Bonjour ${contactInfo.prenom},\n\nJe suis intéressé(e) par votre produit "${productName}" que j'ai vu sur AgroConnect. Pourriez-vous me donner plus d'informations ?\n\nMerci !`
-      );
-      
-      // Format WhatsApp number - ensure it starts with + and remove any extra characters
-      let whatsappNumber = contactInfo.whatsapp.replace(/[^\d+]/g, '');
-      if (!whatsappNumber.startsWith('+')) {
-        whatsappNumber = '+' + whatsappNumber;
-      }
-
-      const whatsappUrl = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${message}`;
-      window.open(whatsappUrl, '_blank');
-
       toast({
-        title: "Contact autorisé",
-        description: "1 crédit a été déduit. Vous allez être redirigé vers WhatsApp.",
+        title: "Demande envoyée",
+        description: "Votre demande de contact a été envoyée au producteur. Vous serez notifié dès qu'il acceptera.",
       });
 
-      // Recharger les crédits pour afficher la nouvelle valeur
-      loadUserCredits();
       onOpenChange(false);
 
     } catch (error: any) {
       toast({
         title: "Erreur",
-        description: error.message || "Une erreur s'est produite lors du contact",
+        description: error.message || "Une erreur s'est produite lors de l'envoi de la demande",
         variant: "destructive"
       });
     } finally {
@@ -169,12 +137,12 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
               {loading ? (
                 <>
                   <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                  Vérification...
+                  Envoi...
                 </>
               ) : (
                 <>
-                  <Phone className="h-4 w-4 mr-2" />
-                  Contacter via WhatsApp (1 crédit)
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Envoyer une demande de contact
                 </>
               )}
             </Button>

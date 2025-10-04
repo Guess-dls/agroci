@@ -59,7 +59,12 @@ export const ContactRequestsList = () => {
 
       if (error) throw error;
 
-      setRequests(data || []);
+      // Filtrer les demandes avec des données valides
+      const validRequests = (data || []).filter(req => 
+        req.buyer_profile && req.product
+      );
+
+      setRequests(validRequests);
     } catch (error: any) {
       console.error('Erreur lors du chargement des demandes:', error);
     } finally {

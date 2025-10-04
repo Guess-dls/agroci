@@ -56,9 +56,12 @@ export const Header = () => {
   };
 
   const handleSignOut = async () => {
-    await signOut();
     setMobileMenuOpen(false);
-    navigate('/');
+    await signOut();
+    // Attendre un court instant pour que l'état soit mis à jour
+    setTimeout(() => {
+      navigate('/');
+    }, 100);
   };
 
   const handleHomeClick = () => {

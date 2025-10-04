@@ -52,9 +52,13 @@ const Auth = () => {
   useEffect(() => {
     // Check if user is already logged in
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        navigate('/');
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (session?.user) {
+          navigate('/dashboard');
+        }
+      } catch (error) {
+        console.log('Vérification de session ignorée');
       }
     };
     checkUser();
@@ -65,7 +69,7 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: loginForm.email,
         password: loginForm.password,
       });
@@ -84,12 +88,15 @@ const Auth = () => {
             variant: "destructive"
           });
         }
-      } else {
+      } else if (data.session) {
         toast({
           title: "Connexion réussie",
           description: "Bienvenue sur AgroConnect !",
         });
-        navigate('/dashboard'); // Redirection vers le dashboard
+        // Attendre que l'état soit mis à jour avant de naviguer
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 100);
       }
     } catch (error) {
       toast({

@@ -74,18 +74,24 @@ export const BuyerContactRequests = () => {
 
       if (error) throw error;
 
-      // Transform data to match interface
-      const transformedData = data?.map(req => ({
-        id: req.id,
-        producer_id: req.producer_id,
-        product_id: req.product_id,
-        status: req.status,
-        message: req.message,
-        created_at: req.created_at,
-        producer_profile: Array.isArray(req.profiles) ? req.profiles[0] : req.profiles,
-        product: Array.isArray(req.products) ? req.products[0] : req.products,
-      })) || [];
+      // Transform data to match interface and filter out invalid entries
+      const transformedData = data?.map(req => {
+        const producerProfile = Array.isArray(req.profiles) ? req.profiles[0] : req.profiles;
+        const product = Array.isArray(req.products) ? req.products[0] : req.products;
+        
+        return {
+          id: req.id,
+          producer_id: req.producer_id,
+          product_id: req.product_id,
+          status: req.status,
+          message: req.message,
+          created_at: req.created_at,
+          producer_profile: producerProfile,
+          product: product,
+        };
+      }).filter(req => req.producer_profile && req.product) || [];
 
+      console.log('Demandes transformées:', transformedData);
       setRequests(transformedData);
     } catch (error: any) {
       console.error('Erreur lors du chargement des demandes:', error);

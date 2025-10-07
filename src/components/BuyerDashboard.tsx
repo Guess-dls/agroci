@@ -196,30 +196,15 @@ export const BuyerDashboard = () => {
         }
 
         const message = encodeURIComponent(`Bonjour ${contact.prenom} ${contact.nom}, je suis intéressé(e) par votre produit: ${product.nom} (${product.prix} FCFA)`);
-        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-        
-        // Enregistrer le click WhatsApp
+        // Enregistrer le click AVANT d'ouvrir WhatsApp (mobile peut interrompre l'exécution)
         try {
-          await supabase
-            .from('whatsapp_clicks')
-            .insert({
-              product_id: product.id,
-              clicker_id: buyerProfileId
-            });
-          
-          // Incrémenter le compteur de clicks sur le produit
-          await supabase
-            .from('products')
-            .update({ 
-              whatsapp_clicks: (product.whatsapp_clicks || 0) + 1 
-            })
-            .eq('id', product.id);
-            
+          await supabase.from('whatsapp_clicks').insert({ product_id: product.id, clicker_id: buyerProfileId });
           console.log('Click WhatsApp enregistré avec succès');
         } catch (clickError) {
-          console.error('Erreur lors de l\'enregistrement du click WhatsApp:', clickError);
+          console.error("Erreur lors de l'enregistrement du click WhatsApp:", clickError);
         }
-        
+        // Ouvrir WhatsApp ensuite
+        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
         toast.success("Redirection vers WhatsApp...");
         return;
       }

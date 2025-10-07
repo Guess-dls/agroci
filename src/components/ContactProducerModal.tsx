@@ -57,10 +57,23 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
     setLoading(true);
 
     try {
-      // Créer une demande de contact
+      // Vérifier le producteur du produit pour garantir le ciblage correct
+      const { data: productRow, error: productErr } = await supabase
+        .from('products')
+        .select('producteur_id')
+        .eq('id', productId)
+        .maybeSingle();
+
+      if (productErr) {
+        console.error('Erreur récupération produit:', productErr);
+      }
+
+      const producerIdToUse = productRow?.producteur_id || producer.id;
+
+      // Créer une demande de contact (fonction SQL sécurisée)
       const { data, error } = await supabase
         .rpc('create_contact_request', {
-          producer_profile_id: producer.id,
+          producer_profile_id: producerIdToUse,
           product_id_param: productId,
           message_text: `Intéressé(e) par le produit: ${productName}`
         });

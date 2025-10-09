@@ -14,13 +14,13 @@ interface ContactRequest {
   status: string;
   message: string | null;
   created_at: string;
-  buyer_profile: {
-    nom: string;
-    prenom: string;
-    whatsapp: string;
-    pays: string;
-    region: string | null;
-  };
+  buyer_profile?: {
+    nom?: string;
+    prenom?: string;
+    whatsapp?: string;
+    pays?: string;
+    region?: string | null;
+  } | null;
   product: {
     nom: string;
     image_url: string | null;
@@ -65,9 +65,9 @@ export const ContactRequestsList = () => {
       // Transformer et filtrer les demandes avec des données valides
       const validRequests = (data || []).map(req => ({
         ...req,
-        buyer_profile: Array.isArray(req.buyer_profile) ? req.buyer_profile[0] : req.buyer_profile,
+        buyer_profile: Array.isArray(req.buyer_profile) ? req.buyer_profile[0] : (req.buyer_profile || null),
         product: Array.isArray(req.product) ? req.product[0] : req.product,
-      })).filter(req => req.buyer_profile && req.product);
+      })).filter(req => req.product);
 
       console.log('ContactRequestsList - Demandes transformées:', validRequests);
       setRequests(validRequests);
@@ -214,11 +214,10 @@ export const ContactRequestsList = () => {
                     <div className="flex items-center justify-between mb-2">
                       <div>
                         <h4 className="font-semibold">
-                          {request.buyer_profile.prenom} {request.buyer_profile.nom}
+                          {request.buyer_profile?.prenom ? `${request.buyer_profile.prenom} ${request.buyer_profile.nom}` : 'Acheteur intéressé'}
                         </h4>
                         <p className="text-sm text-muted-foreground">
-                          {request.buyer_profile.pays}
-                          {request.buyer_profile.region && `, ${request.buyer_profile.region}`}
+                          {request.buyer_profile?.pays ? `${request.buyer_profile.pays}${request.buyer_profile?.region ? `, ${request.buyer_profile.region}` : ''}` : 'Profil privé'}
                         </p>
                       </div>
                       <Badge variant="outline">

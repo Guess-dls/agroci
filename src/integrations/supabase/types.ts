@@ -487,6 +487,30 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       whatsapp_clicks: {
         Row: {
           clicked_at: string | null
@@ -626,6 +650,13 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: string
       }
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
       increment_user_credits: {
         Args: { credits_to_add: number; user_profile_id: string }
         Returns: undefined
@@ -652,6 +683,7 @@ export type Database = {
       }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "producteur" | "acheteur"
       product_status: "en_attente" | "approuve" | "rejete"
       subscription_plan: "gratuit" | "pro" | "premium" | "business"
       user_type: "producteur" | "acheteur" | "admin"
@@ -782,6 +814,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "producteur", "acheteur"],
       product_status: ["en_attente", "approuve", "rejete"],
       subscription_plan: ["gratuit", "pro", "premium", "business"],
       user_type: ["producteur", "acheteur", "admin"],

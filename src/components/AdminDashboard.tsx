@@ -509,45 +509,45 @@ export const AdminDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30">
-      <div className="space-y-6">
+      <div className="space-y-4 md:space-y-6">
         {/* Header Section with Gradient */}
-        <div className="p-6 rounded-2xl bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 border border-primary/20">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-4">
-              <Shield className="h-10 w-10 text-primary" />
+        <div className="p-4 md:p-6 rounded-xl md:rounded-2xl bg-gradient-to-r from-primary/10 via-blue-500/10 to-purple-500/10 border border-primary/20">
+          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
+            <div className="flex items-center space-x-3 md:space-x-4">
+              <Shield className="h-8 w-8 md:h-10 md:w-10 text-primary flex-shrink-0" />
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
+                <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                   Administration
                 </h1>
-                <p className="text-muted-foreground">Gestion de la plateforme AgroConnect</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Gestion de la plateforme AgroConnect</p>
               </div>
             </div>
             
             {/* Global Subscription Settings */}
-            <div className="flex items-center space-x-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
               <div className="flex items-center space-x-2">
-                <Settings className="h-5 w-5 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Restrictions d'abonnement:</span>
+                <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+                <span className="text-xs md:text-sm text-muted-foreground">Restrictions d'abonnement:</span>
               </div>
               <Button
                 onClick={toggleSubscriptionRestrictions}
                 variant={subscriptionRestrictionsEnabled ? "default" : "outline"}
                 size="sm"
                 className={subscriptionRestrictionsEnabled 
-                  ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white" 
-                  : ""}
+                  ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-xs md:text-sm" 
+                  : "text-xs md:text-sm"}
                 disabled={loadingSettings}
               >
                 {loadingSettings ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : subscriptionRestrictionsEnabled ? (
                   <>
-                    <Check className="h-4 w-4 mr-2" />
+                    <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                     Activées
                   </>
                 ) : (
                   <>
-                    <X className="h-4 w-4 mr-2" />
+                    <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
                     Désactivées
                   </>
                 )}
@@ -557,18 +557,18 @@ export const AdminDashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-6">
           <Card 
             className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 hover:shadow-orange-200/50"
             onClick={() => navigateToTab('validation')}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-orange-800">Produits en attente</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-orange-800">Produits en attente</CardTitle>
               <Clock className="h-4 w-4 text-orange-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-900">{stats.pendingProducts}</div>
-              <p className="text-xs text-orange-600">Cliquez pour valider</p>
+            <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-orange-900">{stats.pendingProducts}</div>
+              <p className="text-[10px] md:text-xs text-orange-600">Cliquez pour valider</p>
             </CardContent>
           </Card>
 
@@ -576,35 +576,29 @@ export const AdminDashboard = () => {
             className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 hover:shadow-blue-200/50"
             onClick={() => navigateToTab('products', 'all')}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-blue-800">Total Produits</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-blue-800">Total Produits</CardTitle>
               <Package className="h-4 w-4 text-blue-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-blue-900">{stats.totalProducts}</div>
-              <p className="text-xs text-blue-600 cursor-pointer" onClick={(e) => {
-                e.stopPropagation();
-                navigateToTab('products', 'approuve');
-              }}>
-                {stats.approvedProducts} approuvés, <span className="cursor-pointer" onClick={(e) => {
-                  e.stopPropagation();
-                  navigateToTab('products', 'rejete');
-                }}>{stats.rejectedProducts} refusés</span>
+            <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-blue-900">{stats.totalProducts}</div>
+              <p className="text-[10px] md:text-xs text-blue-600">
+                {stats.approvedProducts} approuvés, {stats.rejectedProducts} refusés
               </p>
             </CardContent>
           </Card>
 
           <Card 
-            className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-purple-200/50"
+            className="cursor-pointer hover:shadow-lg transition-all duration-300 bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 hover:shadow-purple-200/50 sm:col-span-2 lg:col-span-1"
             onClick={() => navigateToTab('users')}
           >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-800">Utilisateurs</CardTitle>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 md:p-6">
+              <CardTitle className="text-xs md:text-sm font-medium text-purple-800">Utilisateurs</CardTitle>
               <Users className="h-4 w-4 text-purple-600" />
             </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-900">{stats.totalProducers + stats.totalBuyers}</div>
-              <p className="text-xs text-purple-600">
+            <CardContent className="p-3 md:p-6 pt-0 md:pt-0">
+              <div className="text-xl md:text-2xl font-bold text-purple-900">{stats.totalProducers + stats.totalBuyers}</div>
+              <p className="text-[10px] md:text-xs text-purple-600">
                 {stats.totalProducers} producteurs, {stats.totalBuyers} acheteurs
               </p>
             </CardContent>
@@ -613,18 +607,22 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
-          <TabsTrigger value="overview">Vue d'ensemble</TabsTrigger>
-          <TabsTrigger value="validation">
-            Validation des produits
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1 p-1">
+          <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Vue d'ensemble</TabsTrigger>
+          <TabsTrigger value="validation" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <span className="hidden sm:inline">Validation</span>
+            <span className="sm:hidden">Valid.</span>
             {stats.pendingProducts > 0 && (
-              <Badge variant="destructive" className="ml-2">
+              <Badge variant="destructive" className="text-[8px] px-1 py-0 md:text-xs md:px-2">
                 {stats.pendingProducts}
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-          <TabsTrigger value="products">Tous les produits</TabsTrigger>
+          <TabsTrigger value="users" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="products" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
+            <span className="hidden sm:inline">Tous les produits</span>
+            <span className="sm:hidden">Produits</span>
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-6">
@@ -799,20 +797,20 @@ export const AdminDashboard = () => {
 
         <TabsContent value="users" className="space-y-4">
           <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center justify-between">
-                Gestion des utilisateurs
-                <Badge variant="secondary">{users.length} utilisateur(s)</Badge>
+            <CardHeader className="p-4 md:p-6">
+              <CardTitle className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <span className="text-base md:text-lg">Gestion des utilisateurs</span>
+                <Badge variant="secondary" className="w-fit">{users.length} utilisateur(s)</Badge>
               </CardTitle>
-              <CardDescription>
+              <CardDescription className="text-xs md:text-sm">
                 Gérer tous les utilisateurs de la plateforme
               </CardDescription>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-2 md:p-6">
               {loadingUsers ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <span className="ml-2 text-muted-foreground">Chargement des utilisateurs...</span>
+                  <span className="ml-2 text-muted-foreground text-sm">Chargement...</span>
                 </div>
               ) : users.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground">
@@ -820,140 +818,237 @@ export const AdminDashboard = () => {
                   <p>Aucun utilisateur trouvé</p>
                 </div>
               ) : (
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Utilisateur</TableHead>
-                      <TableHead>Type</TableHead>
-                      <TableHead>Localisation</TableHead>
-                      <TableHead>Statut</TableHead>
-                      <TableHead>Abonnement requis</TableHead>
-                      <TableHead>Date d'inscription</TableHead>
-                      <TableHead>Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
+                <>
+                  {/* Mobile view - Cards */}
+                  <div className="md:hidden space-y-3">
                     {users.map((user) => (
-                      <TableRow key={user.id}>
-                        <TableCell>
+                      <div key={user.id} className="border rounded-lg p-3 space-y-3">
+                        <div className="flex items-start justify-between">
                           <div>
-                            <p className="font-medium">{user.prenom} {user.nom}</p>
-                            <p className="text-sm text-muted-foreground">{user.whatsapp}</p>
+                            <p className="font-medium text-sm">{user.prenom} {user.nom}</p>
+                            <p className="text-xs text-muted-foreground">{user.whatsapp}</p>
+                            <p className="text-xs text-muted-foreground">{user.pays}{user.region && `, ${user.region}`}</p>
                           </div>
-                        </TableCell>
-                        <TableCell>
                           <Badge variant={
                             user.user_type === 'admin' ? 'default' : 
                             user.user_type === 'producteur' ? 'secondary' : 'outline'
-                          }>
+                          } className="text-[10px]">
                             {user.user_type}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <div>
-                            <p className="text-sm">{user.pays}</p>
-                            {user.region && <p className="text-xs text-muted-foreground">{user.region}</p>}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="flex flex-col gap-1">
-                            {user.verified && <Badge variant="secondary" className="text-xs">Vérifié</Badge>}
-                            {user.suspended && <Badge variant="destructive" className="text-xs">Suspendu</Badge>}
-                            {!user.verified && !user.suspended && <Badge variant="outline" className="text-xs">Actif</Badge>}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant={user.subscription_required ? "default" : "outline"} className="text-xs">
-                            {user.subscription_required ? "Obligatoire" : "Optionnel"}
+                        </div>
+                        <div className="flex flex-wrap gap-1">
+                          {user.verified && <Badge variant="secondary" className="text-[10px]">Vérifié</Badge>}
+                          {user.suspended && <Badge variant="destructive" className="text-[10px]">Suspendu</Badge>}
+                          <Badge variant={user.subscription_required ? "default" : "outline"} className="text-[10px]">
+                            {user.subscription_required ? "Abo. requis (3 produits max)" : "Abo. optionnel"}
                           </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {new Date(user.created_at).toLocaleDateString('fr-FR')}
-                        </TableCell>
-                        <TableCell>
-                          {user.user_type !== 'admin' && (
-                            <div className="flex gap-2">
-                              {user.user_type === 'producteur' && !user.verified && (
-                                <Button
-                                  size="sm"
-                                  variant="default"
-                                  onClick={() => verifyProducer(user.id)}
-                                  disabled={updatingUser === user.id}
-                                  className="bg-green-600 hover:bg-green-700"
-                                >
-                                  {updatingUser === user.id ? (
-                                    <Loader2 className="h-4 w-4 animate-spin" />
-                                  ) : (
-                                    <Check className="h-4 w-4" />
-                                  )}
+                        </div>
+                        <div className="text-[10px] text-muted-foreground">
+                          Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                        </div>
+                        {user.user_type !== 'admin' && (
+                          <div className="flex flex-wrap gap-2">
+                            {user.user_type === 'producteur' && !user.verified && (
+                              <Button
+                                size="sm"
+                                variant="default"
+                                onClick={() => verifyProducer(user.id)}
+                                disabled={updatingUser === user.id}
+                                className="bg-green-600 hover:bg-green-700 text-xs h-8"
+                              >
+                                {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Check className="h-3 w-3 mr-1" />Vérifier</>}
+                              </Button>
+                            )}
+                            <Button
+                              size="sm"
+                              variant={user.subscription_required ? "default" : "outline"}
+                              onClick={() => toggleUserSubscriptionRequirement(user.id)}
+                              disabled={updatingUser === user.id}
+                              className={`text-xs h-8 ${user.subscription_required ? "bg-purple-600 hover:bg-purple-700" : ""}`}
+                            >
+                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CreditCard className="h-3 w-3 mr-1" />{user.subscription_required ? "Lever" : "Exiger"}</>}
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant={user.suspended ? "default" : "outline"}
+                              onClick={() => toggleUserSuspension(user.id)}
+                              disabled={updatingUser === user.id}
+                              className="text-xs h-8"
+                            >
+                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : user.suspended ? <><UserCheck className="h-3 w-3 mr-1" />Activer</> : <><Ban className="h-3 w-3 mr-1" />Suspendre</>}
+                            </Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button size="sm" variant="destructive" disabled={updatingUser === user.id} className="text-xs h-8">
+                                  <Trash2 className="h-3 w-3 mr-1" />Suppr.
                                 </Button>
-                               )}
-                               <Button
-                                 size="sm"
-                                 variant={user.subscription_required ? "default" : "outline"}
-                                 onClick={() => toggleUserSubscriptionRequirement(user.id)}
-                                 disabled={updatingUser === user.id}
-                                 className={user.subscription_required 
-                                   ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white" 
-                                   : ""}
-                                 title={user.subscription_required ? "Désactiver l'obligation d'abonnement" : "Activer l'obligation d'abonnement"}
-                               >
-                                 {updatingUser === user.id ? (
-                                   <Loader2 className="h-4 w-4 animate-spin" />
-                                 ) : (
-                                   <CreditCard className="h-4 w-4" />
-                                 )}
-                               </Button>
-                               <Button
-                                 size="sm"
-                                 variant={user.suspended ? "default" : "outline"}
-                                 onClick={() => toggleUserSuspension(user.id)}
-                                 disabled={updatingUser === user.id}
-                               >
-                                 {updatingUser === user.id ? (
-                                   <Loader2 className="h-4 w-4 animate-spin" />
-                                 ) : user.suspended ? (
-                                   <UserCheck className="h-4 w-4" />
-                                 ) : (
-                                   <Ban className="h-4 w-4" />
-                                 )}
-                               </Button>
-                              <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button
-                                    size="sm"
-                                    variant="destructive"
-                                    disabled={updatingUser === user.id}
-                                  >
-                                    <Trash2 className="h-4 w-4" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>Supprimer l'utilisateur</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Êtes-vous sûr de vouloir supprimer définitivement {user.prenom} {user.nom} ? 
-                                      Cette action est irréversible et supprimera tous ses produits.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Annuler</AlertDialogCancel>
-                                    <AlertDialogAction
-                                      onClick={() => deleteUser(user.id)}
-                                      className="bg-destructive text-destructive-foreground"
-                                    >
-                                      Supprimer
-                                    </AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </div>
-                          )}
-                        </TableCell>
-                      </TableRow>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent className="max-w-[90vw] rounded-lg">
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle className="text-base">Supprimer l'utilisateur</AlertDialogTitle>
+                                  <AlertDialogDescription className="text-sm">
+                                    Supprimer {user.prenom} {user.nom} et tous ses produits ?
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter className="flex-row gap-2">
+                                  <AlertDialogCancel className="flex-1">Annuler</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => deleteUser(user.id)} className="bg-destructive flex-1">
+                                    Supprimer
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
+                      </div>
                     ))}
-                  </TableBody>
-                </Table>
+                  </div>
+
+                  {/* Desktop view - Table */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Utilisateur</TableHead>
+                          <TableHead>Type</TableHead>
+                          <TableHead>Localisation</TableHead>
+                          <TableHead>Statut</TableHead>
+                          <TableHead>Abonnement</TableHead>
+                          <TableHead>Date</TableHead>
+                          <TableHead>Actions</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {users.map((user) => (
+                          <TableRow key={user.id}>
+                            <TableCell>
+                              <div>
+                                <p className="font-medium">{user.prenom} {user.nom}</p>
+                                <p className="text-sm text-muted-foreground">{user.whatsapp}</p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge variant={
+                                user.user_type === 'admin' ? 'default' : 
+                                user.user_type === 'producteur' ? 'secondary' : 'outline'
+                              }>
+                                {user.user_type}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="text-sm">{user.pays}</p>
+                                {user.region && <p className="text-xs text-muted-foreground">{user.region}</p>}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                {user.verified && <Badge variant="secondary" className="text-xs">Vérifié</Badge>}
+                                {user.suspended && <Badge variant="destructive" className="text-xs">Suspendu</Badge>}
+                                {!user.verified && !user.suspended && <Badge variant="outline" className="text-xs">Actif</Badge>}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex flex-col gap-1">
+                                <Badge variant={user.subscription_required ? "default" : "outline"} className="text-xs">
+                                  {user.subscription_required ? "Requis" : "Optionnel"}
+                                </Badge>
+                                {user.subscription_required && (
+                                  <span className="text-[10px] text-muted-foreground">3 produits max</span>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              {new Date(user.created_at).toLocaleDateString('fr-FR')}
+                            </TableCell>
+                            <TableCell>
+                              {user.user_type !== 'admin' && (
+                                <div className="flex gap-2">
+                                  {user.user_type === 'producteur' && !user.verified && (
+                                    <Button
+                                      size="sm"
+                                      variant="default"
+                                      onClick={() => verifyProducer(user.id)}
+                                      disabled={updatingUser === user.id}
+                                      className="bg-green-600 hover:bg-green-700"
+                                      title="Vérifier le producteur"
+                                    >
+                                      {updatingUser === user.id ? (
+                                        <Loader2 className="h-4 w-4 animate-spin" />
+                                      ) : (
+                                        <Check className="h-4 w-4" />
+                                      )}
+                                    </Button>
+                                   )}
+                                   <Button
+                                     size="sm"
+                                     variant={user.subscription_required ? "default" : "outline"}
+                                     onClick={() => toggleUserSubscriptionRequirement(user.id)}
+                                     disabled={updatingUser === user.id}
+                                     className={user.subscription_required 
+                                       ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white" 
+                                       : ""}
+                                     title={user.subscription_required ? "Lever l'obligation (permet modification)" : "Exiger l'abonnement (3 produits max, lecture seule)"}
+                                   >
+                                     {updatingUser === user.id ? (
+                                       <Loader2 className="h-4 w-4 animate-spin" />
+                                     ) : (
+                                       <CreditCard className="h-4 w-4" />
+                                     )}
+                                   </Button>
+                                   <Button
+                                     size="sm"
+                                     variant={user.suspended ? "default" : "outline"}
+                                     onClick={() => toggleUserSuspension(user.id)}
+                                     disabled={updatingUser === user.id}
+                                     title={user.suspended ? "Réactiver" : "Suspendre"}
+                                   >
+                                     {updatingUser === user.id ? (
+                                       <Loader2 className="h-4 w-4 animate-spin" />
+                                     ) : user.suspended ? (
+                                       <UserCheck className="h-4 w-4" />
+                                     ) : (
+                                       <Ban className="h-4 w-4" />
+                                     )}
+                                   </Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button
+                                        size="sm"
+                                        variant="destructive"
+                                        disabled={updatingUser === user.id}
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>Supprimer l'utilisateur</AlertDialogTitle>
+                                        <AlertDialogDescription>
+                                          Êtes-vous sûr de vouloir supprimer définitivement {user.prenom} {user.nom} ? 
+                                          Cette action est irréversible et supprimera tous ses produits.
+                                        </AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                        <AlertDialogAction
+                                          onClick={() => deleteUser(user.id)}
+                                          className="bg-destructive text-destructive-foreground"
+                                        >
+                                          Supprimer
+                                        </AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </div>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </>
               )}
             </CardContent>
           </Card>

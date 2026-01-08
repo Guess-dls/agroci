@@ -241,6 +241,28 @@ export const ProducerDashboard = () => {
 
   return (
     <div className="space-y-6">
+      {/* Subscription restriction warning */}
+      {profile?.subscription_required && (
+        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
+          <Crown className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+          <div>
+            <h4 className="font-semibold text-amber-800">Abonnement requis</h4>
+            <p className="text-sm text-amber-700">
+              Vous êtes limité à 3 produits et ne pouvez pas modifier vos produits existants. 
+              Souscrivez à un abonnement pour débloquer toutes les fonctionnalités.
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100"
+              onClick={() => setActiveTab("subscription")}
+            >
+              Voir les abonnements
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Quick Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         <Card className="bg-gradient-to-br from-emerald-50 to-emerald-100 border-emerald-200 shadow-lg hover:shadow-emerald-200/50 transition-all duration-300">
@@ -253,7 +275,7 @@ export const ProducerDashboard = () => {
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-emerald-800">{stats.totalProducts}</div>
             <p className="text-[10px] sm:text-xs text-emerald-600 truncate">
-              Limite: Aucune
+              {profile?.subscription_required ? `Limite: 3 produits` : `Limite: Aucune`}
             </p>
           </CardContent>
         </Card>
@@ -434,15 +456,19 @@ export const ProducerDashboard = () => {
                             size="sm"
                             onClick={() => handleEditProduct(product)}
                             className="flex-1 sm:flex-none"
+                            disabled={profile?.subscription_required}
+                            title={profile?.subscription_required ? "Modification désactivée - Abonnement requis" : "Modifier le produit"}
                           >
                             <Edit className="h-4 w-4 sm:mr-0 mr-2" />
-                            <span className="sm:hidden">Modifier</span>
+                            <span className="sm:hidden">{profile?.subscription_required ? "Bloqué" : "Modifier"}</span>
                           </Button>
                           <Button 
                             variant="destructive" 
                             size="sm"
                             onClick={() => deleteProduct(product.id)}
                             className="flex-1 sm:flex-none"
+                            disabled={profile?.subscription_required}
+                            title={profile?.subscription_required ? "Suppression désactivée - Abonnement requis" : "Supprimer le produit"}
                           >
                             <Trash2 className="h-4 w-4 sm:mr-0 mr-2" />
                             <span className="sm:hidden">Supprimer</span>

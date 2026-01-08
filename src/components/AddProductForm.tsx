@@ -9,7 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Upload, X, Image as ImageIcon } from "lucide-react";
+import { Loader2, Upload, X, Image as ImageIcon, Lock, AlertTriangle } from "lucide-react";
 
 interface AddProductFormProps {
   onProductAdded: () => void;
@@ -36,6 +36,9 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [acheteurCategories, setAcheteurCategories] = useState<AcheteurCategory[]>([]);
   const [selectedAcheteurs, setSelectedAcheteurs] = useState<string[]>([]);
+  const [productCount, setProductCount] = useState(0);
+  const [subscriptionRequired, setSubscriptionRequired] = useState(false);
+  const [checkingLimit, setCheckingLimit] = useState(true);
 
   const [formData, setFormData] = useState({
     nom: "",
@@ -49,7 +52,45 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
   useEffect(() => {
     fetchCategories();
     fetchAcheteurCategories();
-  }, []);
+    checkProductLimit();
+  }, [user]);
+
+  const checkProductLimit = async () => {
+    if (!user) {
+      setCheckingLimit(false);
+      return;
+    }
+    
+    try {
+      // Get user profile
+      const { data: profile, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, subscription_required')
+        .eq('user_id', user.id)
+        .maybeSingle();
+      
+      if (profileError) throw profileError;
+      if (!profile) {
+        setCheckingLimit(false);
+        return;
+      }
+
+      setSubscriptionRequired(profile.subscription_required);
+
+      // Count existing products
+      const { count, error: countError } = await supabase
+        .from('products')
+        .select('id', { count: 'exact', head: true })
+        .eq('producteur_id', profile.id);
+
+      if (countError) throw countError;
+      setProductCount(count || 0);
+    } catch (error) {
+      console.error('Error checking product limit:', error);
+    } finally {
+      setCheckingLimit(false);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
@@ -215,6 +256,9 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
       setImageFiles([]);
       setImagePreviews([]);
       
+      // Update product count for limit tracking
+      setProductCount(prev => prev + 1);
+      
       onProductAdded();
 
     } catch (error: any) {
@@ -229,12 +273,70 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
     }
   };
 
+  const isLimitReached = subscriptionRequired && productCount >= 3;
+
+  if (checkingLimit) {
+    return (
+      <Card>
+        <CardContent className="py-8 flex items-center justify-center">
+          <Loader2 className="h-6 w-6 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Vérification des limites...</span>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (isLimitReached) {
+    return (
+      <Card className="border-amber-200 bg-amber-50/50">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-amber-800">
+            <Lock className="h-5 w-5" />
+            Limite de produits atteinte
+          </CardTitle>
+          <CardDescription className="text-amber-700">
+            Vous avez atteint la limite de 3 produits pour le mode gratuit
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="bg-amber-100 border border-amber-300 rounded-lg p-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+              <div>
+                <p className="font-medium text-amber-800">Abonnement requis</p>
+                <p className="text-sm text-amber-700 mt-1">
+                  Un administrateur a activé l'obligation d'abonnement sur votre compte. 
+                  Vous êtes limité à <strong>3 produits</strong> et ne pouvez pas ajouter de nouveaux produits 
+                  ni modifier les existants.
+                </p>
+                <p className="text-sm text-amber-700 mt-2">
+                  <strong>Produits actuels :</strong> {productCount}/3
+                </p>
+              </div>
+            </div>
+          </div>
+          <Button 
+            className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
+            onClick={() => window.location.href = '/abonnements'}
+          >
+            Voir les abonnements
+          </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
         <CardTitle>Ajouter un nouveau produit</CardTitle>
         <CardDescription>
           Publiez vos produits pour les rendre visibles aux acheteurs
+          {subscriptionRequired && (
+            <span className="block mt-1 text-amber-600 font-medium">
+              ⚠️ Limite: {productCount}/3 produits (abonnement requis activé)
+            </span>
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent>

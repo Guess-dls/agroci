@@ -14,6 +14,7 @@ import Admin from "./pages/Admin";
 import Abonnements from "./pages/Abonnements";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
+import FAQ from "./pages/FAQ";
 import NotFound from "./pages/NotFound";
 
 const App = () => {
@@ -35,6 +36,7 @@ const App = () => {
             <Route path="/abonnements" element={<Abonnements />} />
             <Route path="/mentions-legales" element={<MentionsLegales />} />
             <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/faq" element={<FAQ />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

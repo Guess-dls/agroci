@@ -17,7 +17,7 @@ const PolitiqueConfidentialite = () => {
           </Button>
           <h1 className="text-4xl font-bold text-foreground mb-4">Politique de Confidentialité</h1>
           <p className="text-muted-foreground">
-            Dernière mise à jour : Décembre 2024 | Conforme aux standards de protection des données
+            Dernière mise à jour : Janvier 2025 | Conforme aux standards de protection des données
           </p>
         </div>
 
@@ -31,7 +31,7 @@ const PolitiqueConfidentialite = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                AgroConnect s'engage à protéger votre vie privée et vos données personnelles. 
+                AgroCI s'engage à protéger votre vie privée et vos données personnelles. 
                 Cette politique explique comment nous collectons, utilisons et protégeons vos informations.
               </p>
             </CardContent>
@@ -214,9 +214,9 @@ const PolitiqueConfidentialite = () => {
               Pour exercer vos droits ou pour toute question concernant cette politique :
             </p>
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-              <p><strong>Email :</strong> privacy@agroconnect.ci</p>
-              <p><strong>Téléphone :</strong> +225 0789363442</p>
-              <p><strong>Courrier :</strong> Service Protection des Données - AgroConnect, Abidjan, Côte d'Ivoire</p>
+              <p><strong>Email :</strong> josephguessanbi@gmail.com</p>
+              <p><strong>WhatsApp :</strong> +225 0789363442</p>
+              <p><strong>Courrier :</strong> Service Protection des Données - AgroCI, Abidjan, Côte d'Ivoire</p>
             </div>
           </section>
 

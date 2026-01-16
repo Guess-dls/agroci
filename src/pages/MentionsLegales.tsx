@@ -15,26 +15,26 @@ const MentionsLegales = () => {
             Retour
           </Button>
           <h1 className="text-4xl font-bold text-foreground mb-4">Mentions Légales</h1>
-          <p className="text-muted-foreground">Dernière mise à jour : Décembre 2024</p>
+          <p className="text-muted-foreground">Dernière mise à jour : Janvier 2025</p>
         </div>
 
         <div className="space-y-8 text-foreground">
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">1. Informations légales</h2>
             <div className="space-y-2">
-              <p><strong>Nom de la plateforme :</strong> AgroConnect</p>
+              <p><strong>Nom de la plateforme :</strong> AgroCI</p>
               <p><strong>Forme juridique :</strong> Société de services numériques</p>
               <p><strong>Siège social :</strong> Abidjan, Côte d'Ivoire</p>
-              <p><strong>Téléphone :</strong> +225 0789363442</p>
-              <p><strong>Email :</strong> contact@agroconnect.ci</p>
+              <p><strong>Téléphone / WhatsApp :</strong> +225 0789363442</p>
+              <p><strong>Email :</strong> josephguessanbi@gmail.com</p>
             </div>
           </section>
 
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">2. Responsable de publication</h2>
             <p>
-              Le responsable de la publication est le directeur de la publication d'AgroConnect.
-              Il peut être contacté à l'adresse email : publication@agroconnect.ci
+              Le responsable de la publication est le directeur de la publication d'AgroCI.
+              Il peut être contacté à l'adresse email : josephguessanbi@gmail.com
             </p>
           </section>
 
@@ -53,8 +53,8 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">4. Propriété intellectuelle</h2>
             <p>
-              Tous les éléments du site AgroConnect (textes, images, graphismes, logo, icônes, sons, logiciels) 
-              sont la propriété exclusive d'AgroConnect, à l'exception des marques, logos ou contenus 
+              Tous les éléments du site AgroCI (textes, images, graphismes, logo, icônes, sons, logiciels) 
+              sont la propriété exclusive d'AgroCI, à l'exception des marques, logos ou contenus 
               appartenant à d'autres sociétés partenaires ou auteurs.
             </p>
           </section>
@@ -62,7 +62,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">5. Responsabilité</h2>
             <p>
-              AgroConnect agit en tant qu'intermédiaire technique permettant la mise en relation 
+              AgroCI agit en tant qu'intermédiaire technique permettant la mise en relation 
               entre producteurs et acheteurs. La plateforme ne peut être tenue responsable :
             </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
@@ -76,7 +76,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">6. Protection des données</h2>
             <p>
-              Conformément à la réglementation en vigueur, AgroConnect s'engage à protéger 
+              Conformément à la réglementation en vigueur, AgroCI s'engage à protéger 
               les données personnelles de ses utilisateurs. Pour plus d'informations, 
               consultez notre <a href="/politique-confidentialite" className="text-accent hover:underline">
               Politique de confidentialité</a>.
@@ -98,8 +98,8 @@ const MentionsLegales = () => {
               Pour toute question concernant ces mentions légales, vous pouvez nous contacter :
             </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
-              <li>Par téléphone : +225 0789363442</li>
-              <li>Par email : legal@agroconnect.ci</li>
+              <li>Par WhatsApp : +225 0789363442</li>
+              <li>Par email : josephguessanbi@gmail.com</li>
               <li>Par courrier à notre siège social</li>
             </ul>
           </section>

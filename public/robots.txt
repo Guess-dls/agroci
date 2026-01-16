@@ -1,3 +1,10 @@
+# AgroCI - Plateforme de vente de produits vivriers en gros
+# https://agroci.lovable.app
+
+User-agent: *
+Allow: /
+
+# Allow main bots
 User-agent: Googlebot
 Allow: /
 
@@ -10,5 +17,14 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: LinkedInBot
 Allow: /
+
+# Disallow admin and auth pages
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /auth
+Disallow: /reset-password
+
+# Sitemap location
+Sitemap: https://agroci.lovable.app/sitemap.xml

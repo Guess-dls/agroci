@@ -8,6 +8,7 @@ import { Loader2, CreditCard, Check } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import SEOHead from '@/components/SEOHead';
 
 interface Abonnement {
   id: string;
@@ -45,7 +46,6 @@ const Abonnements = () => {
     }
 
     try {
-      // Récupérer les abonnements
       const { data: abonnements, error: abonnementsError } = await supabase
         .from('abonnements')
         .select('*')
@@ -54,7 +54,6 @@ const Abonnements = () => {
 
       if (abonnementsError) throw abonnementsError;
 
-      // Récupérer le profil utilisateur
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
         .select('id, credits, nom, prenom')
@@ -83,11 +82,10 @@ const Abonnements = () => {
     setProcessingPlan(abonnementId);
 
     try {
-      // Appeler la fonction Edge pour créer le paiement Paystack
       const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
         body: {
           email: user?.email,
-          amount: montant * 100, // Paystack utilise les centimes
+          amount: montant * 100,
           profileId: profile.id,
           abonnementId: abonnementId,
           metadata: {
@@ -101,7 +99,6 @@ const Abonnements = () => {
       if (error) throw error;
 
       if (data?.authorization_url) {
-        // Rediriger vers Paystack
         window.location.href = data.authorization_url;
       } else {
         throw new Error('URL de paiement non reçue');
@@ -121,9 +118,14 @@ const Abonnements = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <SEOHead 
+          title="Abonnements et tarifs"
+          description="Découvrez nos plans d'abonnement pour accéder aux producteurs agricoles. Crédits pour contacter les producteurs, support prioritaire."
+          canonicalUrl="https://agroci.lovable.app/abonnements"
+        />
         <Header />
-        <div className="flex items-center justify-center min-h-[50vh]">
-          <Loader2 className="h-8 w-8 animate-spin" />
+        <div className="flex items-center justify-center min-h-[50vh]" role="status" aria-label="Chargement">
+          <Loader2 className="h-8 w-8 animate-spin" aria-hidden="true" />
         </div>
         <Footer />
       </div>
@@ -133,18 +135,23 @@ const Abonnements = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+        <SEOHead 
+          title="Abonnements et tarifs"
+          description="Découvrez nos plans d'abonnement pour accéder aux producteurs agricoles. Crédits pour contacter les producteurs, support prioritaire."
+          canonicalUrl="https://agroci.lovable.app/abonnements"
+        />
         <Header />
-        <div className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Abonnements</h1>
+            <h1 className="text-3xl font-bold mb-4">Plans d'Abonnement AgroCI</h1>
             <p className="text-gray-600 mb-8">
-              Connectez-vous pour voir nos plans d'abonnement
+              Connectez-vous pour voir nos plans d'abonnement et acheter des crédits
             </p>
             <Button asChild>
               <a href="/auth">Se connecter</a>
             </Button>
           </div>
-        </div>
+        </main>
         <Footer />
       </div>
     );
@@ -152,107 +159,116 @@ const Abonnements = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
+      <SEOHead 
+        title="Abonnements et tarifs"
+        description="Découvrez nos plans d'abonnement pour accéder aux producteurs agricoles. Crédits pour contacter les producteurs, support prioritaire."
+        keywords="abonnement AgroCI, crédits, tarifs, producteurs agricoles, Côte d'Ivoire"
+        canonicalUrl="https://agroci.lovable.app/abonnements"
+      />
       <Header />
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center mb-8">
+      <main className="container mx-auto px-4 py-8">
+        <header className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Plans d'abonnement AgriMarket
+            Plans d'Abonnement AgroCI
           </h1>
           <p className="text-gray-600 mb-4">
-            Choisissez le plan qui correspond à vos besoins
+            Choisissez le plan qui correspond à vos besoins pour contacter les producteurs agricoles
           </p>
           {profile && (
             <div className="inline-flex items-center gap-2 bg-white px-4 py-2 rounded-full shadow-sm">
-              <CreditCard className="h-4 w-4 text-green-600" />
+              <CreditCard className="h-4 w-4 text-green-600" aria-hidden="true" />
               <span className="font-medium">Crédits disponibles: {profile.credits}</span>
             </div>
           )}
-        </div>
+        </header>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+        <section aria-label="Liste des abonnements disponibles" className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {abonnements.map((plan) => (
-            <Card key={plan.id} className="relative hover:shadow-lg transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm">
-              {plan.nom === 'Premium' && (
-                <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                  <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1">
-                    Populaire
-                  </Badge>
-                </div>
-              )}
-              
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-bold text-gray-800">
-                  {plan.nom}
-                </CardTitle>
-                <div className="flex items-center justify-center gap-1">
-                  <span className="text-3xl font-bold text-green-600">
-                    {plan.montant.toLocaleString()}
-                  </span>
-                  <span className="text-gray-600">FCFA</span>
-                </div>
-                <CardDescription>
-                  {plan.description}
-                </CardDescription>
-              </CardHeader>
+            <article key={plan.id}>
+              <Card className="relative hover:shadow-lg transition-all duration-300 border-0 bg-white/80 backdrop-blur-sm h-full">
+                {plan.nom === 'Premium' && (
+                  <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                    <Badge className="bg-gradient-to-r from-orange-500 to-red-500 text-white px-4 py-1">
+                      Populaire
+                    </Badge>
+                  </div>
+                )}
+                
+                <CardHeader className="text-center">
+                  <CardTitle className="text-2xl font-bold text-gray-800">
+                    {plan.nom}
+                  </CardTitle>
+                  <div className="flex items-center justify-center gap-1">
+                    <span className="text-3xl font-bold text-green-600">
+                      {plan.montant.toLocaleString()}
+                    </span>
+                    <span className="text-gray-600">FCFA</span>
+                  </div>
+                  <CardDescription>
+                    {plan.description}
+                  </CardDescription>
+                </CardHeader>
 
-              <CardContent className="space-y-4">
-                <div className="text-center">
-                  <div className="text-2xl font-bold text-blue-600 mb-1">
-                    {plan.credits} crédits
-                  </div>
-                  <div className="text-sm text-gray-600">
-                    Valable {plan.duree_jours} jours
-                  </div>
-                </div>
-
-                <div className="space-y-2 text-sm">
-                  <div className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span>Accès à tous les produits</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span>Contact direct avec producteurs</span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Check className="h-4 w-4 text-green-500" />
-                    <span>Filtrage par catégories</span>
-                  </div>
-                  {plan.nom === 'Pro' && (
-                    <div className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-500" />
-                      <span>Support prioritaire</span>
+                <CardContent className="space-y-4">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold text-blue-600 mb-1">
+                      {plan.credits} crédits
                     </div>
-                  )}
-                </div>
-              </CardContent>
+                    <div className="text-sm text-gray-600">
+                      Valable {plan.duree_jours} jours
+                    </div>
+                  </div>
 
-              <CardFooter>
-                <Button 
-                  className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
-                  onClick={() => handleSubscribe(plan.id, plan.montant)}
-                  disabled={processingPlan === plan.id}
-                >
-                  {processingPlan === plan.id ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Traitement...
-                    </>
-                  ) : (
-                    'Souscrire maintenant'
-                  )}
-                </Button>
-              </CardFooter>
-            </Card>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span>Accès à tous les produits agricoles</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span>Contact direct avec producteurs via WhatsApp</span>
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                      <span>Filtrage par catégories de produits</span>
+                    </li>
+                    {plan.nom === 'Pro' && (
+                      <li className="flex items-center gap-2">
+                        <Check className="h-4 w-4 text-green-500" aria-hidden="true" />
+                        <span>Support client prioritaire</span>
+                      </li>
+                    )}
+                  </ul>
+                </CardContent>
+
+                <CardFooter>
+                  <Button 
+                    className="w-full bg-gradient-to-r from-green-600 to-blue-600 hover:from-green-700 hover:to-blue-700 text-white"
+                    onClick={() => handleSubscribe(plan.id, plan.montant)}
+                    disabled={processingPlan === plan.id}
+                    aria-label={`Souscrire au plan ${plan.nom} pour ${plan.montant} FCFA`}
+                  >
+                    {processingPlan === plan.id ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />
+                        Traitement...
+                      </>
+                    ) : (
+                      'Souscrire maintenant'
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            </article>
           ))}
-        </div>
+        </section>
 
-        <div className="text-center mt-8">
+        <footer className="text-center mt-8">
           <p className="text-sm text-gray-600">
-            Paiement sécurisé par Paystack • Facturation en FCFA
+            Paiement sécurisé par Paystack • Facturation en FCFA • Mobile Money accepté
           </p>
-        </div>
-      </div>
+        </footer>
+      </main>
       <Footer />
     </div>
   );

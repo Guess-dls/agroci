@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
@@ -5,8 +6,43 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { MapPin, Package } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { ProductDetailsModal } from "@/components/ProductDetailsModal";
+import { ContactProducerModal } from "@/components/ContactProducerModal";
+
+interface Product {
+  id: string;
+  nom: string;
+  prix: number;
+  quantite: string;
+  image_url: string | null;
+  localisation: string | null;
+  description: string | null;
+  producteur_id?: string;
+  created_at?: string;
+  categories_produits: { nom: string } | null;
+  profiles?: {
+    nom: string;
+    prenom: string;
+    whatsapp?: string;
+    verified: boolean;
+  };
+}
+
+interface Producer {
+  id: string;
+  nom: string;
+  prenom: string;
+  whatsapp: string;
+}
 
 export const PopularProducts = () => {
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [isDetailsOpen, setIsDetailsOpen] = useState(false);
+  const [contactModalOpen, setContactModalOpen] = useState(false);
+  const [selectedProducer, setSelectedProducer] = useState<Producer | null>(null);
+  const [selectedProductName, setSelectedProductName] = useState("");
+  const [selectedProductId, setSelectedProductId] = useState("");
+
   const { data: products, isLoading } = useQuery({
     queryKey: ["approved-products-home"],
     queryFn: async () => {
@@ -20,7 +56,10 @@ export const PopularProducts = () => {
           image_url,
           localisation,
           description,
-          categories_produits(nom)
+          producteur_id,
+          created_at,
+          categories_produits(nom),
+          profiles!products_producteur_id_fkey(nom, prenom, whatsapp, verified)
         `)
         .eq("status", "approuve")
         .eq("hidden", false)
@@ -28,12 +67,42 @@ export const PopularProducts = () => {
         .limit(8);
 
       if (error) throw error;
-      return data;
+      return data as Product[];
     },
   });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat("fr-FR").format(price) + " FCFA";
+  };
+
+  const handleProductClick = (e: React.MouseEvent, product: Product) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setSelectedProduct(product);
+    setIsDetailsOpen(true);
+  };
+
+  const handleContactProducer = async (productId: string, productName: string) => {
+    try {
+      const { data: producerData, error } = await supabase
+        .rpc("get_public_producer_info_for_product", { product_id_param: productId });
+
+      if (error) throw error;
+
+      if (producerData && producerData.length > 0) {
+        setSelectedProducer({
+          id: producerData[0].id,
+          nom: producerData[0].nom,
+          prenom: producerData[0].prenom,
+          whatsapp: "",
+        });
+        setSelectedProductName(productName);
+        setSelectedProductId(productId);
+        setContactModalOpen(true);
+      }
+    } catch (error) {
+      console.error("Erreur lors de la récupération du producteur:", error);
+    }
   };
 
   return (
@@ -66,6 +135,7 @@ export const PopularProducts = () => {
               {products.map((product) => (
                 <Card
                   key={product.id}
+                  onClick={(e) => handleProductClick(e, product)}
                   className="overflow-hidden hover:shadow-medium transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
                 >
                   <div className="aspect-square overflow-hidden bg-muted">
@@ -131,6 +201,23 @@ export const PopularProducts = () => {
           </div>
         )}
       </div>
+
+      {/* Modal détails produit */}
+      <ProductDetailsModal
+        product={selectedProduct as any}
+        isOpen={isDetailsOpen}
+        onClose={() => setIsDetailsOpen(false)}
+        onContactProducer={handleContactProducer}
+      />
+
+      {/* Modal contact producteur */}
+      <ContactProducerModal
+        open={contactModalOpen}
+        onOpenChange={setContactModalOpen}
+        producer={selectedProducer}
+        productName={selectedProductName}
+        productId={selectedProductId}
+      />
     </section>
   );
 };

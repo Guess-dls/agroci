@@ -5,7 +5,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3 } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -523,11 +524,24 @@ export const AdminDashboard = () => {
               </div>
             </div>
             
-            {/* Global Subscription Settings */}
+            {/* Action Buttons */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+              {/* Report Link */}
+              <Link to="/admin/report">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  className="text-xs md:text-sm bg-gradient-to-r from-purple-500/10 to-blue-500/10 border-purple-200 hover:from-purple-500/20 hover:to-blue-500/20"
+                >
+                  <BarChart3 className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                  Rapport Traction
+                </Button>
+              </Link>
+
+              {/* Global Subscription Settings */}
               <div className="flex items-center space-x-2">
                 <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                <span className="text-xs md:text-sm text-muted-foreground">Restrictions d'abonnement:</span>
+                <span className="text-xs md:text-sm text-muted-foreground">Restrictions:</span>
               </div>
               <Button
                 onClick={toggleSubscriptionRestrictions}

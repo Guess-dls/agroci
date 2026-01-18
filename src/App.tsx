@@ -12,6 +12,7 @@ import Products from "./pages/Products";
 import Producers from "./pages/Producers";
 import Buyers from "./pages/Buyers";
 import Admin from "./pages/Admin";
+import AdminReport from "./pages/AdminReport";
 import Abonnements from "./pages/Abonnements";
 import MentionsLegales from "./pages/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/PolitiqueConfidentialite";
@@ -36,6 +37,7 @@ const App = () => {
               <Route path="/producers" element={<Producers />} />
               <Route path="/buyers" element={<Buyers />} />
               <Route path="/admin" element={<Admin />} />
+              <Route path="/admin/report" element={<AdminReport />} />
               <Route path="/abonnements" element={<Abonnements />} />
               <Route path="/mentions-legales" element={<MentionsLegales />} />
               <Route path="/politique-confidentialite" element={<PolitiqueConfidentialite />} />

@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Users, Package, TrendingUp, Eye, MessageSquare, CreditCard, Calendar, ArrowUpRight, ArrowDownRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Loader2, Users, Package, TrendingUp, Eye, MessageSquare, CreditCard, Calendar, ArrowUpRight, ArrowDownRight, Download } from "lucide-react";
+import { toast } from "sonner";
+import html2pdf from "html2pdf.js";
 import { 
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, 
   PieChart, Pie, Cell, LineChart, Line, AreaChart, Area, Legend 
@@ -43,6 +46,8 @@ const COLORS = ['hsl(var(--primary))', 'hsl(var(--secondary))', 'hsl(142, 76%, 3
 
 export const AdminTractionReport = () => {
   const [loading, setLoading] = useState(true);
+  const [exporting, setExporting] = useState(false);
+  const reportRef = useRef<HTMLDivElement>(null);
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalProducts: 0,
@@ -311,6 +316,35 @@ export const AdminTractionReport = () => {
     return new Intl.NumberFormat('fr-FR').format(value) + ' FCFA';
   };
 
+  const handleExportPDF = async () => {
+    if (!reportRef.current) return;
+    
+    setExporting(true);
+    try {
+      const element = reportRef.current;
+      const opt = {
+        margin: [10, 10, 10, 10] as [number, number, number, number],
+        filename: `rapport-traction-agroci-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+        image: { type: 'jpeg' as const, quality: 0.98 },
+        html2canvas: { 
+          scale: 2, 
+          useCORS: true,
+          logging: false,
+        },
+        jsPDF: { unit: 'mm' as const, format: 'a4' as const, orientation: 'portrait' as const },
+        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      };
+      
+      await html2pdf().set(opt).from(element).save();
+      toast.success("Rapport PDF exporté avec succès!");
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error("Erreur lors de l'export du PDF");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -323,12 +357,34 @@ export const AdminTractionReport = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-2">
-        <h1 className="text-3xl font-bold text-foreground">📊 Users & Traction Report</h1>
-        <p className="text-muted-foreground">
-          Analyse complète de la plateforme • Mis à jour le {format(new Date(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col gap-2">
+          <h1 className="text-3xl font-bold text-foreground">📊 Users & Traction Report</h1>
+          <p className="text-muted-foreground">
+            Analyse complète de la plateforme • Mis à jour le {format(new Date(), 'dd MMMM yyyy à HH:mm', { locale: fr })}
+          </p>
+        </div>
+        <Button 
+          onClick={handleExportPDF} 
+          disabled={exporting}
+          className="gap-2"
+        >
+          {exporting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Export en cours...
+            </>
+          ) : (
+            <>
+              <Download className="h-4 w-4" />
+              Exporter PDF
+            </>
+          )}
+        </Button>
       </div>
+
+      {/* Report Content for PDF */}
+      <div ref={reportRef} className="space-y-6">
 
       {/* KPI Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -645,6 +701,7 @@ export const AdminTractionReport = () => {
           </ResponsiveContainer>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };

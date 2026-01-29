@@ -85,6 +85,8 @@ export default defineConfig(({ mode }) => ({
         prefer_related_applications: false
       },
       workbox: {
+        // Augmenter la limite de taille pour les gros bundles
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024, // 5 MB
         // Stratégies de cache intelligentes
         globPatterns: ["**/*.{js,css,html,ico,png,jpg,jpeg,svg,webp,woff,woff2}"],
         runtimeCaching: [

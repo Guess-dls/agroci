@@ -2,22 +2,40 @@
 <html lang="fr">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes" />
     
-    <!-- Favicon -->
+    <!-- Favicon & App Icons -->
     <link rel="icon" type="image/png" href="/favicon.png" />
-    <link rel="apple-touch-icon" href="/favicon.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/pwa-192x192.png" />
+    <link rel="mask-icon" href="/pwa-maskable-512x512.png" color="#16a34a" />
     
     <!-- Primary Meta Tags -->
     <title>AgroCI - Vente de produits vivriers en gros | Côte d'Ivoire</title>
     <meta name="title" content="AgroCI - Vente de produits vivriers en gros | Côte d'Ivoire" />
     <meta name="description" content="AgroCI est la plateforme de référence pour la vente de produits vivriers en gros en Côte d'Ivoire. Connectez-vous directement avec des producteurs vérifiés via WhatsApp. Maïs, riz, manioc, igname et plus." />
-    <meta name="keywords" content="produits vivriers, agriculture Côte d'Ivoire, vente en gros, maïs, riz, manioc, igname, tomates, oignons, producteurs agricoles, acheteurs, WhatsApp, AgroCI, Abidjan" />
+    <meta name="keywords" content="produits vivriers, agriculture Côte d'Ivoire, vente en gros, maïs, riz, manioc, igname, tomates, oignons, producteurs agricoles, acheteurs, WhatsApp, AgroCI, Abidjan, marché agricole, commerce agricole" />
     <meta name="author" content="AgroCI" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="language" content="French" />
     <meta name="geo.region" content="CI" />
     <meta name="geo.placename" content="Abidjan, Côte d'Ivoire" />
+    <meta name="revisit-after" content="3 days" />
+    <meta name="rating" content="general" />
+    <meta name="distribution" content="global" />
+    
+    <!-- PWA Meta Tags -->
+    <meta name="application-name" content="AgroCI" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="AgroCI" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="format-detection" content="telephone=yes" />
+    <meta name="msapplication-TileColor" content="#16a34a" />
+    <meta name="msapplication-tap-highlight" content="no" />
+    
+    <!-- Theme Color for browsers -->
+    <meta name="theme-color" content="#16a34a" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#166534" media="(prefers-color-scheme: dark)" />
     
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
@@ -25,41 +43,48 @@
     <meta property="og:title" content="AgroCI - Vente de produits vivriers en gros | Côte d'Ivoire" />
     <meta property="og:description" content="La plateforme de mise en relation directe entre producteurs et acheteurs de produits vivriers. Contact WhatsApp, producteurs vérifiés, transactions sécurisées." />
     <meta property="og:image" content="https://agroci.lovable.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="AgroCI - Plateforme de vente de produits vivriers" />
     <meta property="og:site_name" content="AgroCI" />
     <meta property="og:locale" content="fr_FR" />
     
-    <!-- Twitter -->
+    <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:url" content="https://agroci.lovable.app/" />
     <meta name="twitter:title" content="AgroCI - Produits vivriers en gros" />
     <meta name="twitter:description" content="Plateforme de mise en relation entre producteurs et acheteurs de produits agricoles en Côte d'Ivoire. Contact direct via WhatsApp." />
     <meta name="twitter:image" content="https://agroci.lovable.app/og-image.png" />
+    <meta name="twitter:image:alt" content="AgroCI - Plateforme agricole" />
+    <meta name="twitter:creator" content="@agroci" />
+    <meta name="twitter:site" content="@agroci" />
     
     <!-- Canonical URL -->
     <link rel="canonical" href="https://agroci.lovable.app/" />
     
-    <!-- Theme Color for browsers -->
-    <meta name="theme-color" content="#16a34a" />
-    <meta name="msapplication-TileColor" content="#16a34a" />
-    
     <!-- Preconnect for performance -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
     
-    <!-- JSON-LD Structured Data -->
+    <!-- JSON-LD Structured Data: Organization -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
       "name": "AgroCI",
+      "alternateName": "Agro Côte d'Ivoire",
       "description": "Plateforme de vente de produits vivriers en gros en Côte d'Ivoire",
       "url": "https://agroci.lovable.app",
-      "logo": "https://agroci.lovable.app/favicon.png",
+      "logo": "https://agroci.lovable.app/pwa-512x512.png",
+      "image": "https://agroci.lovable.app/og-image.png",
       "contactPoint": {
         "@type": "ContactPoint",
         "telephone": "+225-0789363442",
         "contactType": "customer service",
-        "availableLanguage": "French"
+        "availableLanguage": ["French"],
+        "areaServed": "CI"
       },
       "address": {
         "@type": "PostalAddress",
@@ -68,10 +93,13 @@
       },
       "sameAs": [
         "https://wa.me/2250789363442"
-      ]
+      ],
+      "foundingDate": "2024",
+      "knowsLanguage": "fr"
     }
     </script>
     
+    <!-- JSON-LD Structured Data: WebSite -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
@@ -80,30 +108,138 @@
       "url": "https://agroci.lovable.app",
       "description": "Plateforme de vente de produits vivriers en gros",
       "inLanguage": "fr-FR",
+      "publisher": {
+        "@type": "Organization",
+        "name": "AgroCI"
+      },
       "potentialAction": {
         "@type": "SearchAction",
-        "target": "https://agroci.lovable.app/products?search={search_term_string}",
+        "target": {
+          "@type": "EntryPoint",
+          "urlTemplate": "https://agroci.lovable.app/products?search={search_term_string}"
+        },
         "query-input": "required name=search_term_string"
       }
     }
     </script>
     
+    <!-- JSON-LD Structured Data: LocalBusiness -->
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "LocalBusiness",
+      "@id": "https://agroci.lovable.app/#localbusiness",
       "name": "AgroCI",
-      "image": "https://agroci.lovable.app/favicon.png",
+      "image": "https://agroci.lovable.app/pwa-512x512.png",
       "description": "Vente de produits vivriers en gros - maïs, riz, manioc, igname",
       "address": {
         "@type": "PostalAddress",
         "addressLocality": "Abidjan",
         "addressCountry": "CI"
       },
+      "geo": {
+        "@type": "GeoCoordinates",
+        "latitude": 5.3600,
+        "longitude": -4.0083
+      },
       "telephone": "+225-0789363442",
       "email": "josephguessanbi@gmail.com",
       "priceRange": "$$",
-      "openingHours": "Mo-Su 00:00-24:00"
+      "openingHours": "Mo-Su 00:00-24:00",
+      "paymentAccepted": "Cash, Mobile Money",
+      "currenciesAccepted": "XOF"
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: WebApplication (PWA) -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "AgroCI",
+      "url": "https://agroci.lovable.app",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires JavaScript",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "XOF"
+      },
+      "featureList": [
+        "Contact direct via WhatsApp",
+        "Producteurs vérifiés",
+        "Mode hors-ligne",
+        "Installation sur mobile"
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Comment acheter des produits vivriers en gros sur AgroCI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Inscrivez-vous gratuitement, parcourez les produits disponibles, et contactez directement les producteurs via WhatsApp pour passer commande."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Comment devenir producteur sur AgroCI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Créez un compte producteur gratuit, ajoutez vos produits avec photos et prix, et commencez à recevoir des demandes d'acheteurs."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quels produits sont disponibles sur AgroCI?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Nous proposons une large gamme de produits vivriers: maïs, riz, manioc, igname, tomates, oignons, et bien d'autres produits agricoles ivoiriens."
+          }
+        }
+      ]
+    }
+    </script>
+
+    <!-- JSON-LD Structured Data: BreadcrumbList -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Accueil",
+          "item": "https://agroci.lovable.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Produits",
+          "item": "https://agroci.lovable.app/products"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Producteurs",
+          "item": "https://agroci.lovable.app/producers"
+        },
+        {
+          "@type": "ListItem",
+          "position": 4,
+          "name": "Acheteurs",
+          "item": "https://agroci.lovable.app/buyers"
+        }
+      ]
     }
     </script>
   </head>

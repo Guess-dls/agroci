@@ -1,30 +1,94 @@
 # AgroCI - Plateforme de vente de produits vivriers en gros
 # https://agroci.lovable.app
+# Mise à jour: 2026-01-29
 
+# Autoriser tous les robots
 User-agent: *
 Allow: /
+Allow: /products
+Allow: /producers
+Allow: /buyers
+Allow: /abonnements
+Allow: /faq
+Allow: /mentions-legales
+Allow: /politique-confidentialite
 
-# Allow main bots
+# Google
 User-agent: Googlebot
 Allow: /
+Crawl-delay: 1
 
+# Google Images
+User-agent: Googlebot-Image
+Allow: /
+
+# Bing
 User-agent: Bingbot
 Allow: /
+Crawl-delay: 2
 
-User-agent: Twitterbot
+# Yahoo
+User-agent: Slurp
+Allow: /
+Crawl-delay: 2
+
+# Baidu
+User-agent: Baiduspider
+Allow: /
+Crawl-delay: 3
+
+# Yandex
+User-agent: Yandex
+Allow: /
+Crawl-delay: 2
+
+# DuckDuckGo
+User-agent: DuckDuckBot
 Allow: /
 
+# Facebook
 User-agent: facebookexternalhit
 Allow: /
 
+# Twitter
+User-agent: Twitterbot
+Allow: /
+
+# LinkedIn
 User-agent: LinkedInBot
 Allow: /
 
-# Disallow admin and auth pages
+# WhatsApp
+User-agent: WhatsApp
+Allow: /
+
+# Pinterest
+User-agent: Pinterestbot
+Allow: /
+
+# Telegram
+User-agent: TelegramBot
+Allow: /
+
+# Pages protégées - Ne pas indexer
 Disallow: /admin
+Disallow: /admin/*
 Disallow: /dashboard
+Disallow: /dashboard/*
 Disallow: /auth
 Disallow: /reset-password
+Disallow: /api/*
+Disallow: /*.json$
+Disallow: /*?*
+
+# Fichiers statiques autorisés
+Allow: /og-image.png
+Allow: /favicon.png
+Allow: /pwa-*.png
+Allow: /sitemap.xml
 
 # Sitemap location
 Sitemap: https://agroci.lovable.app/sitemap.xml
+
+# Host
+Host: https://agroci.lovable.app

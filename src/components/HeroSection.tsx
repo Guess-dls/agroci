@@ -2,6 +2,7 @@ import { ArrowRight, Users, Shield, MessageCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import heroImage from "@/assets/hero-agriculture.jpg";
+import { PWAInstallButton } from "@/components/PWAInstallButton";
 
 export const HeroSection = () => {
   const navigate = useNavigate();
@@ -40,6 +41,11 @@ export const HeroSection = () => {
                 Je suis acheteur
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
+            </div>
+
+            {/* Bouton d'installation PWA */}
+            <div className="pt-2">
+              <PWAInstallButton variant="hero" />
             </div>
 
             <div className="grid grid-cols-3 gap-8 pt-8">

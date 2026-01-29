@@ -1,17 +1,27 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
+        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
+          http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
+  
   <!-- Page d'accueil -->
   <url>
     <loc>https://agroci.lovable.app/</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
+    <image:image>
+      <image:loc>https://agroci.lovable.app/og-image.png</image:loc>
+      <image:title>AgroCI - Plateforme de vente de produits vivriers</image:title>
+      <image:caption>Connectez producteurs et acheteurs de produits agricoles en Côte d'Ivoire</image:caption>
+    </image:image>
   </url>
   
   <!-- Produits -->
   <url>
     <loc>https://agroci.lovable.app/products</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.9</priority>
   </url>
@@ -19,7 +29,7 @@
   <!-- Producteurs -->
   <url>
     <loc>https://agroci.lovable.app/producers</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -27,7 +37,7 @@
   <!-- Acheteurs -->
   <url>
     <loc>https://agroci.lovable.app/buyers</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
@@ -35,7 +45,7 @@
   <!-- Abonnements -->
   <url>
     <loc>https://agroci.lovable.app/abonnements</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
@@ -43,7 +53,7 @@
   <!-- FAQ -->
   <url>
     <loc>https://agroci.lovable.app/faq</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
@@ -51,7 +61,7 @@
   <!-- Mentions légales -->
   <url>
     <loc>https://agroci.lovable.app/mentions-legales</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
@@ -59,7 +69,7 @@
   <!-- Politique de confidentialité -->
   <url>
     <loc>https://agroci.lovable.app/politique-confidentialite</loc>
-    <lastmod>2025-01-16</lastmod>
+    <lastmod>2026-01-29</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

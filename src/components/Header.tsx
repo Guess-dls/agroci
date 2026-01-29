@@ -1,4 +1,4 @@
-import { Menu, Phone, LogOut, User, Shield } from "lucide-react";
+import { Menu, Phone, LogOut, User, Shield, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -19,6 +19,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { PWAInstallButton } from "@/components/PWAInstallButton";
 
 export const Header = () => {
   const { user, signOut, loading } = useAuth();
@@ -128,6 +129,9 @@ export const Header = () => {
 
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
+            {/* Bouton d'installation PWA */}
+            <PWAInstallButton variant="compact" />
+            
             <div className="flex items-center space-x-2 lg:space-x-4 text-xs lg:text-sm text-muted-foreground">
               <div className="flex items-center space-x-1 lg:space-x-2">
                 <Phone className="h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />

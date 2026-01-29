@@ -143,13 +143,9 @@ export default defineConfig(({ mode }) => ({
             }
           }
         ],
-        // Préchargement des pages essentielles
-        additionalManifestEntries: [
-          { url: "/", revision: null },
-          { url: "/products", revision: null },
-          { url: "/producers", revision: null },
-          { url: "/buyers", revision: null }
-        ],
+        // Navigation preload pour les SPA
+        navigateFallback: "index.html",
+        navigateFallbackDenylist: [/^\/api/, /^\/supabase/],
         skipWaiting: true,
         clientsClaim: true
       },

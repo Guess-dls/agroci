@@ -44,10 +44,23 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
     nom: "",
     prix: "",
     quantite: "",
+    unite: "kg",
     description: "",
     localisation: "",
     categorie_id: ""
   });
+
+  const unites = [
+    { value: "kg", label: "Kilogramme (kg)" },
+    { value: "tonne", label: "Tonne" },
+    { value: "sac", label: "Sac" },
+    { value: "unite", label: "Unité" },
+    { value: "litre", label: "Litre" },
+    { value: "carton", label: "Carton" },
+    { value: "panier", label: "Panier" },
+    { value: "botte", label: "Botte" },
+    { value: "tas", label: "Tas" },
+  ];
 
   useEffect(() => {
     fetchCategories();
@@ -219,13 +232,15 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
       const imageUrls = await uploadImages();
       setUploadingImage(false);
 
-      // Insert product
+      // Insert product with quantity including unit
+      const quantiteAvecUnite = `${formData.quantite} ${unites.find(u => u.value === formData.unite)?.label || formData.unite}`;
+      
       const { error: insertError } = await supabase
         .from('products')
         .insert({
           nom: formData.nom,
           prix: parseFloat(formData.prix),
-          quantite: formData.quantite,
+          quantite: quantiteAvecUnite,
           description: formData.description,
           localisation: formData.localisation,
           categorie_id: formData.categorie_id,
@@ -248,6 +263,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         nom: "",
         prix: "",
         quantite: "",
+        unite: "kg",
         description: "",
         localisation: "",
         categorie_id: ""
@@ -376,9 +392,9 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="prix">Prix (FCFA/unité) *</Label>
+              <Label htmlFor="prix">Prix (FCFA) *</Label>
               <Input
                 id="prix"
                 type="number"
@@ -390,10 +406,30 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
             </div>
 
             <div className="space-y-2">
+              <Label htmlFor="unite">Unité de vente *</Label>
+              <Select 
+                value={formData.unite} 
+                onValueChange={(value) => handleInputChange('unite', value)}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Choisir une unité" />
+                </SelectTrigger>
+                <SelectContent>
+                  {unites.map(unite => (
+                    <SelectItem key={unite.value} value={unite.value}>
+                      {unite.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
               <Label htmlFor="quantite">Quantité disponible *</Label>
               <Input
                 id="quantite"
-                placeholder="Ex: 50 sacs, 100kg, 20 tonnes..."
+                type="number"
+                placeholder="Ex: 50, 100, 20..."
                 value={formData.quantite}
                 onChange={(e) => handleInputChange('quantite', e.target.value)}
                 required

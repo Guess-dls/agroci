@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/hooks/useAuth";
 import { OfflineIndicator } from "@/components/OfflineIndicator";
+import { PWAInstallPopup } from "@/components/PWAInstallPopup";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
@@ -29,6 +30,7 @@ const App = () => {
           <Toaster />
           <Sonner />
           <OfflineIndicator />
+          <PWAInstallPopup />
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />

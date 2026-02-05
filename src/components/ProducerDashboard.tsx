@@ -331,13 +331,13 @@ export const ProducerDashboard = () => {
         console.log('Tab changed to:', value);
         setActiveTab(value);
       }}>
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100 gap-1">
-          <TabsTrigger value="overview" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white whitespace-nowrap">Aperçu</TabsTrigger>
-          <TabsTrigger value="requests" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white whitespace-nowrap">Demandes</TabsTrigger>
-          <TabsTrigger value="products" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white whitespace-nowrap">Produits</TabsTrigger>
-          <TabsTrigger value="add-product" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white whitespace-nowrap">Ajouter</TabsTrigger>
-          <TabsTrigger value="subscription" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white whitespace-nowrap">Abonnement</TabsTrigger>
-          <TabsTrigger value="profile" className="text-[10px] sm:text-sm px-1 sm:px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white whitespace-nowrap">Profil</TabsTrigger>
+        <TabsList className="flex w-full h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100 gap-1 overflow-x-auto">
+          <TabsTrigger value="overview" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white whitespace-nowrap">Aperçu</TabsTrigger>
+          <TabsTrigger value="requests" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white whitespace-nowrap">Demandes</TabsTrigger>
+          <TabsTrigger value="products" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white whitespace-nowrap">Produits</TabsTrigger>
+          <TabsTrigger value="add-product" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white whitespace-nowrap">Ajouter</TabsTrigger>
+          <TabsTrigger value="subscription" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white whitespace-nowrap">Abonnement</TabsTrigger>
+          <TabsTrigger value="profile" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white whitespace-nowrap">Profil</TabsTrigger>
         </TabsList>
 
         <TabsContent value="requests" className="space-y-6">

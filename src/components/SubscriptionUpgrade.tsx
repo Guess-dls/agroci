@@ -18,49 +18,19 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
 
   const plans = [
     {
-      id: 'starter',
-      name: 'Pack Starter',
-      price: '5,000 CFA',
-      credits: 50,
-      description: 'Parfait pour débuter',
+      id: 'test',
+      name: 'Pack Test',
+      price: '100 CFA',
+      credits: 10,
+      description: 'Pack de test',
       features: [
-        '50 crédits inclus',
+        '10 crédits inclus',
         '1 crédit par contact WhatsApp',
         'Support standard'
       ],
       icon: <Star className="h-6 w-6" />,
-      disabled: false
-    },
-    {
-      id: 'premium',
-      name: 'Pack Premium',
-      price: '10,000 CFA',
-      credits: 100,
-      description: 'Le plus populaire',
-      features: [
-        '100 crédits inclus',
-        '1 crédit par contact WhatsApp',
-        'Support prioritaire',
-        'Meilleur rapport qualité-prix'
-      ],
-      icon: <Crown className="h-6 w-6" />,
       disabled: false,
       popular: true
-    },
-    {
-      id: 'pro',
-      name: 'Pack Pro',
-      price: '20,000 CFA',
-      credits: 200,
-      description: 'Pour les gros volumes',
-      features: [
-        '200 crédits inclus',
-        '1 crédit par contact WhatsApp',
-        'Support 24/7',
-        'Économies importantes'
-      ],
-      icon: <Zap className="h-6 w-6" />,
-      disabled: false
     }
   ];
 
@@ -109,7 +79,7 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, currentPlan }: Subsc
         </p>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
+      <div className="grid md:grid-cols-1 max-w-md mx-auto gap-6">
         {plans.map((plan) => (
           <Card 
             key={plan.id} 

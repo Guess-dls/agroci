@@ -10,7 +10,7 @@ const corsHeaders = {
 // Validation patterns
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const validPlans = ['starter', 'premium', 'pro'];
+const validPlans = ['test'];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -62,9 +62,7 @@ serve(async (req) => {
 
     // Plan pricing (in kobo - Paystack uses kobo for CFA)
     const planPricing = {
-      'starter': { amount: 500000, credits: 50, name: 'Pack Starter' },   // 5,000 CFA = 50 crédits
-      'premium': { amount: 1000000, credits: 100, name: 'Pack Premium' }, // 10,000 CFA = 100 crédits
-      'pro': { amount: 2000000, credits: 200, name: 'Pack Pro' }          // 20,000 CFA = 200 crédits
+      'test': { amount: 10000, credits: 10, name: 'Pack Test' }   // 100 CFA = 10 crédits
     };
 
     const selectedPlan = planPricing[plan as keyof typeof planPricing];

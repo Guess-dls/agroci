@@ -451,25 +451,44 @@ export const AdminDashboard = () => {
   };
 
   const toggleSubscriptionRestrictions = async () => {
+    setLoadingSettings(true);
     try {
-      const { error } = await supabase
+      const newValue = !subscriptionRestrictionsEnabled;
+      
+      // Update global setting
+      const { error: settingsError } = await supabase
         .from('system_settings')
-        .update({ setting_value: !subscriptionRestrictionsEnabled })
+        .update({ setting_value: newValue })
         .eq('setting_key', 'subscription_restrictions_enabled');
 
-      if (error) throw error;
+      if (settingsError) throw settingsError;
 
-      setSubscriptionRestrictionsEnabled(!subscriptionRestrictionsEnabled);
+      // Update ALL producer profiles to apply the restriction globally
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .update({ subscription_required: newValue })
+        .eq('user_type', 'producteur');
+
+      if (profilesError) throw profilesError;
+
+      setSubscriptionRestrictionsEnabled(newValue);
       toast({
         title: "Paramètres mis à jour",
-        description: `Restrictions d'abonnement ${!subscriptionRestrictionsEnabled ? 'activées' : 'désactivées'}`,
+        description: `Restrictions d'abonnement ${newValue ? 'activées' : 'désactivées'} pour tous les producteurs`,
       });
+
+      // Refresh users list if visible
+      if (activeTab === 'users') {
+        fetchAllUsers();
+      }
     } catch (error: any) {
       toast({
         title: "Erreur",
         description: "Impossible de mettre à jour les paramètres",
         variant: "destructive"
       });
+    } finally {
+      setLoadingSettings(false);
     }
   };
 

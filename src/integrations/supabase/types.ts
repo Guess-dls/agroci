@@ -309,6 +309,7 @@ export type Database = {
           pays: string
           prenom: string
           region: string | null
+          subscription_expires_at: string | null
           subscription_required: boolean
           suspended: boolean | null
           type_acheteur: string | null
@@ -327,6 +328,7 @@ export type Database = {
           pays: string
           prenom: string
           region?: string | null
+          subscription_expires_at?: string | null
           subscription_required?: boolean
           suspended?: boolean | null
           type_acheteur?: string | null
@@ -345,6 +347,7 @@ export type Database = {
           pays?: string
           prenom?: string
           region?: string | null
+          subscription_expires_at?: string | null
           subscription_required?: boolean
           suspended?: boolean | null
           type_acheteur?: string | null

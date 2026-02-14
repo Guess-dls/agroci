@@ -539,33 +539,36 @@ export const AdminDashboard = () => {
               </Link>
 
               {/* Global Subscription Settings */}
-              <div className="flex items-center space-x-2">
-                <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                <span className="text-xs md:text-sm text-muted-foreground">Restrictions:</span>
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center space-x-2">
+                  <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+                  <span className="text-xs md:text-sm text-muted-foreground">Restrictions (30 jours/mois après achat):</span>
+                </div>
+                <Button
+                  onClick={toggleSubscriptionRestrictions}
+                  variant={subscriptionRestrictionsEnabled ? "default" : "outline"}
+                  size="sm"
+                  className={subscriptionRestrictionsEnabled 
+                    ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-xs md:text-sm" 
+                    : "text-xs md:text-sm"}
+                  disabled={loadingSettings}
+                >
+                  {loadingSettings ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : subscriptionRestrictionsEnabled ? (
+                    <>
+                      <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Activées
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Désactivées
+                    </>
+                  )}
+                </Button>
+                <span className="text-[10px] text-muted-foreground">La restriction se restaure 30 jours après l'achat d'un abonnement</span>
               </div>
-              <Button
-                onClick={toggleSubscriptionRestrictions}
-                variant={subscriptionRestrictionsEnabled ? "default" : "outline"}
-                size="sm"
-                className={subscriptionRestrictionsEnabled 
-                  ? "bg-gradient-to-r from-emerald-500 to-green-500 hover:from-emerald-600 hover:to-green-600 text-white text-xs md:text-sm" 
-                  : "text-xs md:text-sm"}
-                disabled={loadingSettings}
-              >
-                {loadingSettings ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : subscriptionRestrictionsEnabled ? (
-                  <>
-                    <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                    Activées
-                  </>
-                ) : (
-                  <>
-                    <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                    Désactivées
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         </div>

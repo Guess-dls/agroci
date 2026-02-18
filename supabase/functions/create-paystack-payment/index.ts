@@ -7,10 +7,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Validation patterns
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const uuidRegex = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const validPlans = ['test'];
+const validPlans = ['essentiel', 'pro', 'premium'];
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -31,7 +30,6 @@ serve(async (req) => {
     
     console.log('Creating Paystack payment for:', { plan, email: email?.substring(0, 3) + '***', profileId });
 
-    // Input validation
     if (!email || typeof email !== 'string' || email.length > 255) {
       return new Response(JSON.stringify({ error: 'Email invalide' }), {
         status: 400,
@@ -47,7 +45,7 @@ serve(async (req) => {
     }
 
     if (!plan || !validPlans.includes(plan)) {
-      return new Response(JSON.stringify({ error: 'Plan invalide. Choisissez starter, premium ou pro' }), {
+      return new Response(JSON.stringify({ error: 'Plan invalide. Choisissez essentiel, pro ou premium' }), {
         status: 400,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
@@ -60,14 +58,15 @@ serve(async (req) => {
       });
     }
 
-    // Plan pricing (in kobo - Paystack uses kobo for CFA)
+    // Tarification en kobo XOF (1 XOF = 100 kobo pour Paystack)
     const planPricing = {
-      'test': { amount: 10000, credits: 10, name: 'Pack Test' }   // 100 CFA = 10 crédits
+      'essentiel': { amount: 500000, credits: 25, name: 'Pack Essentiel' },  // 5 000 FCFA
+      'pro':       { amount: 1000000, credits: 50, name: 'Pack Pro' },        // 10 000 FCFA
+      'premium':   { amount: 1500000, credits: 80, name: 'Pack Premium' },    // 15 000 FCFA
     };
 
     const selectedPlan = planPricing[plan as keyof typeof planPricing];
 
-    // Initialize Paystack payment
     const paystackResponse = await fetch('https://api.paystack.co/transaction/initialize', {
       method: 'POST',
       headers: {
@@ -77,7 +76,7 @@ serve(async (req) => {
       body: JSON.stringify({
         email: email.trim().toLowerCase(),
         amount: selectedPlan.amount,
-        currency: 'XOF', // CFA Franc
+        currency: 'XOF',
         metadata: {
           plan: plan,
           credits: selectedPlan.credits,

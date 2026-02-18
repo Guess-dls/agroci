@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { MessageSquare, Phone, Coins } from "lucide-react";
+import { MessageSquare, Coins } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
@@ -71,7 +71,7 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
       const producerIdToUse = productRow?.producteur_id || producer.id;
 
       // Créer une demande de contact (fonction SQL sécurisée)
-      const { data, error } = await supabase
+      const { error } = await supabase
         .rpc('create_contact_request', {
           producer_profile_id: producerIdToUse,
           product_id_param: productId,
@@ -128,15 +128,18 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
           </div>
 
           {userCredits !== null && (
-            <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
+            <div className={`border p-3 rounded-lg ${userCredits < 5 ? 'bg-red-50 border-red-200' : 'bg-blue-50 border-blue-200'}`}>
               <div className="flex items-center gap-2">
-                <Coins className="h-4 w-4 text-blue-600" />
-                <span className="text-sm font-medium text-blue-800">
+                <Coins className={`h-4 w-4 ${userCredits < 5 ? 'text-red-600' : 'text-blue-600'}`} />
+                <span className={`text-sm font-medium ${userCredits < 5 ? 'text-red-800' : 'text-blue-800'}`}>
                   Vos crédits: {userCredits}
                 </span>
               </div>
-              <p className="text-xs text-blue-600 mt-1">
-                Contacter ce producteur coûte 1 crédit
+              <p className={`text-xs mt-1 ${userCredits < 5 ? 'text-red-600' : 'text-blue-600'}`}>
+                {userCredits < 5 
+                  ? '❌ Crédits insuffisants — il vous faut au moins 5 crédits pour envoyer une demande'
+                  : '5 crédits seront déduits à chaque partie lors de l\'acceptation'
+                }
               </p>
             </div>
           )}
@@ -144,7 +147,7 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
           <div className="space-y-3">
             <Button 
               onClick={handleWhatsAppContact}
-              disabled={loading || (userCredits !== null && userCredits < 1)}
+              disabled={loading || (userCredits !== null && userCredits < 5)}
               className="w-full bg-green-600 hover:bg-green-700 text-white disabled:bg-gray-400"
             >
               {loading ? (

@@ -515,7 +515,8 @@ export const ProducerDashboard = () => {
                 <SubscriptionUpgrade 
                   userEmail={user?.email || ''} 
                   profileId={profile.id}
-                  currentPlan={subscription?.plan || 'gratuit'}
+                  subscriptionActive={profile.subscription_active || false}
+                  subscriptionEndDate={profile.subscription_end_date || null}
                 />
               )}
             </CardContent>

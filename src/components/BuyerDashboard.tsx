@@ -718,13 +718,13 @@ export const BuyerDashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              {profile && (
-                <SubscriptionUpgrade 
-                  userEmail={user?.email || ''} 
-                  profileId={profile.id}
-                  currentPlan={subscription?.plan || 'gratuit'}
-                />
-              )}
+              <div className="text-center py-8">
+                <Crown className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
+                <h3 className="text-lg font-semibold mb-2">Accès gratuit pour les acheteurs</h3>
+                <p className="text-muted-foreground">
+                  En tant qu'acheteur, vous avez accès à tous les produits et pouvez contacter les producteurs gratuitement.
+                </p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

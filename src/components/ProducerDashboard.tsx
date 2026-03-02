@@ -2,7 +2,8 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Plus, Package, BarChart3, Eye, MessageCircle, Edit, Trash2, User, Crown } from "lucide-react";
+import { Plus, Package, BarChart3, Eye, MessageCircle, Edit, Trash2, User, Crown, Rocket, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 import { AddProductForm } from "./AddProductForm";
 import { EditProductModal } from "./EditProductModal";
 import { EditProfileModal } from "./EditProfileModal";
@@ -11,6 +12,8 @@ import { ContactRequestsList } from "./ContactRequestsList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { format } from "date-fns";
+import { fr } from "date-fns/locale";
 
 interface Product {
   id: string;
@@ -26,12 +29,15 @@ interface Product {
   whatsapp_clicks: number;
   actualWhatsappClicks?: number;
   actualViews?: number;
+  is_boosted?: boolean;
+  boost_end_date?: string;
 }
 
 export const ProducerDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
+  const [boostLoading, setBoostLoading] = useState<string | null>(null);
   const [stats, setStats] = useState({
     totalProducts: 0,
     totalViews: 0,
@@ -42,7 +48,6 @@ export const ProducerDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [subscription, setSubscription] = useState<any>(null);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -54,121 +59,80 @@ export const ProducerDashboard = () => {
     
     try {
       setLoading(true);
-      console.log('Fetching products for user:', user.id);
       
-      // Get user profile first
-      const { data: profile, error: profileError } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
         .select('*')
         .eq('user_id', user.id)
         .maybeSingle();
       
-      if (profileError) {
-        console.error('Profile error:', profileError);
-        throw profileError;
-      }
-      if (!profile) {
-        console.warn('No profile found for user:', user.id);
+      if (profileError) throw profileError;
+      if (!profileData) {
         setProducts([]);
         setStats({ totalProducts: 0, totalViews: 0, totalClicks: 0, conversionRate: 0 });
         return;
       }
       
-      console.log('Profile found:', profile.id);
-      setProfile(profile);
-
-      // Get subscription
-      const { data: subscriptionData } = await supabase
-        .from('subscriptions')
-        .select('*')
-        .eq('user_id', profile.id)
-        .maybeSingle();
+      setProfile(profileData);
       
-      setSubscription(subscriptionData);
-      
-      // Fetch products
       const { data: productsData, error } = await supabase
         .from('products')
         .select('*')
-        .eq('producteur_id', profile.id)
+        .eq('producteur_id', profileData.id)
         .order('created_at', { ascending: false });
       
-      if (error) {
-        console.error('Products fetch error:', error);
-        throw error;
-      }
+      if (error) throw error;
       
       const products = productsData || [];
-      console.log('Products found:', products.length);
-      
-      // Fetch WhatsApp clicks and views for each product
       const productIds = products.map(p => p.id);
+      
       let clicksData: any[] = [];
       let viewsData: any[] = [];
+      let boostsData: any[] = [];
       
       if (productIds.length > 0) {
-        console.log('Fetching stats for products:', productIds);
-        const [whatsappClicksResult, viewsResult] = await Promise.all([
-          supabase
-            .from('whatsapp_clicks')
-            .select('product_id')
-            .in('product_id', productIds),
-          supabase
-            .from('product_views')
-            .select('product_id')
-            .in('product_id', productIds)
+        const [whatsappClicksResult, viewsResult, boostsResult] = await Promise.all([
+          supabase.from('whatsapp_clicks').select('product_id').in('product_id', productIds),
+          supabase.from('product_views').select('product_id').in('product_id', productIds),
+          supabase.from('product_boosts').select('product_id, end_date').eq('status', 'active').gt('end_date', new Date().toISOString()).in('product_id', productIds)
         ]);
         
-        if (whatsappClicksResult.error) {
-          console.error('WhatsApp clicks fetch error:', whatsappClicksResult.error);
-        } else {
-          clicksData = whatsappClicksResult.data || [];
-          console.log('WhatsApp clicks found:', clicksData.length);
-        }
-        
-        if (viewsResult.error) {
-          console.error('Views fetch error:', viewsResult.error);
-        } else {
-          viewsData = viewsResult.data || [];
-          console.log('Views found:', viewsData.length);
-        }
+        clicksData = whatsappClicksResult.data || [];
+        viewsData = viewsResult.data || [];
+        boostsData = boostsResult.data || [];
       }
       
-      // Count clicks per product
       const clickCounts = clicksData.reduce((acc: Record<string, number>, click) => {
         acc[click.product_id] = (acc[click.product_id] || 0) + 1;
         return acc;
       }, {});
       
-      // Count views per product
       const viewCounts = viewsData.reduce((acc: Record<string, number>, view) => {
         acc[view.product_id] = (acc[view.product_id] || 0) + 1;
         return acc;
       }, {});
+
+      const boostMap = boostsData.reduce((acc: Record<string, string>, b) => {
+        acc[b.product_id] = b.end_date;
+        return acc;
+      }, {});
       
-      // Add click and view counts to products
       const productsWithStats = products.map(product => ({
         ...product,
         actualWhatsappClicks: clickCounts[product.id] || 0,
-        actualViews: viewCounts[product.id] || 0
+        actualViews: viewCounts[product.id] || 0,
+        is_boosted: !!boostMap[product.id],
+        boost_end_date: boostMap[product.id] || undefined
       }));
       
       setProducts(productsWithStats);
       
-      // Calculate stats
       const totalProducts = products.length;
       const totalViews = (Object.values(viewCounts) as number[]).reduce((sum: number, count: number) => sum + count, 0);
       const totalClicks = (Object.values(clickCounts) as number[]).reduce((sum: number, count: number) => sum + count, 0);
       const conversionRate = totalViews > 0 ? Math.round((totalClicks / totalViews) * 100) : 0;
       
-      console.log('Calculated stats:', { totalProducts, totalViews, totalClicks, conversionRate });
-      
-      setStats({
-        totalProducts,
-        totalViews,
-        totalClicks,
-        conversionRate
-      });
+      setStats({ totalProducts, totalViews, totalClicks, conversionRate });
       
     } catch (error: any) {
       console.error('Error fetching products:', error);
@@ -191,27 +155,12 @@ export const ProducerDashboard = () => {
 
   const deleteProduct = async (productId: string) => {
     try {
-      const { error } = await supabase
-        .from('products')
-        .delete()
-        .eq('id', productId);
-      
+      const { error } = await supabase.from('products').delete().eq('id', productId);
       if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: "Le produit a été supprimé avec succès"
-      });
-      
-      // Refresh the products list
+      toast({ title: "Succès", description: "Le produit a été supprimé avec succès" });
       await fetchProducts();
     } catch (error: any) {
-      console.error('Error deleting product:', error);
-      toast({
-        title: "Erreur",
-        description: error.message || "Impossible de supprimer le produit",
-        variant: "destructive"
-      });
+      toast({ title: "Erreur", description: error.message || "Impossible de supprimer le produit", variant: "destructive" });
     }
   };
 
@@ -220,36 +169,64 @@ export const ProducerDashboard = () => {
     setIsEditProductModalOpen(true);
   };
 
-  const handleProductUpdated = () => {
-    fetchProducts();
-  };
+  const handleBoostProduct = async (productId: string) => {
+    if (!profile) return;
+    setBoostLoading(productId);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
+        body: {
+          type: 'boost',
+          email: user?.email,
+          profileId: profile.id,
+          productId: productId
+        }
+      });
 
-  const handleProfileUpdated = () => {
-    // Optionally refresh any profile-related data
+      if (error) throw error;
+
+      if (data.authorization_url) {
+        window.open(data.authorization_url, '_blank');
+        toast({
+          title: "Redirection vers le paiement",
+          description: "Payez 1 200 FCFA pour booster ce produit pendant 1 semaine.",
+        });
+      }
+    } catch (error) {
+      console.error('Error creating boost payment:', error);
+      toast({
+        title: "Erreur",
+        description: "Impossible de créer le paiement pour le boost.",
+        variant: "destructive",
+      });
+    } finally {
+      setBoostLoading(null);
+    }
   };
 
   useEffect(() => {
     fetchProducts();
   }, [user]);
 
-  // Refresh stats when a WhatsApp click is recorded elsewhere
   useEffect(() => {
     const handler = () => fetchProducts();
     window.addEventListener('whatsapp:stats-refresh', handler);
     return () => window.removeEventListener('whatsapp:stats-refresh', handler);
   }, []);
 
+  const isSubscriptionActive = profile?.subscription_active && profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date();
+  const canPublish = isSubscriptionActive;
+
   return (
     <div className="space-y-6">
-      {/* Subscription restriction warning */}
-      {profile?.subscription_required && (
+      {/* Subscription warning */}
+      {!isSubscriptionActive && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
           <Crown className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
             <h4 className="font-semibold text-amber-800">Abonnement requis</h4>
             <p className="text-sm text-amber-700">
-              Vous êtes limité à 3 produits et ne pouvez pas modifier vos produits existants. 
-              Souscrivez à un abonnement pour débloquer toutes les fonctionnalités.
+              Vous devez souscrire un abonnement mensuel (3 000 FCFA/mois) pour publier vos produits et les rendre visibles aux acheteurs.
             </p>
             <Button 
               variant="outline" 
@@ -257,8 +234,21 @@ export const ProducerDashboard = () => {
               className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100"
               onClick={() => setActiveTab("subscription")}
             >
-              Voir les abonnements
+              S'abonner maintenant
             </Button>
+          </div>
+        </div>
+      )}
+
+      {/* Subscription active indicator */}
+      {isSubscriptionActive && profile?.subscription_end_date && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-3">
+          <Crown className="h-5 w-5 text-green-600 flex-shrink-0" />
+          <div className="flex-1">
+            <span className="text-sm font-medium text-green-800">Abonnement actif</span>
+            <span className="text-xs text-green-600 ml-2">
+              Expire le {format(new Date(profile.subscription_end_date), 'dd MMMM yyyy', { locale: fr })}
+            </span>
           </div>
         </div>
       )}
@@ -275,7 +265,7 @@ export const ProducerDashboard = () => {
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-emerald-800">{stats.totalProducts}</div>
             <p className="text-[10px] sm:text-xs text-emerald-600 truncate">
-              {profile?.subscription_required ? `Limite: 3 produits` : `Limite: Aucune`}
+              {canPublish ? 'Publication illimitée' : 'Abonnement requis'}
             </p>
           </CardContent>
         </Card>
@@ -289,9 +279,7 @@ export const ProducerDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-blue-800">{stats.totalViews}</div>
-            <p className="text-[10px] sm:text-xs text-blue-600 truncate">
-              Vues totales
-            </p>
+            <p className="text-[10px] sm:text-xs text-blue-600 truncate">Vues totales</p>
           </CardContent>
         </Card>
 
@@ -304,9 +292,7 @@ export const ProducerDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-orange-800">{stats.totalClicks}</div>
-            <p className="text-[10px] sm:text-xs text-orange-600 truncate">
-              Clics totaux
-            </p>
+            <p className="text-[10px] sm:text-xs text-orange-600 truncate">Clics totaux</p>
           </CardContent>
         </Card>
 
@@ -319,18 +305,13 @@ export const ProducerDashboard = () => {
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-purple-800">{stats.conversionRate}%</div>
-            <p className="text-[10px] sm:text-xs text-purple-600 truncate">
-              Taux de conversion
-            </p>
+            <p className="text-[10px] sm:text-xs text-purple-600 truncate">Taux de conversion</p>
           </CardContent>
         </Card>
       </div>
 
       {/* Main Content */}
-      <Tabs value={activeTab} onValueChange={(value) => {
-        console.log('Tab changed to:', value);
-        setActiveTab(value);
-      }}>
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex w-full h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100 gap-1 overflow-x-auto">
           <TabsTrigger value="overview" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white whitespace-nowrap">Aperçu</TabsTrigger>
           <TabsTrigger value="requests" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white whitespace-nowrap">Demandes</TabsTrigger>
@@ -348,44 +329,45 @@ export const ProducerDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Bienvenue sur votre espace producteur</CardTitle>
-              <CardDescription>
-                Gérez vos produits et suivez vos performances
-              </CardDescription>
+              <CardDescription>Gérez vos produits et suivez vos performances</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg">
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-sm sm:text-base">Commencez par ajouter votre premier produit</h3>
-                  <p className="text-xs sm:text-sm text-muted-foreground">
-                    Publiez vos produits pour les rendre visibles aux acheteurs
+              {!isSubscriptionActive ? (
+                <div className="p-4 border-2 border-amber-300 rounded-lg bg-amber-50">
+                  <h3 className="font-semibold text-amber-800 mb-2">⚠️ Abonnement requis</h3>
+                  <p className="text-sm text-amber-700 mb-3">
+                    Pour publier et rendre vos produits visibles, vous devez souscrire un abonnement mensuel à <strong>3 000 FCFA/mois</strong>.
                   </p>
+                  <Button onClick={() => setActiveTab("subscription")} className="bg-amber-600 hover:bg-amber-700">
+                    S'abonner maintenant
+                  </Button>
                 </div>
-                <Button onClick={() => setActiveTab("add-product")} className="w-full sm:w-auto whitespace-nowrap">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Ajouter
-                </Button>
-              </div>
+              ) : (
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border rounded-lg">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-semibold text-sm sm:text-base">Ajouter un nouveau produit</h3>
+                    <p className="text-xs sm:text-sm text-muted-foreground">
+                      Publiez vos produits pour les rendre visibles aux acheteurs
+                    </p>
+                  </div>
+                  <Button onClick={() => setActiveTab("add-product")} className="w-full sm:w-auto whitespace-nowrap">
+                    <Plus className="mr-2 h-4 w-4" />
+                    Ajouter
+                  </Button>
+                </div>
+              )}
               
-              <div className="grid grid-cols-1 gap-4">
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2">Badge Vérifié</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Obtenez la badge "Producteur Vérifié" pour gagner la confiance des acheteurs
-                  </p>
-                  <Button variant="outline" size="sm" disabled>
-                    En attente de vérification
-                  </Button>
-                </div>
-                
-                <div className="p-4 border rounded-lg">
-                  <h4 className="font-medium mb-2">Abonnement</h4>
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Plan Gratuit - Fonctionnalités de base
-                  </p>
-                  <Button variant="accent" size="sm">
-                    Voir les plans
-                  </Button>
-                </div>
+              <div className="p-4 border rounded-lg">
+                <h4 className="font-medium mb-2 flex items-center gap-2">
+                  <Rocket className="h-4 w-4 text-amber-500" />
+                  Boost de produit
+                </h4>
+                <p className="text-sm text-muted-foreground mb-1">
+                  Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Gérez les boosts depuis l'onglet "Produits"
+                </p>
               </div>
             </CardContent>
           </Card>
@@ -395,9 +377,7 @@ export const ProducerDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Mes Produits</CardTitle>
-              <CardDescription>
-                Gérez vos produits publiés
-              </CardDescription>
+              <CardDescription>Gérez vos produits publiés et boostez-les</CardDescription>
             </CardHeader>
             <CardContent>
               {loading ? (
@@ -410,17 +390,19 @@ export const ProducerDashboard = () => {
                   <Package className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
                   <h3 className="text-lg font-semibold mb-2">Aucun produit publié</h3>
                   <p className="text-muted-foreground mb-4">
-                    Vous n'avez pas encore de produits. Commencez par en ajouter un !
+                    {canPublish ? "Commencez par ajouter votre premier produit !" : "Abonnez-vous pour publier des produits."}
                   </p>
-                  <Button onClick={() => setActiveTab("add-product")}>
-                    <Plus className="mr-2 h-4 w-4" />
-                    Ajouter votre premier produit
-                  </Button>
+                  {canPublish && (
+                    <Button onClick={() => setActiveTab("add-product")}>
+                      <Plus className="mr-2 h-4 w-4" />
+                      Ajouter votre premier produit
+                    </Button>
+                  )}
                 </div>
               ) : (
                 <div className="space-y-4">
                   {products.map((product) => (
-                    <div key={product.id} className="border rounded-lg p-3 sm:p-4">
+                    <div key={product.id} className={`border rounded-lg p-3 sm:p-4 ${product.is_boosted ? 'ring-2 ring-amber-400 bg-amber-50/30' : ''}`}>
                       <div className="flex flex-col sm:flex-row sm:items-center space-y-3 sm:space-y-0 sm:space-x-4">
                         {product.image_url && (
                           <img 
@@ -430,13 +412,23 @@ export const ProducerDashboard = () => {
                           />
                         )}
                         <div className="flex-1 min-w-0">
-                          <h4 className="font-semibold text-sm sm:text-base truncate">{product.nom}</h4>
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <h4 className="font-semibold text-sm sm:text-base truncate">{product.nom}</h4>
+                            {product.is_boosted && (
+                              <Badge className="bg-amber-500 text-white text-xs gap-1">
+                                <Rocket className="w-3 h-3" />
+                                Boosté
+                              </Badge>
+                            )}
+                          </div>
                           <p className="text-xs sm:text-sm text-muted-foreground">
                             {product.prix} FCFA • {product.quantite}
                           </p>
-                          <p className="text-xs sm:text-sm text-muted-foreground truncate">
-                            {product.localisation}
-                          </p>
+                          {product.is_boosted && product.boost_end_date && (
+                            <p className="text-xs text-amber-600">
+                              Boost expire le {format(new Date(product.boost_end_date), 'dd/MM/yyyy', { locale: fr })}
+                            </p>
+                          )}
                           <div className="flex flex-wrap items-center gap-2 mt-2">
                             <span className={`px-2 py-1 rounded text-xs ${
                               product.status === 'approuve' ? 'bg-green-100 text-green-800' :
@@ -450,25 +442,37 @@ export const ProducerDashboard = () => {
                             <span className="text-xs text-muted-foreground">{product.actualWhatsappClicks || 0} clics</span>
                           </div>
                         </div>
-                        <div className="flex flex-row sm:flex-col space-x-2 sm:space-x-0 sm:space-y-2">
+                        <div className="flex flex-row sm:flex-col gap-2">
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => handleBoostProduct(product.id)}
+                            disabled={boostLoading === product.id || !isSubscriptionActive}
+                            className="flex-1 sm:flex-none text-amber-600 border-amber-300 hover:bg-amber-50"
+                            title={!isSubscriptionActive ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : "Booster ce produit (1 200 FCFA)"}
+                          >
+                            {boostLoading === product.id ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <Rocket className="h-4 w-4 sm:mr-0 mr-2" />
+                            )}
+                            <span className="sm:hidden">{product.is_boosted ? 'Prolonger' : 'Booster'}</span>
+                          </Button>
                           <Button 
                             variant="outline" 
                             size="sm"
                             onClick={() => handleEditProduct(product)}
                             className="flex-1 sm:flex-none"
-                            disabled={profile?.subscription_required}
-                            title={profile?.subscription_required ? "Modification désactivée - Abonnement requis" : "Modifier le produit"}
+                            disabled={!isSubscriptionActive}
                           >
                             <Edit className="h-4 w-4 sm:mr-0 mr-2" />
-                            <span className="sm:hidden">{profile?.subscription_required ? "Bloqué" : "Modifier"}</span>
+                            <span className="sm:hidden">Modifier</span>
                           </Button>
                           <Button 
                             variant="destructive" 
                             size="sm"
                             onClick={() => deleteProduct(product.id)}
                             className="flex-1 sm:flex-none"
-                            disabled={profile?.subscription_required}
-                            title={profile?.subscription_required ? "Suppression désactivée - Abonnement requis" : "Supprimer le produit"}
                           >
                             <Trash2 className="h-4 w-4 sm:mr-0 mr-2" />
                             <span className="sm:hidden">Supprimer</span>
@@ -484,7 +488,26 @@ export const ProducerDashboard = () => {
         </TabsContent>
 
         <TabsContent value="add-product" className="space-y-6">
-          <AddProductForm onProductAdded={handleProductAdded} />
+          {canPublish ? (
+            <AddProductForm onProductAdded={handleProductAdded} />
+          ) : (
+            <Card className="border-amber-200 bg-amber-50/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-amber-800">
+                  <Crown className="h-5 w-5" />
+                  Abonnement requis
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <p className="text-amber-700 mb-4">
+                  Vous devez avoir un abonnement actif pour publier de nouveaux produits.
+                </p>
+                <Button onClick={() => setActiveTab("subscription")} className="bg-amber-600 hover:bg-amber-700">
+                  S'abonner (3 000 FCFA/mois)
+                </Button>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="subscription" className="space-y-6">
@@ -495,19 +518,9 @@ export const ProducerDashboard = () => {
                   <Crown className="h-4 w-4 text-white" />
                 </div>
                 Mon abonnement
-                {subscription && (
-                  <span className={`px-2 py-1 rounded text-xs ${
-                    subscription.plan === 'premium' ? 'bg-yellow-100 text-yellow-800' :
-                    subscription.plan === 'pro' ? 'bg-purple-100 text-purple-800' :
-                    'bg-gray-100 text-gray-800'
-                  }`}>
-                    {subscription.plan === 'premium' ? 'Premium' : 
-                     subscription.plan === 'pro' ? 'Pro' : 'Gratuit'}
-                  </span>
-                )}
               </CardTitle>
               <CardDescription>
-                Gérez votre abonnement et débloquez plus de fonctionnalités
+                Gérez votre abonnement et boostez vos produits
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -527,9 +540,7 @@ export const ProducerDashboard = () => {
           <Card>
             <CardHeader>
               <CardTitle>Mon Profil</CardTitle>
-              <CardDescription>
-                Gérez vos informations personnelles
-              </CardDescription>
+              <CardDescription>Gérez vos informations personnelles</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="flex items-center justify-between p-4 border rounded-lg">
@@ -549,7 +560,6 @@ export const ProducerDashboard = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Modals */}
       <EditProductModal
         product={editingProduct}
         isOpen={isEditProductModalOpen}
@@ -557,13 +567,13 @@ export const ProducerDashboard = () => {
           setIsEditProductModalOpen(false);
           setEditingProduct(null);
         }}
-        onProductUpdated={handleProductUpdated}
+        onProductUpdated={fetchProducts}
       />
 
       <EditProfileModal
         isOpen={isEditProfileModalOpen}
         onClose={() => setIsEditProfileModalOpen(false)}
-        onProfileUpdated={handleProfileUpdated}
+        onProfileUpdated={() => {}}
       />
     </div>
   );

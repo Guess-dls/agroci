@@ -9,7 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ProductDetailsModal } from "./ProductDetailsModal";
 import { EditProfileModal } from "./EditProfileModal";
-import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
+// Subscription not needed for buyers
 import { BuyerContactRequests } from "./BuyerContactRequests";
 import { ContactProducerModal } from "./ContactProducerModal";
 

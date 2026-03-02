@@ -75,10 +75,9 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
     }
     
     try {
-      // Get user profile
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, subscription_required')
+        .select('id, subscription_active, subscription_end_date')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -88,9 +87,13 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         return;
       }
 
-      setSubscriptionRequired(profile.subscription_required);
+      // Check if subscription is active and not expired
+      const hasActiveSubscription = profile.subscription_active && 
+        profile.subscription_end_date && 
+        new Date(profile.subscription_end_date) > new Date();
 
-      // Count existing products
+      setSubscriptionRequired(!hasActiveSubscription);
+
       const { count, error: countError } = await supabase
         .from('products')
         .select('id', { count: 'exact', head: true })
@@ -289,7 +292,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
     }
   };
 
-  const isLimitReached = subscriptionRequired && productCount >= 3;
+  const isLimitReached = subscriptionRequired;
 
   if (checkingLimit) {
     return (
@@ -308,10 +311,10 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-amber-800">
             <Lock className="h-5 w-5" />
-            Limite de produits atteinte
+            Abonnement requis
           </CardTitle>
           <CardDescription className="text-amber-700">
-            Vous avez atteint la limite de 3 produits pour le mode gratuit
+            Vous devez avoir un abonnement actif pour publier des produits
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -319,14 +322,10 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
               <div>
-                <p className="font-medium text-amber-800">Abonnement requis</p>
+                <p className="font-medium text-amber-800">Abonnement mensuel requis</p>
                 <p className="text-sm text-amber-700 mt-1">
-                  Un administrateur a activé l'obligation d'abonnement sur votre compte. 
-                  Vous êtes limité à <strong>3 produits</strong> et ne pouvez pas ajouter de nouveaux produits 
-                  ni modifier les existants.
-                </p>
-                <p className="text-sm text-amber-700 mt-2">
-                  <strong>Produits actuels :</strong> {productCount}/3
+                  Souscrivez à l'abonnement mensuel à <strong>3 000 FCFA/mois</strong> pour publier
+                  et rendre visibles vos produits aux acheteurs.
                 </p>
               </div>
             </div>
@@ -335,7 +334,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
             className="w-full bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600"
             onClick={() => window.location.href = '/abonnements'}
           >
-            Voir les abonnements
+            S'abonner maintenant
           </Button>
         </CardContent>
       </Card>

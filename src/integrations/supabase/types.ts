@@ -192,6 +192,60 @@ export type Database = {
           },
         ]
       }
+      product_boosts: {
+        Row: {
+          amount_paid: number
+          created_at: string
+          end_date: string
+          id: string
+          producer_id: string
+          product_id: string
+          reference_paiement: string | null
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount_paid?: number
+          created_at?: string
+          end_date: string
+          id?: string
+          producer_id: string
+          product_id: string
+          reference_paiement?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount_paid?: number
+          created_at?: string
+          end_date?: string
+          id?: string
+          producer_id?: string
+          product_id?: string
+          reference_paiement?: string | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_boosts_producer_id_fkey"
+            columns: ["producer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "product_boosts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_views: {
         Row: {
           id: string
@@ -309,8 +363,11 @@ export type Database = {
           pays: string
           prenom: string
           region: string | null
+          subscription_active: boolean
+          subscription_end_date: string | null
           subscription_expires_at: string | null
           subscription_required: boolean
+          subscription_start_date: string | null
           suspended: boolean | null
           type_acheteur: string | null
           type_activite: string | null
@@ -328,8 +385,11 @@ export type Database = {
           pays: string
           prenom: string
           region?: string | null
+          subscription_active?: boolean
+          subscription_end_date?: string | null
           subscription_expires_at?: string | null
           subscription_required?: boolean
+          subscription_start_date?: string | null
           suspended?: boolean | null
           type_acheteur?: string | null
           type_activite?: string | null
@@ -347,8 +407,11 @@ export type Database = {
           pays?: string
           prenom?: string
           region?: string | null
+          subscription_active?: boolean
+          subscription_end_date?: string | null
           subscription_expires_at?: string | null
           subscription_required?: boolean
+          subscription_start_date?: string | null
           suspended?: boolean | null
           type_acheteur?: string | null
           type_activite?: string | null
@@ -564,6 +627,18 @@ export type Database = {
           whatsapp: string
         }[]
       }
+      activate_producer_subscription: {
+        Args: { producer_profile_id: string; reference?: string }
+        Returns: string
+      }
+      activate_product_boost: {
+        Args: {
+          p_producer_id: string
+          p_product_id: string
+          p_reference?: string
+        }
+        Returns: string
+      }
       create_admin_profile: {
         Args: {
           admin_email: string
@@ -590,6 +665,7 @@ export type Database = {
         }
         Returns: string
       }
+      deactivate_expired_subscriptions: { Args: never; Returns: number }
       deduct_credits_for_contact: {
         Args: {
           buyer_profile_id: string
@@ -647,6 +723,10 @@ export type Database = {
         }[]
       }
       get_user_type: { Args: never; Returns: string }
+      has_active_subscription: {
+        Args: { producer_profile_id: string }
+        Returns: boolean
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -658,6 +738,7 @@ export type Database = {
         Args: { credits_to_add: number; user_profile_id: string }
         Returns: undefined
       }
+      is_product_boosted: { Args: { p_product_id: string }; Returns: boolean }
       promote_to_admin: { Args: { user_email: string }; Returns: string }
       reject_contact_request: {
         Args: { request_id_param: string }

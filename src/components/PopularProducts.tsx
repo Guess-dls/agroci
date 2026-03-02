@@ -3,7 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { MapPin, Package } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { MapPin, Package, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ProductDetailsModal } from "@/components/ProductDetailsModal";
@@ -26,6 +27,7 @@ interface Product {
     whatsapp?: string;
     verified: boolean;
   };
+  is_boosted?: boolean;
 }
 
 interface Producer {
@@ -46,6 +48,7 @@ export const PopularProducts = () => {
   const { data: products, isLoading } = useQuery({
     queryKey: ["approved-products-home"],
     queryFn: async () => {
+      // Fetch products
       const { data, error } = await supabase
         .from("products")
         .select(`
@@ -64,10 +67,33 @@ export const PopularProducts = () => {
         .eq("status", "approuve")
         .eq("hidden", false)
         .order("created_at", { ascending: false })
-        .limit(8);
+        .limit(12);
 
       if (error) throw error;
-      return data as Product[];
+
+      // Fetch active boosts
+      const { data: boosts } = await supabase
+        .from("product_boosts")
+        .select("product_id")
+        .eq("status", "active")
+        .gt("end_date", new Date().toISOString());
+
+      const boostedIds = new Set((boosts || []).map(b => b.product_id));
+
+      // Mark boosted products and sort them first
+      const enriched = (data || []).map(p => ({
+        ...p,
+        is_boosted: boostedIds.has(p.id)
+      })) as Product[];
+
+      // Sort: boosted first, then by date
+      enriched.sort((a, b) => {
+        if (a.is_boosted && !b.is_boosted) return -1;
+        if (!a.is_boosted && b.is_boosted) return 1;
+        return 0;
+      });
+
+      return enriched.slice(0, 8);
     },
   });
 
@@ -136,9 +162,11 @@ export const PopularProducts = () => {
                 <Card
                   key={product.id}
                   onClick={(e) => handleProductClick(e, product)}
-                  className="overflow-hidden hover:shadow-medium transition-all duration-300 hover:-translate-y-1 cursor-pointer group"
+                  className={`overflow-hidden hover:shadow-medium transition-all duration-300 hover:-translate-y-1 cursor-pointer group ${
+                    product.is_boosted ? 'ring-2 ring-amber-400 shadow-amber-100' : ''
+                  }`}
                 >
-                  <div className="aspect-square overflow-hidden bg-muted">
+                  <div className="aspect-square overflow-hidden bg-muted relative">
                     {product.image_url ? (
                       <img
                         src={product.image_url}
@@ -149,6 +177,14 @@ export const PopularProducts = () => {
                     ) : (
                       <div className="w-full h-full flex items-center justify-center">
                         <Package className="w-12 h-12 text-muted-foreground" />
+                      </div>
+                    )}
+                    {product.is_boosted && (
+                      <div className="absolute top-2 right-2">
+                        <Badge className="bg-amber-500 text-white text-xs gap-1">
+                          <Rocket className="w-3 h-3" />
+                          Boosté
+                        </Badge>
                       </div>
                     )}
                   </div>
@@ -202,7 +238,6 @@ export const PopularProducts = () => {
         )}
       </div>
 
-      {/* Modal détails produit */}
       <ProductDetailsModal
         product={selectedProduct as any}
         isOpen={isDetailsOpen}
@@ -210,7 +245,6 @@ export const PopularProducts = () => {
         onContactProducer={handleContactProducer}
       />
 
-      {/* Modal contact producteur */}
       <ContactProducerModal
         open={contactModalOpen}
         onOpenChange={setContactModalOpen}

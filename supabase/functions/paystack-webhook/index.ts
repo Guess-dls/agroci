@@ -95,10 +95,10 @@ serve(async (req) => {
     }
 
     const { reference, metadata } = data.data;
-    const { plan, credits, profile_id } = metadata;
+    const { type, profile_id, product_id } = metadata;
 
     // Validate metadata fields
-    if (!plan || typeof credits !== 'number' || credits <= 0 || !profile_id) {
+    if (!type || !profile_id) {
       console.error('Invalid metadata:', metadata);
       return new Response(JSON.stringify({ error: 'Invalid metadata' }), {
         status: 400,
@@ -163,36 +163,51 @@ serve(async (req) => {
       });
     }
 
-    // Add credits to user profile
-    const { error: creditError } = await supabase.rpc('increment_user_credits', {
-      user_profile_id: profile_id,
-      credits_to_add: credits
-    });
-
-    if (creditError) {
-      console.error('Error updating user credits:', creditError);
-      throw creditError;
-    }
-
-    // Record the transaction
-    const { error: transactionError } = await supabase
-      .from('transactions')
-      .insert({
-        user_id: profile_id,
-        type_transaction: 'achat_credits',
-        credits_ajoutes: credits,
-        montant: verificationData.data.amount / 100, // Convert from kobo to CFA
-        description: `Achat de ${credits} crédits (${plan})`,
-        statut: 'valide',
-        reference_paiement: reference
+    // Process based on payment type
+    if (type === 'subscription') {
+      // Activate monthly subscription
+      const { data: result, error } = await supabase.rpc('activate_producer_subscription', {
+        producer_profile_id: profile_id,
+        reference: reference
       });
 
-    if (transactionError) {
-      console.error('Error recording transaction:', transactionError);
-      throw transactionError;
+      if (error) {
+        console.error('Error activating subscription:', error);
+        throw error;
+      }
+
+      console.log('Subscription activated:', result);
+    } else if (type === 'boost') {
+      // Activate product boost
+      if (!product_id || !uuidRegex.test(product_id)) {
+        console.error('Invalid product_id for boost:', product_id);
+        return new Response(JSON.stringify({ error: 'Invalid product_id for boost' }), {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        });
+      }
+
+      const { data: result, error } = await supabase.rpc('activate_product_boost', {
+        p_product_id: product_id,
+        p_producer_id: profile_id,
+        p_reference: reference
+      });
+
+      if (error) {
+        console.error('Error activating boost:', error);
+        throw error;
+      }
+
+      console.log('Boost activated:', result);
+    } else {
+      console.error('Unknown payment type:', type);
+      return new Response(JSON.stringify({ error: 'Unknown payment type' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    console.log(`Successfully processed payment: ${reference}, added ${credits} credits to ${profile_id}`);
+    console.log(`Successfully processed ${type} payment: ${reference} for ${profile_id}`);
 
     return new Response(JSON.stringify({ received: true, message: 'Payment processed successfully' }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },

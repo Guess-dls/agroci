@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ContactProducerModal } from "@/components/ContactProducerModal";
 import { ProductDetailsModal } from "@/components/ProductDetailsModal";
 import { useToast } from "@/hooks/use-toast";
-import { Search, MapPin, MessageSquare, Loader2, Package, Eye } from "lucide-react";
+import { Search, MapPin, MessageSquare, Loader2, Package, Eye, Rocket } from "lucide-react";
 import { ProducerBadge } from "@/components/ProducerBadge";
 import CategoryFilter from "@/components/CategoryFilter";
 import SEOHead from "@/components/SEOHead";
@@ -33,6 +33,7 @@ interface Product {
     verified: boolean;
     id: string;
   };
+  is_boosted?: boolean;
   categories_produits?: {
     nom: string;
     icone: string;
@@ -91,7 +92,28 @@ const Products = () => {
 
       if (error) throw error;
 
-      setProducts(data || []);
+      // Fetch active boosts
+      const { data: boosts } = await supabase
+        .from('product_boosts')
+        .select('product_id')
+        .eq('status', 'active')
+        .gt('end_date', new Date().toISOString());
+
+      const boostedIds = new Set((boosts || []).map(b => b.product_id));
+
+      const enriched = (data || []).map(p => ({
+        ...p,
+        is_boosted: boostedIds.has(p.id)
+      }));
+
+      // Sort: boosted first
+      enriched.sort((a, b) => {
+        if (a.is_boosted && !b.is_boosted) return -1;
+        if (!a.is_boosted && b.is_boosted) return 1;
+        return 0;
+      });
+
+      setProducts(enriched);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -246,7 +268,7 @@ const Products = () => {
                 
                 return (
                   <article key={product.id}>
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 h-full">
+                    <Card className={`overflow-hidden hover:shadow-lg transition-all duration-300 bg-white/80 backdrop-blur-sm border-0 h-full ${product.is_boosted ? 'ring-2 ring-amber-400' : ''}`}>
                       <div className="aspect-video relative bg-gray-100">
                         {product.image_url ? (
                           <img
@@ -265,6 +287,14 @@ const Products = () => {
                             <Badge className="bg-white/90 text-gray-800 hover:bg-white">
                               <span className="mr-1" aria-hidden="true">{category.icone}</span>
                               {category.nom}
+                            </Badge>
+                          </div>
+                        )}
+                        {product.is_boosted && (
+                          <div className="absolute top-2 right-2">
+                            <Badge className="bg-amber-500 text-white text-xs gap-1">
+                              <Rocket className="w-3 h-3" />
+                              Boosté
                             </Badge>
                           </div>
                         )}

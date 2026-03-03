@@ -104,7 +104,7 @@ export const ContactProducerModal = ({ open, onOpenChange, producer, productName
 
           <div className="bg-blue-50 border border-blue-200 p-3 rounded-lg">
             <p className="text-sm text-blue-800">
-              💬 Votre demande sera envoyée au producteur. Une fois acceptée, vous pourrez le contacter directement via WhatsApp.
+              💬 Votre demande sera envoyée au producteur. Une fois acceptée, vous pourrez discuter directement via la messagerie intégrée.
             </p>
           </div>
 

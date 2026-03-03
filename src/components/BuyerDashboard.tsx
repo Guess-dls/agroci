@@ -9,9 +9,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { ProductDetailsModal } from "./ProductDetailsModal";
 import { EditProfileModal } from "./EditProfileModal";
-// Subscription not needed for buyers
 import { BuyerContactRequests } from "./BuyerContactRequests";
 import { ContactProducerModal } from "./ContactProducerModal";
+import { ConversationsList } from "./ConversationsList";
 
 interface Product {
   id: string;
@@ -193,15 +193,13 @@ export const BuyerDashboard = () => {
     handleSearch(productName); // Passer directement le terme de recherche
   };
 
-  const handleWhatsAppClick = async (product: any) => {
+  const handleContactClick = async (product: any) => {
     try {
-      // Vérifier l'authentification et le profil
       if (!user) {
         toast.error("Veuillez vous connecter pour contacter un producteur");
         return;
       }
 
-      // S'assurer d'avoir l'id du profil acheteur
       let buyerProfileId = profile?.id as string | undefined;
       if (!buyerProfileId) {
         const { data: prof } = await supabase
@@ -216,8 +214,8 @@ export const BuyerDashboard = () => {
         return;
       }
 
-      // Vérifier s'il existe une demande acceptée pour ce couple acheteur/producteur/produit
-      const { data: existingReq, error: reqError } = await supabase
+      // Check existing contact request
+      const { data: existingReq } = await supabase
         .from('contact_requests')
         .select('status')
         .eq('buyer_id', buyerProfileId)
@@ -225,54 +223,14 @@ export const BuyerDashboard = () => {
         .eq('product_id', product.id)
         .maybeSingle();
 
-      if (reqError) {
-        console.error('Erreur vérification demande:', reqError);
-      }
-
       if (existingReq?.status === 'acceptee') {
-        // Autorisé: récupérer les infos de contact via RPC sécurisée
-        const { data: contactInfo, error } = await supabase.rpc(
-          'get_producer_contact_info',
-          { 
-            producer_profile_id: product.producteur_id,
-            product_id: product.id 
-          }
-        );
-
-        if (error) {
-          console.error('Erreur lors de la récupération des infos de contact:', error);
-          toast.error("Impossible d'obtenir les informations de contact");
-          return;
-        }
-
-        if (!contactInfo || contactInfo.length === 0) {
-          toast.error("Informations de contact non disponibles");
-          return;
-        }
-
-        const contact = contactInfo[0];
-        const raw = contact.whatsapp || '';
-        const phoneNumber = raw.replace(/[^\d]/g, ''); // wa.me exige uniquement des chiffres
-        if (!phoneNumber) {
-          toast.error("Numéro WhatsApp non disponible");
-          return;
-        }
-
-        const message = encodeURIComponent(`Bonjour ${contact.prenom} ${contact.nom}, je suis intéressé(e) par votre produit: ${product.nom} (${product.prix} FCFA)`);
-        // Enregistrer le click AVANT d'ouvrir WhatsApp (mobile peut interrompre l'exécution)
-        try {
-          await supabase.from('whatsapp_clicks').insert({ product_id: product.id, clicker_id: buyerProfileId });
-          console.log('Click WhatsApp enregistré avec succès');
-        } catch (clickError) {
-          console.error("Erreur lors de l'enregistrement du click WhatsApp:", clickError);
-        }
-        // Ouvrir WhatsApp ensuite
-        window.open(`https://wa.me/${phoneNumber}?text=${message}`, '_blank');
-        toast.success("Redirection vers WhatsApp...");
+        // Redirect to messages tab
+        toast.success("Conversation déjà active ! Allez dans l'onglet Messages.");
+        setActiveTab("messages");
         return;
       }
 
-      // Pas de demande acceptée: ouvrir la modal d'envoi de demande
+      // Open contact request modal
       setModalProducer({
         id: product.producteur_id,
         nom: product.profiles?.nom || '',
@@ -287,12 +245,10 @@ export const BuyerDashboard = () => {
         toast("Demande déjà envoyée: en attente de validation du producteur");
       } else if (existingReq?.status === 'refusee') {
         toast("La demande a été refusée. Vous pouvez la relancer depuis l'onglet Demandes.");
-      } else {
-        toast("Envoyez une demande de contact au producteur");
       }
     } catch (error) {
-      console.error('Erreur lors du clic WhatsApp:', error);
-      toast.error("Erreur lors de l'ouverture de WhatsApp");
+      console.error('Erreur:', error);
+      toast.error("Une erreur s'est produite");
     }
   };
 
@@ -334,7 +290,7 @@ export const BuyerDashboard = () => {
   const handleContactProducer = (productId: string, productName: string) => {
     const product = searchResults.find(p => p.id === productId);
     if (product) {
-      handleWhatsAppClick(product);
+      handleContactClick(product);
     }
   };
 

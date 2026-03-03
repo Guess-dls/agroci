@@ -192,6 +192,58 @@ export type Database = {
           },
         ]
       }
+      messages: {
+        Row: {
+          contact_request_id: string
+          content: string
+          created_at: string
+          id: string
+          read: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Insert: {
+          contact_request_id: string
+          content: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_id: string
+          sender_id: string
+        }
+        Update: {
+          contact_request_id?: string
+          content?: string
+          created_at?: string
+          id?: string
+          read?: boolean
+          receiver_id?: string
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_contact_request_id_fkey"
+            columns: ["contact_request_id"]
+            isOneToOne: false
+            referencedRelation: "contact_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       product_boosts: {
         Row: {
           amount_paid: number
@@ -624,7 +676,6 @@ export type Database = {
           buyer_name: string
           nom: string
           prenom: string
-          whatsapp: string
         }[]
       }
       activate_producer_subscription: {
@@ -742,6 +793,10 @@ export type Database = {
       promote_to_admin: { Args: { user_email: string }; Returns: string }
       reject_contact_request: {
         Args: { request_id_param: string }
+        Returns: Json
+      }
+      send_message: {
+        Args: { contact_request_id_param: string; content_param: string }
         Returns: Json
       }
       toggle_product_visibility: {

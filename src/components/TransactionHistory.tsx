@@ -76,8 +76,14 @@ const TransactionHistory = () => {
 
   const getTransactionIcon = (type: string) => {
     switch (type) {
-      case 'achat_abonnement':
+      case 'abonnement_mensuel':
         return <Plus className="h-4 w-4 text-green-600" />;
+      case 'boost_produit':
+        return <Plus className="h-4 w-4 text-amber-600" />;
+      case 'achat_abonnement':
+      case 'achat_credits':
+        return <Plus className="h-4 w-4 text-green-600" />;
+      case 'contact_producteur':
       case 'utilisation_credit':
         return <Minus className="h-4 w-4 text-red-600" />;
       case 'bonus':

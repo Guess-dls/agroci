@@ -15,3 +15,6 @@ verify_jwt = false
 
 [functions.send-email]
 verify_jwt = false
+
+[functions.check-expired-subscriptions]
+verify_jwt = false

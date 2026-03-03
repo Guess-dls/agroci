@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Check, X, MessageSquare, Phone } from "lucide-react";
+import { Check, X, MessageSquare } from "lucide-react";
 
 interface ContactRequest {
   id: string;
@@ -17,7 +17,6 @@ interface ContactRequest {
   buyer_profile?: {
     nom?: string;
     prenom?: string;
-    whatsapp?: string;
     pays?: string;
     region?: string | null;
   } | null;
@@ -50,26 +49,21 @@ export const ContactRequestsList = () => {
         .from('contact_requests')
         .select(`
           *,
-          buyer_profile:profiles!contact_requests_buyer_id_fkey(nom, prenom, whatsapp, pays, region),
+          buyer_profile:profiles!contact_requests_buyer_id_fkey(nom, prenom, pays, region),
           product:products!contact_requests_product_id_fkey(nom, image_url)
         `)
         .eq('producer_id', profile.id)
         .eq('status', 'en_attente')
         .order('created_at', { ascending: false });
 
-      console.log('ContactRequestsList - Données brutes:', data);
-      console.log('ContactRequestsList - Erreur:', error);
-
       if (error) throw error;
 
-      // Transformer et filtrer les demandes avec des données valides
       const validRequests = (data || []).map(req => ({
         ...req,
         buyer_profile: Array.isArray(req.buyer_profile) ? req.buyer_profile[0] : (req.buyer_profile || null),
         product: Array.isArray(req.product) ? req.product[0] : req.product,
       })).filter(req => req.product);
 
-      console.log('ContactRequestsList - Demandes transformées:', validRequests);
       setRequests(validRequests);
     } catch (error: any) {
       console.error('Erreur lors du chargement des demandes:', error);
@@ -93,39 +87,12 @@ export const ContactRequestsList = () => {
 
       if (error) throw error;
 
-      if (!data || data.length === 0) {
-        throw new Error("Impossible d'obtenir les informations de contact");
-      }
-
-      const buyerInfo = data[0];
-      
-      // Format WhatsApp number
-      let whatsappNumber = buyerInfo.whatsapp.replace(/[^\d+]/g, '');
-      if (!whatsappNumber.startsWith('+')) {
-        whatsappNumber = '+' + whatsappNumber;
-      }
-
-      // Generate WhatsApp message
-      const message = encodeURIComponent(
-        `Bonjour ${buyerInfo.nom} ${buyerInfo.prenom},\n\nJ'ai bien reçu votre demande de contact sur AgroConnect. Je suis disponible pour discuter de mes produits.\n\nMerci !`
-      );
-
-      const whatsappUrl = `https://wa.me/${whatsappNumber.replace('+', '')}?text=${message}`;
-      
       toast({
-        title: "Demande acceptée",
-        description: "1 crédit a été déduit à l'acheteur. Redirection vers WhatsApp...",
+        title: "Demande acceptée ✅",
+        description: "Vous pouvez maintenant discuter avec l'acheteur dans la messagerie.",
       });
 
-      // Open WhatsApp
-      window.open(whatsappUrl, '_blank');
-
-      // Notify dashboard to refresh stats
-      window.dispatchEvent(new CustomEvent('whatsapp:stats-refresh'));
-
-      // Reload requests
       loadRequests();
-
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -154,7 +121,6 @@ export const ContactRequestsList = () => {
       });
 
       loadRequests();
-
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -193,7 +159,7 @@ export const ContactRequestsList = () => {
           )}
         </CardTitle>
         <CardDescription>
-          Gérez les demandes de contact des acheteurs intéressés par vos produits
+          Acceptez les demandes pour discuter via la messagerie intégrée
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -239,11 +205,11 @@ export const ContactRequestsList = () => {
                       <Button
                         onClick={() => handleAccept(request.id)}
                         disabled={processingId === request.id}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-emerald-600 hover:bg-emerald-700"
                         size="sm"
                       >
                         <Check className="h-4 w-4 mr-1" />
-                        Accepter et contacter
+                        Accepter
                       </Button>
                       <Button
                         onClick={() => handleReject(request.id)}

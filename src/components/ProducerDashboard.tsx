@@ -9,6 +9,7 @@ import { EditProductModal } from "./EditProductModal";
 import { EditProfileModal } from "./EditProfileModal";
 import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
 import { ContactRequestsList } from "./ContactRequestsList";
+import { ConversationsList } from "./ConversationsList";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -285,14 +286,14 @@ export const ProducerDashboard = () => {
 
         <Card className="bg-gradient-to-br from-orange-50 to-orange-100 border-orange-200 shadow-lg hover:shadow-orange-200/50 transition-all duration-300">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 truncate">Clics WhatsApp</CardTitle>
+            <CardTitle className="text-xs sm:text-sm font-medium text-orange-700 truncate">Contacts reçus</CardTitle>
             <div className="p-1.5 sm:p-2 bg-orange-100 rounded-lg flex-shrink-0">
               <MessageCircle className="h-3 w-3 sm:h-4 sm:w-4 text-orange-600" />
             </div>
           </CardHeader>
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-orange-800">{stats.totalClicks}</div>
-            <p className="text-[10px] sm:text-xs text-orange-600 truncate">Clics totaux</p>
+            <p className="text-[10px] sm:text-xs text-orange-600 truncate">Demandes totales</p>
           </CardContent>
         </Card>
 
@@ -314,12 +315,17 @@ export const ProducerDashboard = () => {
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="flex w-full h-auto p-1 bg-gradient-to-r from-emerald-100 to-blue-100 gap-1 overflow-x-auto">
           <TabsTrigger value="overview" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-emerald-500 data-[state=active]:text-white whitespace-nowrap">Aperçu</TabsTrigger>
+          <TabsTrigger value="messages" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white whitespace-nowrap">💬 Messages</TabsTrigger>
           <TabsTrigger value="requests" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white whitespace-nowrap">Demandes</TabsTrigger>
           <TabsTrigger value="products" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-blue-500 data-[state=active]:text-white whitespace-nowrap">Produits</TabsTrigger>
           <TabsTrigger value="add-product" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-orange-500 data-[state=active]:text-white whitespace-nowrap">Ajouter</TabsTrigger>
           <TabsTrigger value="subscription" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-purple-500 data-[state=active]:text-white whitespace-nowrap">Abonnement</TabsTrigger>
           <TabsTrigger value="profile" className="flex-1 min-w-fit text-[10px] sm:text-sm px-2 sm:px-3 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white whitespace-nowrap">Profil</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="messages" className="space-y-6">
+          <ConversationsList userType="producteur" />
+        </TabsContent>
 
         <TabsContent value="requests" className="space-y-6">
           <ContactRequestsList />

@@ -531,6 +531,10 @@ export const BuyerDashboard = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="messages" className="space-y-6">
+          <ConversationsList userType="acheteur" />
+        </TabsContent>
+
         <TabsContent value="requests" className="space-y-6">
           <BuyerContactRequests />
         </TabsContent>

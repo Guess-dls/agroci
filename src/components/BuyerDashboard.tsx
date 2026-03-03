@@ -361,8 +361,9 @@ export const BuyerDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-6 h-auto p-1 bg-gradient-to-r from-rose-100 to-amber-100">
+        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-7 h-auto p-1 bg-gradient-to-r from-rose-100 to-amber-100">
           <TabsTrigger value="search" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-cyan-500 data-[state=active]:text-white">Rechercher</TabsTrigger>
+          <TabsTrigger value="messages" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-emerald-600 data-[state=active]:text-white">💬 Messages</TabsTrigger>
           <TabsTrigger value="requests" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-pink-500 data-[state=active]:text-white">Demandes</TabsTrigger>
           <TabsTrigger value="favorites" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-rose-500 data-[state=active]:text-white">Favoris</TabsTrigger>
           <TabsTrigger value="history" className="text-xs sm:text-sm px-2 py-2 data-[state=active]:bg-indigo-500 data-[state=active]:text-white">Historique</TabsTrigger>
@@ -487,7 +488,7 @@ export const BuyerDashboard = () => {
                               <Button 
                                 size="sm" 
                                 className="bg-green-600 hover:bg-green-700 text-white w-full sm:flex-1"
-                                onClick={() => handleWhatsAppClick(product)}
+                                onClick={() => handleContactClick(product)}
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" />
                                 Contacter
@@ -621,7 +622,7 @@ export const BuyerDashboard = () => {
                               <Button 
                                 size="sm" 
                                 className="bg-green-600 hover:bg-green-700 text-white w-full sm:flex-1"
-                                onClick={() => handleWhatsAppClick(product)}
+                                onClick={() => handleContactClick(product)}
                               >
                                 <MessageCircle className="mr-2 h-4 w-4" />
                                 Contacter

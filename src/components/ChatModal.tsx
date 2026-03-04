@@ -1,11 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useState, useEffect, useRef, useCallback } from "react";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
 interface Message {
@@ -34,7 +33,6 @@ export const ChatModal = ({
   productName,
   currentProfileId,
 }: ChatModalProps) => {
-  const { user } = useAuth();
   const { toast } = useToast();
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -42,9 +40,19 @@ export const ChatModal = ({
   const [loading, setLoading] = useState(true);
   const scrollRef = useRef<HTMLDivElement>(null);
 
-  const fetchMessages = async () => {
+  const scrollToBottom = useCallback(() => {
+    requestAnimationFrame(() => {
+      const viewport = scrollRef.current?.querySelector("[data-radix-scroll-area-viewport]") as HTMLDivElement | null;
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
+    });
+  }, []);
+
+  const fetchMessages = useCallback(async () => {
     if (!contactRequestId) return;
 
+    setLoading(true);
     const { data, error } = await supabase
       .from("messages")
       .select("*")
@@ -55,30 +63,33 @@ export const ChatModal = ({
       console.error("Error fetching messages:", error);
     } else {
       setMessages(data || []);
+      scrollToBottom();
     }
     setLoading(false);
-  };
+  }, [contactRequestId, scrollToBottom]);
 
-  // Mark messages as read
-  const markAsRead = async () => {
+  const markAsRead = useCallback(async () => {
     if (!currentProfileId || !contactRequestId) return;
-    
-    await supabase
+
+    const { error } = await supabase
       .from("messages")
       .update({ read: true })
       .eq("contact_request_id", contactRequestId)
       .eq("receiver_id", currentProfileId)
       .eq("read", false);
-  };
+
+    if (error) {
+      console.error("Error marking messages as read:", error);
+    }
+  }, [contactRequestId, currentProfileId]);
 
   useEffect(() => {
-    if (open && contactRequestId) {
-      fetchMessages();
-      markAsRead();
-    }
-  }, [open, contactRequestId]);
+    if (!open || !contactRequestId) return;
 
-  // Subscribe to realtime messages
+    fetchMessages();
+    markAsRead();
+  }, [open, contactRequestId, fetchMessages, markAsRead]);
+
   useEffect(() => {
     if (!open || !contactRequestId) return;
 
@@ -87,37 +98,34 @@ export const ChatModal = ({
       .on(
         "postgres_changes",
         {
-          event: "INSERT",
+          event: "*",
           schema: "public",
           table: "messages",
           filter: `contact_request_id=eq.${contactRequestId}`,
         },
-        (payload) => {
-          const newMsg = payload.new as Message;
-          setMessages((prev) => [...prev, newMsg]);
-          // Mark as read if we're the receiver
-          if (newMsg.receiver_id === currentProfileId) {
-            supabase
-              .from("messages")
-              .update({ read: true })
-              .eq("id", newMsg.id)
-              .then(() => {});
-          }
+        async () => {
+          await fetchMessages();
+          await markAsRead();
         }
       )
       .subscribe();
 
+    const intervalId = window.setInterval(() => {
+      fetchMessages();
+      markAsRead();
+    }, 3000);
+
     return () => {
+      window.clearInterval(intervalId);
       supabase.removeChannel(channel);
     };
-  }, [open, contactRequestId, currentProfileId]);
+  }, [open, contactRequestId, fetchMessages, markAsRead]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (messages.length > 0) {
+      scrollToBottom();
     }
-  }, [messages]);
+  }, [messages, scrollToBottom]);
 
   const handleSend = async () => {
     if (!newMessage.trim() || sending) return;
@@ -131,6 +139,7 @@ export const ChatModal = ({
 
       if (error) throw error;
       setNewMessage("");
+      await fetchMessages();
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -156,20 +165,19 @@ export const ChatModal = ({
           <DialogTitle className="flex items-center gap-2 text-base">
             <MessageCircle className="h-5 w-5 text-emerald-600" />
             <div className="flex flex-col">
-              <span>{otherUserName}</span>
-              <span className="text-xs font-normal text-muted-foreground">
-                {productName}
-              </span>
+              <span>{otherUserName || "Utilisateur"}</span>
+              <span className="text-xs font-normal text-muted-foreground">{productName}</span>
             </div>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Messagerie intégrée pour discuter en privé à propos du produit {productName}.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">
           <ScrollArea className="h-full p-4" ref={scrollRef}>
             {loading ? (
-              <div className="text-center text-muted-foreground py-8">
-                Chargement...
-              </div>
+              <div className="text-center text-muted-foreground py-8">Chargement...</div>
             ) : messages.length === 0 ? (
               <div className="text-center text-muted-foreground py-8">
                 <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-30" />
@@ -181,23 +189,14 @@ export const ChatModal = ({
                 {messages.map((msg) => {
                   const isMine = msg.sender_id === currentProfileId;
                   return (
-                    <div
-                      key={msg.id}
-                      className={`flex ${isMine ? "justify-end" : "justify-start"}`}
-                    >
+                    <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
                       <div
                         className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
-                          isMine
-                            ? "bg-emerald-600 text-white rounded-br-md"
-                            : "bg-muted rounded-bl-md"
+                          isMine ? "bg-emerald-600 text-white rounded-br-md" : "bg-muted rounded-bl-md"
                         }`}
                       >
                         <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                        <p
-                          className={`text-[10px] mt-1 ${
-                            isMine ? "text-emerald-200" : "text-muted-foreground"
-                          }`}
-                        >
+                        <p className={`text-[10px] mt-1 ${isMine ? "text-emerald-200" : "text-muted-foreground"}`}>
                           {new Date(msg.created_at).toLocaleTimeString("fr-FR", {
                             hour: "2-digit",
                             minute: "2-digit",

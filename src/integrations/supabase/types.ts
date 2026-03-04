@@ -725,6 +725,10 @@ export type Database = {
         }
         Returns: string
       }
+      delete_conversation: {
+        Args: { contact_request_id_param: string }
+        Returns: Json
+      }
       delete_user_account: { Args: { profile_id: string }; Returns: string }
       get_interested_buyers: {
         Args: { producer_user_id: string }

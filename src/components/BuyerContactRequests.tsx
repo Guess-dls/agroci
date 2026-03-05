@@ -124,7 +124,7 @@ export const BuyerContactRequests = () => {
       if (error) throw error;
       toast({ title: "Demande relancée", description: "Le producteur a été notifié" });
       loadRequests();
-    } catch (error: any) {
+    } catch {
       toast({ title: "Erreur", description: "Impossible de relancer", variant: "destructive" });
     }
   };
@@ -136,7 +136,7 @@ export const BuyerContactRequests = () => {
       if (error) throw error;
       toast({ title: "Supprimée" });
       loadRequests();
-    } catch (error: any) {
+    } catch {
       toast({ title: "Erreur", description: "Impossible de supprimer", variant: "destructive" });
     }
   };
@@ -145,19 +145,19 @@ export const BuyerContactRequests = () => {
     switch (status) {
       case "en_attente":
         return (
-          <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-300">
+          <Badge variant="secondary">
             <Clock className="h-3 w-3 mr-1" />En attente
           </Badge>
         );
       case "acceptee":
         return (
-          <Badge variant="outline" className="bg-green-50 text-green-800 border-green-300">
+          <Badge variant="default">
             <CheckCircle className="h-3 w-3 mr-1" />Acceptée
           </Badge>
         );
       case "refusee":
         return (
-          <Badge variant="outline" className="bg-red-50 text-red-800 border-red-300">
+          <Badge variant="destructive">
             <XCircle className="h-3 w-3 mr-1" />Refusée
           </Badge>
         );
@@ -219,8 +219,8 @@ export const BuyerContactRequests = () => {
 
                       {request.status === "acceptee" && (
                         <div className="space-y-2">
-                          <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                            <p className="text-sm text-green-800">✅ Le producteur a accepté ! Discutez via la messagerie.</p>
+                          <div className="bg-muted border border-border p-3 rounded-lg">
+                            <p className="text-sm text-foreground">✅ Le producteur a accepté ! Discutez via la messagerie.</p>
                           </div>
                           <Button onClick={() => handleOpenChat(request)} className="w-full" size="sm">
                             <MessageSquare className="h-4 w-4 mr-2" />
@@ -231,8 +231,8 @@ export const BuyerContactRequests = () => {
 
                       {request.status === "refusee" && (
                         <div className="space-y-2">
-                          <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
-                            <p className="text-sm text-red-800">❌ Demande refusée</p>
+                          <div className="bg-muted border border-border p-3 rounded-lg">
+                            <p className="text-sm text-foreground">❌ Demande refusée</p>
                           </div>
                           <div className="flex gap-2">
                             <Button onClick={() => handleRetry(request.id)} variant="outline" size="sm" className="flex-1">
@@ -247,8 +247,8 @@ export const BuyerContactRequests = () => {
 
                       {request.status === "en_attente" && (
                         <div className="space-y-2">
-                          <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
-                            <p className="text-sm text-yellow-800">⏳ En attente de réponse</p>
+                          <div className="bg-muted border border-border p-3 rounded-lg">
+                            <p className="text-sm text-foreground">⏳ En attente de réponse</p>
                           </div>
                           <Button onClick={() => handleDelete(request.id)} variant="outline" size="sm" className="w-full">
                             <Trash2 className="h-4 w-4 mr-2" />Annuler

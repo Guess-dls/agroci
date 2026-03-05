@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -33,113 +33,161 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedConv, setSelectedConv] = useState<Conversation | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
+  const inFlightRef = useRef(false);
+  const initializedUnreadRef = useRef(false);
+  const previousUnreadByConversationRef = useRef<Record<string, number>>({});
 
-  const loadConversations = useCallback(async () => {
-    if (!user) {
-      setConversations([]);
-      setProfileId(null);
-      setLoading(false);
-      return;
-    }
+  const loadConversations = useCallback(
+    async (silent = false) => {
+      if (inFlightRef.current) return;
 
-    setLoading(true);
-    try {
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profileError) throw profileError;
-      if (!profile) {
+      if (!user) {
         setConversations([]);
         setProfileId(null);
         setLoading(false);
         return;
       }
 
-      setProfileId(profile.id);
+      inFlightRef.current = true;
+      if (!silent) setLoading(true);
 
-      const idField = userType === "producteur" ? "producer_id" : "buyer_id";
+      try {
+        const { data: profile, error: profileError } = await supabase
+          .from("profiles")
+          .select("id")
+          .eq("user_id", user.id)
+          .maybeSingle();
 
-      const { data: requests, error } = await supabase
-        .from("contact_requests")
-        .select(`
-          id, status, created_at,
-          product:products!contact_requests_product_id_fkey(nom, image_url),
-          buyer:profiles!contact_requests_buyer_id_fkey(id, nom, prenom),
-          producer:profiles!contact_requests_producer_id_fkey(id, nom, prenom)
-        `)
-        .eq(idField, profile.id)
-        .eq("status", "acceptee")
-        .order("created_at", { ascending: false });
+        if (profileError) throw profileError;
+        if (!profile) {
+          setConversations([]);
+          setProfileId(null);
+          setLoading(false);
+          return;
+        }
 
-      if (error) throw error;
+        setProfileId(profile.id);
 
-      const fallbackOtherLabel = userType === "producteur" ? "Acheteur" : "Producteur";
+        const idField = userType === "producteur" ? "producer_id" : "buyer_id";
 
-      const convs = await Promise.all(
-        (requests || []).map(async (req) => {
-          const product = Array.isArray(req.product) ? req.product[0] : req.product;
-          const buyer = Array.isArray(req.buyer) ? req.buyer[0] : req.buyer;
-          const producer = Array.isArray(req.producer) ? req.producer[0] : req.producer;
+        const { data: requests, error: requestsError } = await supabase
+          .from("contact_requests")
+          .select(`
+            id, status, created_at, buyer_id, producer_id,
+            product:products!contact_requests_product_id_fkey(nom, image_url),
+            buyer:profiles!contact_requests_buyer_id_fkey(id, nom, prenom),
+            producer:profiles!contact_requests_producer_id_fkey(id, nom, prenom)
+          `)
+          .eq(idField, profile.id)
+          .eq("status", "acceptee")
+          .order("created_at", { ascending: false });
+
+        if (requestsError) throw requestsError;
+
+        const requestRows = requests || [];
+        if (requestRows.length === 0) {
+          setConversations([]);
+          previousUnreadByConversationRef.current = {};
+          initializedUnreadRef.current = true;
+          return;
+        }
+
+        const requestIds = requestRows.map((row) => row.id);
+
+        const { data: messageRows, error: messagesError } = await supabase
+          .from("messages")
+          .select("contact_request_id, content, created_at, receiver_id, read")
+          .in("contact_request_id", requestIds)
+          .order("created_at", { ascending: false });
+
+        if (messagesError) throw messagesError;
+
+        const lastMessageByConversation: Record<string, { content: string; created_at: string }> = {};
+        const unreadCountByConversation: Record<string, number> = {};
+
+        (messageRows || []).forEach((message) => {
+          if (!lastMessageByConversation[message.contact_request_id]) {
+            lastMessageByConversation[message.contact_request_id] = {
+              content: message.content,
+              created_at: message.created_at,
+            };
+          }
+
+          if (message.receiver_id === profile.id && !message.read) {
+            unreadCountByConversation[message.contact_request_id] =
+              (unreadCountByConversation[message.contact_request_id] || 0) + 1;
+          }
+        });
+
+        const fallbackOtherLabel = userType === "producteur" ? "Acheteur" : "Producteur";
+
+        const normalizedConversations: Conversation[] = requestRows.map((request) => {
+          const product = Array.isArray(request.product) ? request.product[0] : request.product;
+          const buyer = Array.isArray(request.buyer) ? request.buyer[0] : request.buyer;
+          const producer = Array.isArray(request.producer) ? request.producer[0] : request.producer;
           const otherUser = userType === "producteur" ? buyer : producer;
-
-          if (!product) return null;
-
-          const [lastMsgResult, unreadResult] = await Promise.all([
-            supabase
-              .from("messages")
-              .select("content, created_at")
-              .eq("contact_request_id", req.id)
-              .order("created_at", { ascending: false })
-              .limit(1)
-              .maybeSingle(),
-            supabase
-              .from("messages")
-              .select("*", { count: "exact", head: true })
-              .eq("contact_request_id", req.id)
-              .eq("receiver_id", profile.id)
-              .eq("read", false),
-          ]);
 
           const displayName = otherUser
             ? `${otherUser.prenom || ""} ${otherUser.nom || ""}`.trim() || fallbackOtherLabel
             : fallbackOtherLabel;
 
           return {
-            id: req.id,
-            product_name: product.nom,
-            product_image: product.image_url,
+            id: request.id,
+            product_name: product?.nom || "Conversation privée",
+            product_image: product?.image_url || null,
             other_user_name: displayName,
             other_user_id: otherUser?.id ?? null,
-            last_message: lastMsgResult.data?.content || null,
-            last_message_at: lastMsgResult.data?.created_at || req.created_at,
-            unread_count: unreadResult.count || 0,
-            status: req.status,
-          } as Conversation;
-        })
-      );
+            last_message: lastMessageByConversation[request.id]?.content || null,
+            last_message_at: lastMessageByConversation[request.id]?.created_at || request.created_at,
+            unread_count: unreadCountByConversation[request.id] || 0,
+            status: request.status,
+          };
+        });
 
-      const normalizedConvs = convs.filter((conv): conv is Conversation => conv !== null);
+        normalizedConversations.sort((a, b) => {
+          const dateA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
+          const dateB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
+          return dateB - dateA;
+        });
 
-      normalizedConvs.sort((a, b) => {
-        const dateA = a.last_message_at ? new Date(a.last_message_at).getTime() : 0;
-        const dateB = b.last_message_at ? new Date(b.last_message_at).getTime() : 0;
-        return dateB - dateA;
-      });
+        if (initializedUnreadRef.current) {
+          normalizedConversations.forEach((conversation) => {
+            const previousCount = previousUnreadByConversationRef.current[conversation.id] || 0;
+            if (conversation.unread_count > previousCount && conversation.last_message) {
+              toast({
+                title: "Nouveau message",
+                description: `${conversation.other_user_name}: ${conversation.last_message}`,
+              });
+            }
+          });
+        }
 
-      setConversations(normalizedConvs);
-    } catch (error) {
-      console.error("Error loading conversations:", error);
-      setConversations([]);
-    } finally {
-      setLoading(false);
-    }
-  }, [user, userType]);
+        previousUnreadByConversationRef.current = Object.fromEntries(
+          normalizedConversations.map((conversation) => [conversation.id, conversation.unread_count])
+        );
+        initializedUnreadRef.current = true;
+
+        setConversations(normalizedConversations);
+      } catch (error: any) {
+        console.error("Error loading conversations:", error);
+        if (!silent) {
+          toast({
+            title: "Erreur",
+            description: error.message || "Impossible de charger les conversations",
+            variant: "destructive",
+          });
+        }
+        setConversations([]);
+      } finally {
+        inFlightRef.current = false;
+        setLoading(false);
+      }
+    },
+    [toast, user, userType]
+  );
 
   useEffect(() => {
-    loadConversations();
+    loadConversations(false);
   }, [loadConversations]);
 
   useEffect(() => {
@@ -147,16 +195,30 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
 
     const channel = supabase
       .channel(`conversations-updates-${profileId}`)
-      .on("postgres_changes", { event: "*", schema: "public", table: "messages" }, () => {
-        loadConversations();
-      })
-      .on("postgres_changes", { event: "*", schema: "public", table: "contact_requests" }, () => {
-        loadConversations();
-      })
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `receiver_id=eq.${profileId}` },
+        () => loadConversations(true)
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "messages", filter: `sender_id=eq.${profileId}` },
+        () => loadConversations(true)
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contact_requests", filter: `buyer_id=eq.${profileId}` },
+        () => loadConversations(true)
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contact_requests", filter: `producer_id=eq.${profileId}` },
+        () => loadConversations(true)
+      )
       .subscribe();
 
     const intervalId = window.setInterval(() => {
-      loadConversations();
+      loadConversations(true);
     }, 5000);
 
     return () => {
@@ -165,8 +227,8 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
     };
   }, [profileId, loadConversations]);
 
-  const openChat = (conv: Conversation) => {
-    setSelectedConv(conv);
+  const openChat = (conversation: Conversation) => {
+    setSelectedConv(conversation);
     setChatOpen(true);
   };
 
@@ -187,7 +249,7 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
       }
 
       toast({ title: "Discussion supprimée" });
-      await loadConversations();
+      await loadConversations(true);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -199,7 +261,7 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
     }
   };
 
-  const totalUnread = conversations.reduce((sum, c) => sum + c.unread_count, 0);
+  const totalUnread = conversations.reduce((sum, conversation) => sum + conversation.unread_count, 0);
 
   if (loading) {
     return (
@@ -246,16 +308,16 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
               </p>
             </div>
           ) : (
-            conversations.map((conv) => (
+            conversations.map((conversation) => (
               <div
-                key={conv.id}
-                onClick={() => openChat(conv)}
+                key={conversation.id}
+                onClick={() => openChat(conversation)}
                 className="flex items-center gap-3 p-3 rounded-lg border cursor-pointer hover:bg-muted/50 transition-colors"
               >
-                {conv.product_image ? (
+                {conversation.product_image ? (
                   <img
-                    src={conv.product_image}
-                    alt={conv.product_name}
+                    src={conversation.product_image}
+                    alt={conversation.product_name}
                     className="w-12 h-12 rounded-lg object-cover flex-shrink-0"
                   />
                 ) : (
@@ -265,26 +327,26 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
                 )}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center justify-between gap-2">
-                    <h4 className="font-semibold text-sm truncate">{conv.other_user_name}</h4>
+                    <h4 className="font-semibold text-sm truncate">{conversation.other_user_name}</h4>
                     <div className="flex items-center gap-2 shrink-0">
-                      {conv.unread_count > 0 && (
+                      {conversation.unread_count > 0 && (
                         <Badge variant="destructive" className="text-xs">
-                          {conv.unread_count}
+                          {conversation.unread_count}
                         </Badge>
                       )}
                       <Button
                         type="button"
                         variant="ghost"
                         size="icon"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteConversation(conv.id);
+                        onClick={(event) => {
+                          event.stopPropagation();
+                          handleDeleteConversation(conversation.id);
                         }}
-                        disabled={deletingId === conv.id}
+                        disabled={deletingId === conversation.id}
                         className="h-7 w-7"
                         aria-label="Supprimer la discussion"
                       >
-                        {deletingId === conv.id ? (
+                        {deletingId === conversation.id ? (
                           <Loader2 className="h-4 w-4 animate-spin" />
                         ) : (
                           <Trash2 className="h-4 w-4" />
@@ -292,9 +354,19 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
                       </Button>
                     </div>
                   </div>
-                  <p className="text-xs text-muted-foreground truncate">{conv.product_name}</p>
-                  {conv.last_message && (
-                    <p className="text-xs text-muted-foreground truncate mt-0.5">{conv.last_message}</p>
+                  <p className="text-xs text-muted-foreground truncate">{conversation.product_name}</p>
+                  {conversation.last_message && (
+                    <p className="text-xs text-muted-foreground truncate mt-0.5">{conversation.last_message}</p>
+                  )}
+                  {conversation.last_message_at && (
+                    <p className="text-[10px] text-muted-foreground mt-1">
+                      {new Date(conversation.last_message_at).toLocaleString("fr-FR", {
+                        day: "2-digit",
+                        month: "2-digit",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </p>
                   )}
                 </div>
               </div>
@@ -308,9 +380,7 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
           open={chatOpen}
           onOpenChange={(open) => {
             setChatOpen(open);
-            if (!open) {
-              loadConversations();
-            }
+            if (!open) loadConversations(true);
           }}
           contactRequestId={selectedConv.id}
           otherUserName={selectedConv.other_user_name}

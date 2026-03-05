@@ -3,6 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Send, MessageCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -25,6 +27,22 @@ interface ChatModalProps {
   currentProfileId: string;
 }
 
+const getInitials = (name: string) => {
+  const normalized = name.trim();
+  if (!normalized) return "U";
+  const parts = normalized.split(/\s+/).slice(0, 2);
+  return parts.map((part) => part[0]?.toUpperCase() ?? "").join("") || "U";
+};
+
+const formatMessageDate = (isoDate: string) =>
+  new Date(isoDate).toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+
 export const ChatModal = ({
   open,
   onOpenChange,
@@ -43,30 +61,38 @@ export const ChatModal = ({
   const scrollToBottom = useCallback(() => {
     requestAnimationFrame(() => {
       const viewport = scrollRef.current?.querySelector("[data-radix-scroll-area-viewport]") as HTMLDivElement | null;
-      if (viewport) {
-        viewport.scrollTop = viewport.scrollHeight;
-      }
+      if (viewport) viewport.scrollTop = viewport.scrollHeight;
     });
   }, []);
 
-  const fetchMessages = useCallback(async () => {
-    if (!contactRequestId) return;
+  const fetchMessages = useCallback(
+    async (silent = true) => {
+      if (!contactRequestId) return;
+      if (!silent) setLoading(true);
 
-    setLoading(true);
-    const { data, error } = await supabase
-      .from("messages")
-      .select("*")
-      .eq("contact_request_id", contactRequestId)
-      .order("created_at", { ascending: true });
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("contact_request_id", contactRequestId)
+        .order("created_at", { ascending: true });
 
-    if (error) {
-      console.error("Error fetching messages:", error);
-    } else {
+      if (error) {
+        if (!silent) {
+          toast({
+            title: "Erreur",
+            description: "Impossible de charger les messages",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       setMessages(data || []);
       scrollToBottom();
-    }
-    setLoading(false);
-  }, [contactRequestId, scrollToBottom]);
+      if (!silent) setLoading(false);
+    },
+    [contactRequestId, scrollToBottom, toast]
+  );
 
   const markAsRead = useCallback(async () => {
     if (!currentProfileId || !contactRequestId) return;
@@ -78,17 +104,23 @@ export const ChatModal = ({
       .eq("receiver_id", currentProfileId)
       .eq("read", false);
 
-    if (error) {
-      console.error("Error marking messages as read:", error);
-    }
+    if (error) console.error("Error marking messages as read:", error);
   }, [contactRequestId, currentProfileId]);
+
+  const refreshConversation = useCallback(
+    async (silent = true) => {
+      await fetchMessages(silent);
+      await markAsRead();
+    },
+    [fetchMessages, markAsRead]
+  );
 
   useEffect(() => {
     if (!open || !contactRequestId) return;
 
-    fetchMessages();
-    markAsRead();
-  }, [open, contactRequestId, fetchMessages, markAsRead]);
+    setLoading(true);
+    refreshConversation(false);
+  }, [open, contactRequestId, refreshConversation]);
 
   useEffect(() => {
     if (!open || !contactRequestId) return;
@@ -103,43 +135,43 @@ export const ChatModal = ({
           table: "messages",
           filter: `contact_request_id=eq.${contactRequestId}`,
         },
-        async () => {
-          await fetchMessages();
-          await markAsRead();
+        async (payload: any) => {
+          const incoming = payload?.new as Message | undefined;
+          if (payload?.eventType === "INSERT" && incoming?.receiver_id === currentProfileId) {
+            toast({
+              title: "Nouveau message",
+              description: `${otherUserName || "Utilisateur"} vous a écrit`,
+            });
+          }
+          await refreshConversation(true);
         }
       )
       .subscribe();
 
     const intervalId = window.setInterval(() => {
-      fetchMessages();
-      markAsRead();
+      refreshConversation(true);
     }, 3000);
 
     return () => {
       window.clearInterval(intervalId);
       supabase.removeChannel(channel);
     };
-  }, [open, contactRequestId, fetchMessages, markAsRead]);
-
-  useEffect(() => {
-    if (messages.length > 0) {
-      scrollToBottom();
-    }
-  }, [messages, scrollToBottom]);
+  }, [open, contactRequestId, currentProfileId, otherUserName, refreshConversation, toast]);
 
   const handleSend = async () => {
-    if (!newMessage.trim() || sending) return;
+    const content = newMessage.trim();
+    if (!content || sending) return;
 
     setSending(true);
     try {
       const { error } = await supabase.rpc("send_message", {
         contact_request_id_param: contactRequestId,
-        content_param: newMessage.trim(),
+        content_param: content,
       });
 
       if (error) throw error;
       setNewMessage("");
-      await fetchMessages();
+      await refreshConversation(true);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -160,13 +192,13 @@ export const ChatModal = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px] h-[80vh] flex flex-col p-0">
+      <DialogContent className="sm:max-w-[560px] h-[82vh] flex flex-col p-0">
         <DialogHeader className="p-4 pb-2 border-b">
           <DialogTitle className="flex items-center gap-2 text-base">
-            <MessageCircle className="h-5 w-5 text-emerald-600" />
+            <MessageCircle className="h-5 w-5 text-primary" />
             <div className="flex flex-col">
               <span>{otherUserName || "Utilisateur"}</span>
-              <span className="text-xs font-normal text-muted-foreground">{productName}</span>
+              <span className="text-xs font-normal text-muted-foreground">Produit: {productName}</span>
             </div>
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -188,20 +220,36 @@ export const ChatModal = ({
               <div className="space-y-3">
                 {messages.map((msg) => {
                   const isMine = msg.sender_id === currentProfileId;
+
                   return (
                     <div key={msg.id} className={`flex ${isMine ? "justify-end" : "justify-start"}`}>
-                      <div
-                        className={`max-w-[80%] px-3 py-2 rounded-2xl text-sm ${
-                          isMine ? "bg-emerald-600 text-white rounded-br-md" : "bg-muted rounded-bl-md"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap break-words">{msg.content}</p>
-                        <p className={`text-[10px] mt-1 ${isMine ? "text-emerald-200" : "text-muted-foreground"}`}>
-                          {new Date(msg.created_at).toLocaleTimeString("fr-FR", {
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })}
-                        </p>
+                      <div className={`flex items-end gap-2 max-w-[92%] ${isMine ? "flex-row-reverse" : "flex-row"}`}>
+                        <Avatar className="h-8 w-8">
+                          <AvatarFallback className="text-xs">
+                            {isMine ? "MO" : getInitials(otherUserName)}
+                          </AvatarFallback>
+                        </Avatar>
+
+                        <div className="space-y-1">
+                          <p className={`text-[11px] ${isMine ? "text-right" : "text-left"} text-muted-foreground`}>
+                            {isMine ? "Vous" : otherUserName || "Utilisateur"}
+                          </p>
+                          <div
+                            className={`px-3 py-2 rounded-2xl text-sm ${
+                              isMine
+                                ? "bg-primary text-primary-foreground rounded-br-md"
+                                : "bg-muted text-foreground rounded-bl-md"
+                            }`}
+                          >
+                            <p className="whitespace-pre-wrap break-words">{msg.content}</p>
+                            <div className={`mt-1 flex items-center gap-2 text-[10px] ${isMine ? "justify-end" : "justify-start"}`}>
+                              <span className={isMine ? "text-primary-foreground/80" : "text-muted-foreground"}>
+                                {formatMessageDate(msg.created_at)}
+                              </span>
+                              {isMine && msg.read && <Badge variant="secondary" className="h-4 px-1.5 text-[10px]">Lu</Badge>}
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   );
@@ -220,12 +268,7 @@ export const ChatModal = ({
             className="flex-1"
             disabled={sending}
           />
-          <Button
-            onClick={handleSend}
-            disabled={!newMessage.trim() || sending}
-            size="icon"
-            className="bg-emerald-600 hover:bg-emerald-700 shrink-0"
-          >
+          <Button onClick={handleSend} disabled={!newMessage.trim() || sending} size="icon" className="shrink-0">
             <Send className="h-4 w-4" />
           </Button>
         </div>

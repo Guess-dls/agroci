@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,47 +36,82 @@ export const BuyerContactRequests = () => {
   const [chatOpen, setChatOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<ContactRequest | null>(null);
 
-  const loadRequests = async () => {
-    if (!user) return;
+  const loadRequests = useCallback(async () => {
+    if (!user) {
+      setRequests([]);
+      setProfileId(null);
+      setLoading(false);
+      return;
+    }
 
+    setLoading(true);
     try {
       const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', user.id)
-        .single();
+        .from("profiles")
+        .select("id")
+        .eq("user_id", user.id)
+        .maybeSingle();
 
-      if (profileError || !profile) return;
+      if (profileError || !profile) {
+        setRequests([]);
+        setProfileId(null);
+        return;
+      }
+
       setProfileId(profile.id);
 
       const { data, error } = await supabase
-        .from('contact_requests')
+        .from("contact_requests")
         .select(`
           id, producer_id, product_id, status, message, created_at,
           producer_profile:profiles!contact_requests_producer_id_fkey(nom, prenom, pays, region),
           product:products!contact_requests_product_id_fkey(nom, image_url)
         `)
-        .eq('buyer_id', profile.id)
-        .order('created_at', { ascending: false });
+        .eq("buyer_id", profile.id)
+        .order("created_at", { ascending: false });
 
       if (error) throw error;
 
-      const transformedData = data?.map(req => {
-        const producerProfile = Array.isArray(req.producer_profile) ? req.producer_profile[0] : req.producer_profile;
-        const product = Array.isArray(req.product) ? req.product[0] : req.product;
-        return { ...req, producer_profile: producerProfile, product };
-      }).filter(req => req.producer_profile && req.product) || [];
+      const transformedData =
+        data
+          ?.map((request) => {
+            const producerProfile = Array.isArray(request.producer_profile)
+              ? request.producer_profile[0]
+              : request.producer_profile;
+            const product = Array.isArray(request.product) ? request.product[0] : request.product;
+            return { ...request, producer_profile: producerProfile, product };
+          })
+          .filter((request) => request.producer_profile && request.product) || [];
 
       setRequests(transformedData);
     } catch (error: any) {
-      console.error('Erreur:', error);
+      console.error("Erreur:", error);
       toast({ title: "Erreur", description: "Impossible de charger vos demandes", variant: "destructive" });
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast, user]);
 
-  useEffect(() => { loadRequests(); }, [user]);
+  useEffect(() => {
+    loadRequests();
+  }, [loadRequests]);
+
+  useEffect(() => {
+    if (!profileId) return;
+
+    const channel = supabase
+      .channel(`buyer-requests-${profileId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "contact_requests", filter: `buyer_id=eq.${profileId}` },
+        () => loadRequests()
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [profileId, loadRequests]);
 
   const handleOpenChat = (request: ContactRequest) => {
     setSelectedRequest(request);
@@ -85,10 +120,7 @@ export const BuyerContactRequests = () => {
 
   const handleRetry = async (requestId: string) => {
     try {
-      const { error } = await supabase
-        .from('contact_requests')
-        .update({ status: 'en_attente' })
-        .eq('id', requestId);
+      const { error } = await supabase.from("contact_requests").update({ status: "en_attente" }).eq("id", requestId);
       if (error) throw error;
       toast({ title: "Demande relancée", description: "Le producteur a été notifié" });
       loadRequests();
@@ -98,9 +130,9 @@ export const BuyerContactRequests = () => {
   };
 
   const handleDelete = async (requestId: string) => {
-    if (!confirm('Supprimer cette demande ?')) return;
+    if (!confirm("Supprimer cette demande ?")) return;
     try {
-      const { error } = await supabase.from('contact_requests').delete().eq('id', requestId);
+      const { error } = await supabase.from("contact_requests").delete().eq("id", requestId);
       if (error) throw error;
       toast({ title: "Supprimée" });
       loadRequests();
@@ -111,21 +143,40 @@ export const BuyerContactRequests = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'en_attente':
-        return <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-300"><Clock className="h-3 w-3 mr-1" />En attente</Badge>;
-      case 'acceptee':
-        return <Badge variant="outline" className="bg-green-50 text-green-800 border-green-300"><CheckCircle className="h-3 w-3 mr-1" />Acceptée</Badge>;
-      case 'refusee':
-        return <Badge variant="outline" className="bg-red-50 text-red-800 border-red-300"><XCircle className="h-3 w-3 mr-1" />Refusée</Badge>;
-      default: return null;
+      case "en_attente":
+        return (
+          <Badge variant="outline" className="bg-yellow-50 text-yellow-800 border-yellow-300">
+            <Clock className="h-3 w-3 mr-1" />En attente
+          </Badge>
+        );
+      case "acceptee":
+        return (
+          <Badge variant="outline" className="bg-green-50 text-green-800 border-green-300">
+            <CheckCircle className="h-3 w-3 mr-1" />Acceptée
+          </Badge>
+        );
+      case "refusee":
+        return (
+          <Badge variant="outline" className="bg-red-50 text-red-800 border-red-300">
+            <XCircle className="h-3 w-3 mr-1" />Refusée
+          </Badge>
+        );
+      default:
+        return null;
     }
   };
 
   if (loading) {
     return (
       <Card>
-        <CardHeader><CardTitle className="flex items-center gap-2"><MessageSquare className="h-5 w-5" />Mes demandes</CardTitle></CardHeader>
-        <CardContent><p className="text-muted-foreground">Chargement...</p></CardContent>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageSquare className="h-5 w-5" />Mes demandes
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">Chargement...</p>
+        </CardContent>
       </Card>
     );
   }
@@ -163,28 +214,22 @@ export const BuyerContactRequests = () => {
                       </div>
                       <p className="text-sm mb-2"><strong>Produit:</strong> {request.product.nom}</p>
                       <p className="text-xs text-muted-foreground mb-3">
-                        Demandé le {new Date(request.created_at).toLocaleDateString('fr-FR')}
+                        Demandé le {new Date(request.created_at).toLocaleDateString("fr-FR")}
                       </p>
-                      
-                      {request.status === 'acceptee' && (
+
+                      {request.status === "acceptee" && (
                         <div className="space-y-2">
                           <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
-                            <p className="text-sm text-green-800">
-                              ✅ Le producteur a accepté ! Discutez via la messagerie.
-                            </p>
+                            <p className="text-sm text-green-800">✅ Le producteur a accepté ! Discutez via la messagerie.</p>
                           </div>
-                          <Button
-                            onClick={() => handleOpenChat(request)}
-                            className="w-full bg-emerald-600 hover:bg-emerald-700"
-                            size="sm"
-                          >
+                          <Button onClick={() => handleOpenChat(request)} className="w-full" size="sm">
                             <MessageSquare className="h-4 w-4 mr-2" />
                             Ouvrir la conversation
                           </Button>
                         </div>
                       )}
-                      
-                      {request.status === 'refusee' && (
+
+                      {request.status === "refusee" && (
                         <div className="space-y-2">
                           <div className="bg-red-50 border border-red-200 p-3 rounded-lg">
                             <p className="text-sm text-red-800">❌ Demande refusée</p>
@@ -200,7 +245,7 @@ export const BuyerContactRequests = () => {
                         </div>
                       )}
 
-                      {request.status === 'en_attente' && (
+                      {request.status === "en_attente" && (
                         <div className="space-y-2">
                           <div className="bg-yellow-50 border border-yellow-200 p-3 rounded-lg">
                             <p className="text-sm text-yellow-800">⏳ En attente de réponse</p>

@@ -25,7 +25,7 @@ interface ConversationsListProps {
   userType: "producteur" | "acheteur";
 }
 
-export const ConversationsList = ({ userType: _userType }: ConversationsListProps) => {
+export const ConversationsList = ({ userType }: ConversationsListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -69,8 +69,6 @@ export const ConversationsList = ({ userType: _userType }: ConversationsListProp
 
         setProfileId(profile.id);
 
-        const idField = userType === "producteur" ? "producer_id" : "buyer_id";
-
         const { data: requests, error: requestsError } = await supabase
           .from("contact_requests")
           .select(`
@@ -79,7 +77,7 @@ export const ConversationsList = ({ userType: _userType }: ConversationsListProp
             buyer:profiles!contact_requests_buyer_id_fkey(id, nom, prenom),
             producer:profiles!contact_requests_producer_id_fkey(id, nom, prenom)
           `)
-          .eq(idField, profile.id)
+          .or(`buyer_id.eq.${profile.id},producer_id.eq.${profile.id}`)
           .eq("status", "acceptee")
           .order("created_at", { ascending: false });
 
@@ -120,13 +118,14 @@ export const ConversationsList = ({ userType: _userType }: ConversationsListProp
           }
         });
 
-        const fallbackOtherLabel = userType === "producteur" ? "Acheteur" : "Producteur";
+        const fallbackOtherLabel = "Interlocuteur";
 
         const normalizedConversations: Conversation[] = requestRows.map((request) => {
           const product = Array.isArray(request.product) ? request.product[0] : request.product;
           const buyer = Array.isArray(request.buyer) ? request.buyer[0] : request.buyer;
           const producer = Array.isArray(request.producer) ? request.producer[0] : request.producer;
-          const otherUser = userType === "producteur" ? buyer : producer;
+          const isCurrentBuyer = request.buyer_id === profile.id;
+          const otherUser = isCurrentBuyer ? producer : buyer;
 
           const displayName = otherUser
             ? `${otherUser.prenom || ""} ${otherUser.nom || ""}`.trim() || fallbackOtherLabel

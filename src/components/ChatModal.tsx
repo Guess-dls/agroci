@@ -67,7 +67,10 @@ export const ChatModal = ({
 
   const fetchMessages = useCallback(
     async (silent = true) => {
-      if (!contactRequestId) return;
+      if (!contactRequestId) {
+        if (!silent) setLoading(false);
+        return;
+      }
       if (!silent) setLoading(true);
 
       const { data, error } = await supabase
@@ -83,6 +86,7 @@ export const ChatModal = ({
             description: "Impossible de charger les messages",
             variant: "destructive",
           });
+          setLoading(false);
         }
         return;
       }

@@ -25,7 +25,7 @@ interface ConversationsListProps {
   userType: "producteur" | "acheteur";
 }
 
-export const ConversationsList = ({ userType }: ConversationsListProps) => {
+export const ConversationsList = ({ userType: _userType }: ConversationsListProps) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const [conversations, setConversations] = useState<Conversation[]>([]);

@@ -14,6 +14,7 @@ interface Conversation {
   product_image: string | null;
   other_user_name: string;
   other_user_id: string | null;
+  request_message: string | null;
   last_message: string | null;
   last_message_at: string | null;
   unread_count: number;
@@ -73,7 +74,7 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
         const { data: requests, error: requestsError } = await supabase
           .from("contact_requests")
           .select(`
-            id, status, created_at, buyer_id, producer_id,
+            id, status, message, created_at, buyer_id, producer_id,
             product:products!contact_requests_product_id_fkey(nom, image_url),
             buyer:profiles!contact_requests_buyer_id_fkey(id, nom, prenom),
             producer:profiles!contact_requests_producer_id_fkey(id, nom, prenom)
@@ -137,7 +138,8 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
             product_image: product?.image_url || null,
             other_user_name: displayName,
             other_user_id: otherUser?.id ?? null,
-            last_message: lastMessageByConversation[request.id]?.content || null,
+            request_message: request.message || null,
+            last_message: lastMessageByConversation[request.id]?.content || request.message || null,
             last_message_at: lastMessageByConversation[request.id]?.created_at || request.created_at,
             unread_count: unreadCountByConversation[request.id] || 0,
             status: request.status,

@@ -14,6 +14,7 @@ interface Conversation {
   product_image: string | null;
   other_user_name: string;
   other_user_id: string | null;
+  request_message: string | null;
   last_message: string | null;
   last_message_at: string | null;
   unread_count: number;

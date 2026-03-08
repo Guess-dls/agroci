@@ -509,7 +509,7 @@ export const ProducerDashboard = () => {
                               <Rocket className="h-4 w-4 sm:mr-0 mr-2" />
                             )}
                             <span className="sm:hidden">
-                              {product.is_boosted ? 'Prolonger' : profile?.boost_payment_required === false ? 'Boost gratuit' : 'Booster'}
+                              {product.is_boosted ? 'Prolonger' : isBoostFree ? 'Boost gratuit' : 'Booster'}
                             </span>
                           </Button>
                           <Button 

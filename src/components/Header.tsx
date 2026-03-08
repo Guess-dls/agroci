@@ -134,11 +134,6 @@ export const Header = () => {
                 <span className="hidden lg:inline">+225 0789363442</span>
                 <span className="lg:hidden text-xs">+225...</span>
               </div>
-              {user && userCredits !== null && (
-                <div className="flex items-center space-x-1 bg-primary/10 px-2 py-1 rounded-full whitespace-nowrap">
-                  <span className="font-medium text-primary text-xs">💰 {userCredits}</span>
-                </div>
-              )}
             </div>
             
             {loading ? (

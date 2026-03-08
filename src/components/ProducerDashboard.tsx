@@ -216,7 +216,8 @@ export const ProducerDashboard = () => {
   }, []);
 
   const isSubscriptionActive = profile?.subscription_active && profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date();
-  const canPublish = isSubscriptionActive;
+  const isSubscriptionRequired = profile?.subscription_required !== false;
+  const canPublish = !isSubscriptionRequired || isSubscriptionActive;
 
   return (
     <div className="space-y-6">

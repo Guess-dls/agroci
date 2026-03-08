@@ -339,7 +339,7 @@ export const ProducerDashboard = () => {
               <CardDescription>Gérez vos produits et suivez vos performances</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!isSubscriptionActive ? (
+              {!canPublish ? (
                 <div className="p-4 border-2 border-amber-300 rounded-lg bg-amber-50">
                   <h3 className="font-semibold text-amber-800 mb-2">⚠️ Abonnement requis</h3>
                   <p className="text-sm text-amber-700 mb-3">

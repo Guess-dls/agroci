@@ -1142,7 +1142,7 @@ export const AdminDashboard = () => {
                                      className={user.subscription_required 
                                        ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white" 
                                        : ""}
-                                     title={user.subscription_required ? "Lever l'obligation (permet modification)" : "Exiger l'abonnement (3 produits max, lecture seule)"}
+                                     title={user.subscription_required ? "Lever l'obligation d'abonnement" : "Exiger l'abonnement"}
                                    >
                                      {updatingUser === user.id ? (
                                        <Loader2 className="h-4 w-4 animate-spin" />
@@ -1150,6 +1150,24 @@ export const AdminDashboard = () => {
                                        <CreditCard className="h-4 w-4" />
                                      )}
                                    </Button>
+                                   {user.user_type === 'producteur' && (
+                                     <Button
+                                       size="sm"
+                                       variant={user.boost_payment_required ? "default" : "outline"}
+                                       onClick={() => toggleUserBoostPaymentRequirement(user.id)}
+                                       disabled={updatingUser === user.id}
+                                       className={user.boost_payment_required 
+                                         ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
+                                         : ""}
+                                       title={user.boost_payment_required ? "Rendre le boost gratuit" : "Exiger le paiement du boost"}
+                                     >
+                                       {updatingUser === user.id ? (
+                                         <Loader2 className="h-4 w-4 animate-spin" />
+                                       ) : (
+                                         <Rocket className="h-4 w-4" />
+                                       )}
+                                     </Button>
+                                   )}
                                    <Button
                                      size="sm"
                                      variant={user.suspended ? "default" : "outline"}

@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3, Rocket } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3, Rocket, MessageSquare, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Table,

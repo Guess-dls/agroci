@@ -69,10 +69,12 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
 
         setProfileId(profile.id);
 
+        // Fetch accepted conversations, excluding soft-deleted ones for current user
         const { data: requests, error: requestsError } = await supabase
           .from("contact_requests")
           .select(`
             id, status, message, created_at, buyer_id, producer_id,
+            deleted_by_buyer, deleted_by_producer,
             product:products!contact_requests_product_id_fkey(nom, image_url),
             buyer:profiles!contact_requests_buyer_id_fkey(id, nom, prenom),
             producer:profiles!contact_requests_producer_id_fkey(id, nom, prenom)
@@ -83,7 +85,12 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
 
         if (requestsError) throw requestsError;
 
-        const requestRows = requests || [];
+        // Filter out conversations soft-deleted by this user
+        const requestRows = (requests || []).filter((r: any) => {
+          if (r.buyer_id === profile.id && r.deleted_by_buyer) return false;
+          if (r.producer_id === profile.id && r.deleted_by_producer) return false;
+          return true;
+        });
         if (requestRows.length === 0) {
           setConversations([]);
           previousUnreadByConversationRef.current = {};

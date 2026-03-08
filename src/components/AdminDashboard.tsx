@@ -526,6 +526,74 @@ export const AdminDashboard = () => {
     }
   };
 
+  const toggleUserBoostPaymentRequirement = async (userId: string) => {
+    setUpdatingUser(userId);
+    try {
+      const u = users.find(u => u.id === userId);
+      if (!u) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ boost_payment_required: !u.boost_payment_required })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Paramètre boost mis à jour",
+        description: `Paiement boost ${!u.boost_payment_required ? 'exigé' : 'désactivé'} pour ${u.prenom} ${u.nom}`,
+      });
+
+      fetchAllUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le paramètre boost",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
+
+  const toggleBoostPaymentGlobal = async () => {
+    setLoadingSettings(true);
+    try {
+      const newValue = !boostPaymentEnabled;
+
+      // Upsert global setting
+      const { error: settingsError } = await supabase
+        .from('system_settings')
+        .upsert({ setting_key: 'boost_payment_required', setting_value: newValue }, { onConflict: 'setting_key' });
+
+      if (settingsError) throw settingsError;
+
+      // Update ALL producer profiles
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .update({ boost_payment_required: newValue })
+        .eq('user_type', 'producteur');
+
+      if (profilesError) throw profilesError;
+
+      setBoostPaymentEnabled(newValue);
+      toast({
+        title: "Paramètres boost mis à jour",
+        description: `Paiement boost ${newValue ? 'exigé' : 'désactivé'} pour tous les producteurs`,
+      });
+
+      if (activeTab === 'users') fetchAllUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les paramètres boost",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
   const filteredProducts = allProducts.filter(product => {
     if (productFilter === 'all') return true;
     return product.status === productFilter;

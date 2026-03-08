@@ -49,6 +49,7 @@ export const ProducerDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [isBoostFree, setIsBoostFree] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 
@@ -75,7 +76,18 @@ export const ProducerDashboard = () => {
       }
       
       setProfile(profileData);
+
+      // Check global boost setting
+      const { data: globalBoostSetting } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'boost_payment_required')
+        .maybeSingle();
       
+      const globalBoostRequired = globalBoostSetting?.setting_value !== false;
+      const individualBoostRequired = profileData.boost_payment_required !== false;
+      setIsBoostFree(!globalBoostRequired || !individualBoostRequired);
+
       const { data: productsData, error } = await supabase
         .from('products')
         .select('*')
@@ -175,7 +187,7 @@ export const ProducerDashboard = () => {
     setBoostLoading(productId);
     
     try {
-      const isBoostPaymentRequired = profile.boost_payment_required !== false;
+      const isBoostPaymentRequired = !isBoostFree;
 
       if (isBoostPaymentRequired) {
         // Redirect to payment
@@ -390,7 +402,7 @@ export const ProducerDashboard = () => {
                   Boost de produit
                 </h4>
                 <p className="text-sm text-muted-foreground mb-1">
-                  {profile?.boost_payment_required === false 
+                  {isBoostFree 
                     ? <>Boostez vos produits <strong>gratuitement</strong> et apparaissez en priorité</>
                     : <>Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité</>
                   }
@@ -479,7 +491,7 @@ export const ProducerDashboard = () => {
                             onClick={() => handleBoostProduct(product.id)}
                             disabled={boostLoading === product.id || !canPublish}
                             className="flex-1 sm:flex-none text-amber-600 border-amber-300 hover:bg-amber-50"
-                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : profile?.boost_payment_required === false ? "Booster gratuitement" : "Booster ce produit (1 200 FCFA)"}
+                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : isBoostFree ? "Booster gratuitement" : "Booster ce produit (1 200 FCFA)"}
                           >
                             {boostLoading === product.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -487,7 +499,7 @@ export const ProducerDashboard = () => {
                               <Rocket className="h-4 w-4 sm:mr-0 mr-2" />
                             )}
                             <span className="sm:hidden">
-                              {product.is_boosted ? 'Prolonger' : profile?.boost_payment_required === false ? 'Boost gratuit' : 'Booster'}
+                              {product.is_boosted ? 'Prolonger' : isBoostFree ? 'Boost gratuit' : 'Booster'}
                             </span>
                           </Button>
                           <Button 

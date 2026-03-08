@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { BoostHistory } from "./BoostHistory";
 
 interface Product {
   id: string;

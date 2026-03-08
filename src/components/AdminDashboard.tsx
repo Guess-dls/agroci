@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3 } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3, Rocket } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -59,6 +59,7 @@ interface User {
   verified: boolean;
   suspended: boolean;
   subscription_required: boolean;
+  boost_payment_required: boolean;
   created_at: string;
 }
 
@@ -93,6 +94,7 @@ export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [productFilter, setProductFilter] = useState<'all' | 'approuve' | 'rejete' | 'en_attente'>('all');
   const [subscriptionRestrictionsEnabled, setSubscriptionRestrictionsEnabled] = useState(false);
+  const [boostPaymentEnabled, setBoostPaymentEnabled] = useState(true);
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {
@@ -226,13 +228,15 @@ export const AdminDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('system_settings')
-        .select('setting_value')
-        .eq('setting_key', 'subscription_restrictions_enabled')
-        .single();
+        .select('setting_key, setting_value')
+        .in('setting_key', ['subscription_restrictions_enabled', 'boost_payment_required']);
 
       if (error) throw error;
 
-      setSubscriptionRestrictionsEnabled(data.setting_value);
+      data?.forEach(s => {
+        if (s.setting_key === 'subscription_restrictions_enabled') setSubscriptionRestrictionsEnabled(s.setting_value);
+        if (s.setting_key === 'boost_payment_required') setBoostPaymentEnabled(s.setting_value);
+      });
     } catch (error: any) {
       console.error('Error fetching system settings:', error);
     } finally {
@@ -522,6 +526,74 @@ export const AdminDashboard = () => {
     }
   };
 
+  const toggleUserBoostPaymentRequirement = async (userId: string) => {
+    setUpdatingUser(userId);
+    try {
+      const u = users.find(u => u.id === userId);
+      if (!u) return;
+
+      const { error } = await supabase
+        .from('profiles')
+        .update({ boost_payment_required: !u.boost_payment_required })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Paramètre boost mis à jour",
+        description: `Paiement boost ${!u.boost_payment_required ? 'exigé' : 'désactivé'} pour ${u.prenom} ${u.nom}`,
+      });
+
+      fetchAllUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour le paramètre boost",
+        variant: "destructive"
+      });
+    } finally {
+      setUpdatingUser(null);
+    }
+  };
+
+  const toggleBoostPaymentGlobal = async () => {
+    setLoadingSettings(true);
+    try {
+      const newValue = !boostPaymentEnabled;
+
+      // Upsert global setting
+      const { error: settingsError } = await supabase
+        .from('system_settings')
+        .upsert({ setting_key: 'boost_payment_required', setting_value: newValue }, { onConflict: 'setting_key' });
+
+      if (settingsError) throw settingsError;
+
+      // Update ALL producer profiles
+      const { error: profilesError } = await supabase
+        .from('profiles')
+        .update({ boost_payment_required: newValue })
+        .eq('user_type', 'producteur');
+
+      if (profilesError) throw profilesError;
+
+      setBoostPaymentEnabled(newValue);
+      toast({
+        title: "Paramètres boost mis à jour",
+        description: `Paiement boost ${newValue ? 'exigé' : 'désactivé'} pour tous les producteurs`,
+      });
+
+      if (activeTab === 'users') fetchAllUsers();
+    } catch (error: any) {
+      toast({
+        title: "Erreur",
+        description: "Impossible de mettre à jour les paramètres boost",
+        variant: "destructive"
+      });
+    } finally {
+      setLoadingSettings(false);
+    }
+  };
+
   const filteredProducts = allProducts.filter(product => {
     if (productFilter === 'all') return true;
     return product.status === productFilter;
@@ -561,7 +633,7 @@ export const AdminDashboard = () => {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center space-x-2">
                   <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                  <span className="text-xs md:text-sm text-muted-foreground">Restrictions (30 jours/mois après achat):</span>
+                  <span className="text-xs md:text-sm text-muted-foreground">Abonnement producteur:</span>
                 </div>
                 <Button
                   onClick={toggleSubscriptionRestrictions}
@@ -577,16 +649,46 @@ export const AdminDashboard = () => {
                   ) : subscriptionRestrictionsEnabled ? (
                     <>
                       <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Activées
+                      Activé
                     </>
                   ) : (
                     <>
                       <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Désactivées
+                      Désactivé
                     </>
                   )}
                 </Button>
-                <span className="text-[10px] text-muted-foreground">La restriction se restaure 30 jours après l'achat d'un abonnement</span>
+              </div>
+
+              {/* Global Boost Payment Settings */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center space-x-2">
+                  <Rocket className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+                  <span className="text-xs md:text-sm text-muted-foreground">Paiement boost:</span>
+                </div>
+                <Button
+                  onClick={toggleBoostPaymentGlobal}
+                  variant={boostPaymentEnabled ? "default" : "outline"}
+                  size="sm"
+                  className={boostPaymentEnabled 
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs md:text-sm" 
+                    : "text-xs md:text-sm"}
+                  disabled={loadingSettings}
+                >
+                  {loadingSettings ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : boostPaymentEnabled ? (
+                    <>
+                      <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Exigé
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Gratuit
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>
@@ -876,8 +978,13 @@ export const AdminDashboard = () => {
                           {user.verified && <Badge variant="secondary" className="text-[10px]">Vérifié</Badge>}
                           {user.suspended && <Badge variant="destructive" className="text-[10px]">Suspendu</Badge>}
                           <Badge variant={user.subscription_required ? "default" : "outline"} className="text-[10px]">
-                            {user.subscription_required ? "Abo. requis (3 produits max)" : "Abo. optionnel"}
+                            {user.subscription_required ? "Abo. requis" : "Abo. optionnel"}
                           </Badge>
+                          {user.user_type === 'producteur' && (
+                            <Badge variant={user.boost_payment_required ? "default" : "outline"} className="text-[10px] bg-amber-100 text-amber-800 border-amber-300">
+                              {user.boost_payment_required ? "Boost payant" : "Boost gratuit"}
+                            </Badge>
+                          )}
                         </div>
                         <div className="text-[10px] text-muted-foreground">
                           Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR')}
@@ -902,8 +1009,19 @@ export const AdminDashboard = () => {
                               disabled={updatingUser === user.id}
                               className={`text-xs h-8 ${user.subscription_required ? "bg-purple-600 hover:bg-purple-700" : ""}`}
                             >
-                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CreditCard className="h-3 w-3 mr-1" />{user.subscription_required ? "Lever" : "Exiger"}</>}
+                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CreditCard className="h-3 w-3 mr-1" />{user.subscription_required ? "Lever abo" : "Exiger abo"}</>}
                             </Button>
+                            {user.user_type === 'producteur' && (
+                              <Button
+                                size="sm"
+                                variant={user.boost_payment_required ? "default" : "outline"}
+                                onClick={() => toggleUserBoostPaymentRequirement(user.id)}
+                                disabled={updatingUser === user.id}
+                                className={`text-xs h-8 ${user.boost_payment_required ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}`}
+                              >
+                                {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Rocket className="h-3 w-3 mr-1" />{user.boost_payment_required ? "Boost gratuit" : "Boost payant"}</>}
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant={user.suspended ? "default" : "outline"}
@@ -1024,7 +1142,7 @@ export const AdminDashboard = () => {
                                      className={user.subscription_required 
                                        ? "bg-gradient-to-r from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700 text-white" 
                                        : ""}
-                                     title={user.subscription_required ? "Lever l'obligation (permet modification)" : "Exiger l'abonnement (3 produits max, lecture seule)"}
+                                     title={user.subscription_required ? "Lever l'obligation d'abonnement" : "Exiger l'abonnement"}
                                    >
                                      {updatingUser === user.id ? (
                                        <Loader2 className="h-4 w-4 animate-spin" />
@@ -1032,6 +1150,24 @@ export const AdminDashboard = () => {
                                        <CreditCard className="h-4 w-4" />
                                      )}
                                    </Button>
+                                   {user.user_type === 'producteur' && (
+                                     <Button
+                                       size="sm"
+                                       variant={user.boost_payment_required ? "default" : "outline"}
+                                       onClick={() => toggleUserBoostPaymentRequirement(user.id)}
+                                       disabled={updatingUser === user.id}
+                                       className={user.boost_payment_required 
+                                         ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white" 
+                                         : ""}
+                                       title={user.boost_payment_required ? "Rendre le boost gratuit" : "Exiger le paiement du boost"}
+                                     >
+                                       {updatingUser === user.id ? (
+                                         <Loader2 className="h-4 w-4 animate-spin" />
+                                       ) : (
+                                         <Rocket className="h-4 w-4" />
+                                       )}
+                                     </Button>
+                                   )}
                                    <Button
                                      size="sm"
                                      variant={user.suspended ? "default" : "outline"}

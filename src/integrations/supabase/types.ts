@@ -414,6 +414,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          boost_payment_required: boolean
           created_at: string | null
           credits: number
           id: string
@@ -436,6 +437,7 @@ export type Database = {
           whatsapp: string
         }
         Insert: {
+          boost_payment_required?: boolean
           created_at?: string | null
           credits?: number
           id?: string
@@ -458,6 +460,7 @@ export type Database = {
           whatsapp: string
         }
         Update: {
+          boost_payment_required?: boolean
           created_at?: string | null
           credits?: number
           id?: string

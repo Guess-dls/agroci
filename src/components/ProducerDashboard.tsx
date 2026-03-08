@@ -175,29 +175,49 @@ export const ProducerDashboard = () => {
     setBoostLoading(productId);
     
     try {
-      const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
-        body: {
-          type: 'boost',
-          email: user?.email,
-          profileId: profile.id,
-          productId: productId
-        }
-      });
+      const isBoostPaymentRequired = profile.boost_payment_required !== false;
 
-      if (error) throw error;
-
-      if (data.authorization_url) {
-        window.open(data.authorization_url, '_blank');
-        toast({
-          title: "Redirection vers le paiement",
-          description: "Payez 1 200 FCFA pour booster ce produit pendant 1 semaine.",
+      if (isBoostPaymentRequired) {
+        // Redirect to payment
+        const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
+          body: {
+            type: 'boost',
+            email: user?.email,
+            profileId: profile.id,
+            productId: productId
+          }
         });
+
+        if (error) throw error;
+
+        if (data.authorization_url) {
+          window.open(data.authorization_url, '_blank');
+          toast({
+            title: "Redirection vers le paiement",
+            description: "Payez 1 200 FCFA pour booster ce produit pendant 1 semaine.",
+          });
+        }
+      } else {
+        // Free boost - activate directly
+        const { data, error } = await supabase.rpc('activate_product_boost', {
+          p_product_id: productId,
+          p_producer_id: profile.id,
+          p_reference: 'boost_gratuit_admin'
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Boost activé",
+          description: data || "Votre produit est maintenant boosté gratuitement !",
+        });
+        fetchProducts();
       }
     } catch (error) {
-      console.error('Error creating boost payment:', error);
+      console.error('Error creating boost:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer le paiement pour le boost.",
+        description: "Impossible de booster ce produit.",
         variant: "destructive",
       });
     } finally {
@@ -370,7 +390,10 @@ export const ProducerDashboard = () => {
                   Boost de produit
                 </h4>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité
+                  {profile?.boost_payment_required === false 
+                    ? <>Boostez vos produits <strong>gratuitement</strong> et apparaissez en priorité</>
+                    : <>Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité</>
+                  }
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Gérez les boosts depuis l'onglet "Produits"
@@ -456,14 +479,16 @@ export const ProducerDashboard = () => {
                             onClick={() => handleBoostProduct(product.id)}
                             disabled={boostLoading === product.id || !canPublish}
                             className="flex-1 sm:flex-none text-amber-600 border-amber-300 hover:bg-amber-50"
-                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : "Booster ce produit (1 200 FCFA)"}
+                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : profile?.boost_payment_required === false ? "Booster gratuitement" : "Booster ce produit (1 200 FCFA)"}
                           >
                             {boostLoading === product.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <Rocket className="h-4 w-4 sm:mr-0 mr-2" />
                             )}
-                            <span className="sm:hidden">{product.is_boosted ? 'Prolonger' : 'Booster'}</span>
+                            <span className="sm:hidden">
+                              {product.is_boosted ? 'Prolonger' : profile?.boost_payment_required === false ? 'Boost gratuit' : 'Booster'}
+                            </span>
                           </Button>
                           <Button 
                             variant="outline" 

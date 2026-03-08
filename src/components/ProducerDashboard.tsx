@@ -76,7 +76,18 @@ export const ProducerDashboard = () => {
       }
       
       setProfile(profileData);
+
+      // Check global boost setting
+      const { data: globalBoostSetting } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'boost_payment_required')
+        .maybeSingle();
       
+      const globalBoostRequired = globalBoostSetting?.setting_value !== false;
+      const individualBoostRequired = profileData.boost_payment_required !== false;
+      setIsBoostFree(!globalBoostRequired || !individualBoostRequired);
+
       const { data: productsData, error } = await supabase
         .from('products')
         .select('*')

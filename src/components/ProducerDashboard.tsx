@@ -175,7 +175,17 @@ export const ProducerDashboard = () => {
     setBoostLoading(productId);
     
     try {
-      const isBoostPaymentRequired = profile.boost_payment_required !== false;
+      // Check both global setting and individual profile setting
+      const { data: globalSetting } = await supabase
+        .from('system_settings')
+        .select('setting_value')
+        .eq('setting_key', 'boost_payment_required')
+        .maybeSingle();
+      
+      const globalBoostRequired = globalSetting?.setting_value !== false;
+      const individualBoostRequired = profile.boost_payment_required !== false;
+      // If either global OR individual says free, it's free
+      const isBoostPaymentRequired = globalBoostRequired && individualBoostRequired;
 
       if (isBoostPaymentRequired) {
         // Redirect to payment

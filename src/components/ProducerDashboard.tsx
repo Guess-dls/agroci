@@ -251,7 +251,10 @@ export const ProducerDashboard = () => {
 
   const isSubscriptionActive = profile?.subscription_active && profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date();
   const isSubscriptionRequired = profile?.subscription_required !== false;
-  const canPublish = !isSubscriptionRequired || isSubscriptionActive;
+  const FREE_PRODUCT_LIMIT = 3;
+  const freeProductsUsed = stats.totalProducts;
+  const hasFreeSlotsLeft = freeProductsUsed < FREE_PRODUCT_LIMIT;
+  const canPublish = !isSubscriptionRequired || isSubscriptionActive || hasFreeSlotsLeft;
 
   if (loading) {
     return (

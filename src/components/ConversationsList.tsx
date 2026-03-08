@@ -85,7 +85,12 @@ export const ConversationsList = ({ userType }: ConversationsListProps) => {
 
         if (requestsError) throw requestsError;
 
-        const requestRows = requests || [];
+        // Filter out conversations soft-deleted by this user
+        const requestRows = (requests || []).filter((r: any) => {
+          if (r.buyer_id === profile.id && r.deleted_by_buyer) return false;
+          if (r.producer_id === profile.id && r.deleted_by_producer) return false;
+          return true;
+        });
         if (requestRows.length === 0) {
           setConversations([]);
           previousUnreadByConversationRef.current = {};

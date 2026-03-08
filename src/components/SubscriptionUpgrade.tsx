@@ -43,11 +43,11 @@ export const SubscriptionUpgrade = ({ userEmail, profileId, subscriptionActive, 
           description: "Vous allez être redirigé vers la page de paiement Paystack.",
         });
       }
-    } catch (error) {
-      console.error('Error creating payment:', error);
+    } catch (error: any) {
+      const userMessage = formatTransactionError(error, 'handleSubscribe:SubscriptionUpgrade');
       toast({
-        title: "Erreur",
-        description: "Une erreur est survenue lors de la création du paiement.",
+        title: "Erreur d'abonnement",
+        description: userMessage,
         variant: "destructive",
       });
     } finally {

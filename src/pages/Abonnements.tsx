@@ -77,11 +77,11 @@ const Abonnements = () => {
       } else {
         throw new Error('URL de paiement non reçue');
       }
-    } catch (error) {
-      console.error('Erreur lors de l\'achat:', error);
+    } catch (error: any) {
+      const userMessage = formatTransactionError(error, 'handleSubscribe:Abonnements');
       toast({
-        title: "Erreur",
-        description: "Impossible de procéder au paiement",
+        title: "Erreur de paiement",
+        description: userMessage,
         variant: "destructive",
       });
     } finally {

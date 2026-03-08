@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3, Rocket } from "lucide-react";
+import { Loader2, Check, X, Eye, Shield, TrendingUp, Users, Package, Clock, UserMinus, EyeOff, Trash2, Ban, UserCheck, Filter, Settings, CreditCard, BarChart3, Rocket, MessageSquare, Activity } from "lucide-react";
 import { Link } from "react-router-dom";
 import {
   Table,
@@ -28,6 +28,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { BoostHistory } from "./BoostHistory";
+import { AdminConversations } from "./AdminConversations";
+import { AdminActivityLog } from "./AdminActivityLog";
 
 interface Product {
   id: string;
@@ -746,8 +748,11 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto gap-1 p-1">
-          <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Vue d'ensemble</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 h-auto gap-1 p-1">
+          <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
+            <span className="hidden sm:inline">Vue d'ensemble</span>
+            <span className="sm:hidden">Accueil</span>
+          </TabsTrigger>
           <TabsTrigger value="validation" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
             <span className="hidden sm:inline">Validation</span>
             <span className="sm:hidden">Valid.</span>
@@ -757,10 +762,21 @@ export const AdminDashboard = () => {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="users" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="users" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
+            <Users className="h-3 w-3 sm:hidden" />
+            <span className="hidden sm:inline">Utilisateurs</span>
+          </TabsTrigger>
           <TabsTrigger value="products" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
-            <span className="hidden sm:inline">Tous les produits</span>
-            <span className="sm:hidden">Produits</span>
+            <span className="hidden sm:inline">Produits</span>
+            <span className="sm:hidden">Prod.</span>
+          </TabsTrigger>
+          <TabsTrigger value="conversations" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            <span className="hidden sm:inline">Conversations</span>
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <Activity className="h-3 w-3" />
+            <span className="hidden sm:inline">Activité</span>
           </TabsTrigger>
           <TabsTrigger value="boosts" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
             <Rocket className="h-3 w-3" />
@@ -1410,6 +1426,40 @@ export const AdminDashboard = () => {
                   </TableBody>
                 </Table>
               )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="conversations" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Surveillance des conversations
+              </CardTitle>
+              <CardDescription>
+                Toutes les demandes de contact et messages échangés sur la plateforme
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminConversations />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                Journal d'activité
+              </CardTitle>
+              <CardDescription>
+                Vues de produits, clics contact et transactions des utilisateurs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminActivityLog />
             </CardContent>
           </Card>
         </TabsContent>

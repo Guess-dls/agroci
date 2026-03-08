@@ -216,12 +216,13 @@ export const ProducerDashboard = () => {
   }, []);
 
   const isSubscriptionActive = profile?.subscription_active && profile?.subscription_end_date && new Date(profile.subscription_end_date) > new Date();
-  const canPublish = isSubscriptionActive;
+  const isSubscriptionRequired = profile?.subscription_required !== false;
+  const canPublish = !isSubscriptionRequired || isSubscriptionActive;
 
   return (
     <div className="space-y-6">
       {/* Subscription warning */}
-      {!isSubscriptionActive && (
+      {isSubscriptionRequired && !isSubscriptionActive && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
           <Crown className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
           <div>
@@ -338,7 +339,7 @@ export const ProducerDashboard = () => {
               <CardDescription>Gérez vos produits et suivez vos performances</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              {!isSubscriptionActive ? (
+              {!canPublish ? (
                 <div className="p-4 border-2 border-amber-300 rounded-lg bg-amber-50">
                   <h3 className="font-semibold text-amber-800 mb-2">⚠️ Abonnement requis</h3>
                   <p className="text-sm text-amber-700 mb-3">
@@ -453,9 +454,9 @@ export const ProducerDashboard = () => {
                             variant="outline" 
                             size="sm"
                             onClick={() => handleBoostProduct(product.id)}
-                            disabled={boostLoading === product.id || !isSubscriptionActive}
+                            disabled={boostLoading === product.id || !canPublish}
                             className="flex-1 sm:flex-none text-amber-600 border-amber-300 hover:bg-amber-50"
-                            title={!isSubscriptionActive ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : "Booster ce produit (1 200 FCFA)"}
+                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : "Booster ce produit (1 200 FCFA)"}
                           >
                             {boostLoading === product.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
@@ -469,7 +470,7 @@ export const ProducerDashboard = () => {
                             size="sm"
                             onClick={() => handleEditProduct(product)}
                             className="flex-1 sm:flex-none"
-                            disabled={!isSubscriptionActive}
+                            disabled={!canPublish}
                           >
                             <Edit className="h-4 w-4 sm:mr-0 mr-2" />
                             <span className="sm:hidden">Modifier</span>

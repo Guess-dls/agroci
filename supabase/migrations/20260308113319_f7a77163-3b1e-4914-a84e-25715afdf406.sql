@@ -1,0 +1,1 @@
+INSERT INTO public.system_settings (setting_key, setting_value) VALUES ('boost_payment_required', true) ON CONFLICT (setting_key) DO NOTHING;

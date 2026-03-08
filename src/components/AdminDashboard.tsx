@@ -59,6 +59,7 @@ interface User {
   verified: boolean;
   suspended: boolean;
   subscription_required: boolean;
+  boost_payment_required: boolean;
   created_at: string;
 }
 

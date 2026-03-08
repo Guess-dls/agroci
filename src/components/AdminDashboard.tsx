@@ -748,8 +748,11 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto gap-1 p-1">
-          <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Vue d'ensemble</TabsTrigger>
+        <TabsList className="grid w-full grid-cols-4 sm:grid-cols-7 h-auto gap-1 p-1">
+          <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
+            <span className="hidden sm:inline">Vue d'ensemble</span>
+            <span className="sm:hidden">Accueil</span>
+          </TabsTrigger>
           <TabsTrigger value="validation" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
             <span className="hidden sm:inline">Validation</span>
             <span className="sm:hidden">Valid.</span>
@@ -759,10 +762,21 @@ export const AdminDashboard = () => {
               </Badge>
             )}
           </TabsTrigger>
-          <TabsTrigger value="users" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Utilisateurs</TabsTrigger>
+          <TabsTrigger value="users" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
+            <Users className="h-3 w-3 sm:hidden" />
+            <span className="hidden sm:inline">Utilisateurs</span>
+          </TabsTrigger>
           <TabsTrigger value="products" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
-            <span className="hidden sm:inline">Tous les produits</span>
-            <span className="sm:hidden">Produits</span>
+            <span className="hidden sm:inline">Produits</span>
+            <span className="sm:hidden">Prod.</span>
+          </TabsTrigger>
+          <TabsTrigger value="conversations" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <MessageSquare className="h-3 w-3" />
+            <span className="hidden sm:inline">Conversations</span>
+          </TabsTrigger>
+          <TabsTrigger value="activity" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <Activity className="h-3 w-3" />
+            <span className="hidden sm:inline">Activité</span>
           </TabsTrigger>
           <TabsTrigger value="boosts" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
             <Rocket className="h-3 w-3" />

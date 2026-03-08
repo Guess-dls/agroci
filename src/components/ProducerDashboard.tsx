@@ -476,14 +476,16 @@ export const ProducerDashboard = () => {
                             onClick={() => handleBoostProduct(product.id)}
                             disabled={boostLoading === product.id || !canPublish}
                             className="flex-1 sm:flex-none text-amber-600 border-amber-300 hover:bg-amber-50"
-                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : "Booster ce produit (1 200 FCFA)"}
+                            title={!canPublish ? "Abonnement requis" : product.is_boosted ? "Prolonger le boost (+7 jours)" : profile?.boost_payment_required === false ? "Booster gratuitement" : "Booster ce produit (1 200 FCFA)"}
                           >
                             {boostLoading === product.id ? (
                               <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
                               <Rocket className="h-4 w-4 sm:mr-0 mr-2" />
                             )}
-                            <span className="sm:hidden">{product.is_boosted ? 'Prolonger' : 'Booster'}</span>
+                            <span className="sm:hidden">
+                              {product.is_boosted ? 'Prolonger' : profile?.boost_payment_required === false ? 'Boost gratuit' : 'Booster'}
+                            </span>
                           </Button>
                           <Button 
                             variant="outline" 

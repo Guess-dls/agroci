@@ -633,7 +633,7 @@ export const AdminDashboard = () => {
               <div className="flex flex-col gap-1">
                 <div className="flex items-center space-x-2">
                   <Settings className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
-                  <span className="text-xs md:text-sm text-muted-foreground">Restrictions (30 jours/mois après achat):</span>
+                  <span className="text-xs md:text-sm text-muted-foreground">Abonnement producteur:</span>
                 </div>
                 <Button
                   onClick={toggleSubscriptionRestrictions}
@@ -649,16 +649,46 @@ export const AdminDashboard = () => {
                   ) : subscriptionRestrictionsEnabled ? (
                     <>
                       <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Activées
+                      Activé
                     </>
                   ) : (
                     <>
                       <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
-                      Désactivées
+                      Désactivé
                     </>
                   )}
                 </Button>
-                <span className="text-[10px] text-muted-foreground">La restriction se restaure 30 jours après l'achat d'un abonnement</span>
+              </div>
+
+              {/* Global Boost Payment Settings */}
+              <div className="flex flex-col gap-1">
+                <div className="flex items-center space-x-2">
+                  <Rocket className="h-4 w-4 md:h-5 md:w-5 text-muted-foreground" />
+                  <span className="text-xs md:text-sm text-muted-foreground">Paiement boost:</span>
+                </div>
+                <Button
+                  onClick={toggleBoostPaymentGlobal}
+                  variant={boostPaymentEnabled ? "default" : "outline"}
+                  size="sm"
+                  className={boostPaymentEnabled 
+                    ? "bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white text-xs md:text-sm" 
+                    : "text-xs md:text-sm"}
+                  disabled={loadingSettings}
+                >
+                  {loadingSettings ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : boostPaymentEnabled ? (
+                    <>
+                      <Check className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Exigé
+                    </>
+                  ) : (
+                    <>
+                      <X className="h-3 w-3 md:h-4 md:w-4 mr-1 md:mr-2" />
+                      Gratuit
+                    </>
+                  )}
+                </Button>
               </div>
             </div>
           </div>

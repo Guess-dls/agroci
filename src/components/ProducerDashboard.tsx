@@ -11,6 +11,7 @@ import { EditProfileModal } from "./EditProfileModal";
 import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
 import { ContactRequestsList } from "./ContactRequestsList";
 import { ConversationsList } from "./ConversationsList";
+import { BoostHistory } from "./BoostHistory";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -528,6 +529,20 @@ export const ProducerDashboard = () => {
                   ))}
                 </div>
               )}
+            </CardContent>
+          </Card>
+
+          {/* Boost History */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-base">
+                <Rocket className="h-5 w-5 text-amber-500" />
+                Historique des boosts
+              </CardTitle>
+              <CardDescription>Suivi de vos boosts de produits</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BoostHistory producerId={profile.id} />
             </CardContent>
           </Card>
         </TabsContent>

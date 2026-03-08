@@ -49,6 +49,7 @@ export const ProducerDashboard = () => {
   const [isEditProductModalOpen, setIsEditProductModalOpen] = useState(false);
   const [isEditProfileModalOpen, setIsEditProfileModalOpen] = useState(false);
   const [profile, setProfile] = useState<any>(null);
+  const [isBoostFree, setIsBoostFree] = useState(false);
   const { user } = useAuth();
   const { toast } = useToast();
 

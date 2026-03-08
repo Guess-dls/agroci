@@ -390,7 +390,10 @@ export const ProducerDashboard = () => {
                   Boost de produit
                 </h4>
                 <p className="text-sm text-muted-foreground mb-1">
-                  Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité
+                  {profile?.boost_payment_required === false 
+                    ? <>Boostez vos produits <strong>gratuitement</strong> et apparaissez en priorité</>
+                    : <>Boostez vos produits pour <strong>1 200 FCFA/semaine</strong> et apparaissez en priorité</>
+                  }
                 </p>
                 <p className="text-xs text-muted-foreground">
                   Gérez les boosts depuis l'onglet "Produits"

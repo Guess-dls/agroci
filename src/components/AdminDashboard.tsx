@@ -94,6 +94,7 @@ export const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("overview");
   const [productFilter, setProductFilter] = useState<'all' | 'approuve' | 'rejete' | 'en_attente'>('all');
   const [subscriptionRestrictionsEnabled, setSubscriptionRestrictionsEnabled] = useState(false);
+  const [boostPaymentEnabled, setBoostPaymentEnabled] = useState(true);
   const [loadingSettings, setLoadingSettings] = useState(true);
 
   useEffect(() => {

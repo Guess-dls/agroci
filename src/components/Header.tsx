@@ -281,11 +281,6 @@ export const Header = () => {
                       <Phone className="h-4 w-4" />
                       <span>+225 0789363442</span>
                     </div>
-                    {user && userCredits !== null && (
-                      <div className="flex items-center space-x-2 bg-primary/10 px-3 py-1 rounded-full">
-                        <span className="font-medium text-primary">💰 {userCredits} crédits</span>
-                      </div>
-                    )}
                   </div>
 
                   {loading ? (

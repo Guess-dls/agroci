@@ -213,11 +213,11 @@ export const ProducerDashboard = () => {
         });
         fetchProducts();
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating boost:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de booster ce produit.",
+        description: error?.message || "Impossible de booster ce produit.",
         variant: "destructive",
       });
     } finally {

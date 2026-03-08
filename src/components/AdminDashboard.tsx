@@ -978,8 +978,13 @@ export const AdminDashboard = () => {
                           {user.verified && <Badge variant="secondary" className="text-[10px]">Vérifié</Badge>}
                           {user.suspended && <Badge variant="destructive" className="text-[10px]">Suspendu</Badge>}
                           <Badge variant={user.subscription_required ? "default" : "outline"} className="text-[10px]">
-                            {user.subscription_required ? "Abo. requis (3 produits max)" : "Abo. optionnel"}
+                            {user.subscription_required ? "Abo. requis" : "Abo. optionnel"}
                           </Badge>
+                          {user.user_type === 'producteur' && (
+                            <Badge variant={user.boost_payment_required ? "default" : "outline"} className="text-[10px] bg-amber-100 text-amber-800 border-amber-300">
+                              {user.boost_payment_required ? "Boost payant" : "Boost gratuit"}
+                            </Badge>
+                          )}
                         </div>
                         <div className="text-[10px] text-muted-foreground">
                           Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR')}

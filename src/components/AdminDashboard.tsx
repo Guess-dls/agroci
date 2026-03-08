@@ -1412,6 +1412,23 @@ export const AdminDashboard = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        <TabsContent value="boosts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Rocket className="h-5 w-5 text-amber-500" />
+                Historique de tous les boosts
+              </CardTitle>
+              <CardDescription>
+                Vue complète des boosts de produits sur la plateforme
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <BoostHistory showProducer initialLimit={20} />
+            </CardContent>
+          </Card>
+        </TabsContent>
       </Tabs>
       </div>
     </div>

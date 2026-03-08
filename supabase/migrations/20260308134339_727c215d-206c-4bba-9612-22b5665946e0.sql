@@ -1,0 +1,2 @@
+ALTER TABLE public.transactions DROP CONSTRAINT transactions_type_transaction_check;
+ALTER TABLE public.transactions ADD CONSTRAINT transactions_type_transaction_check CHECK (type_transaction = ANY (ARRAY['achat_abonnement'::text, 'contact_producteur'::text, 'achat_credits'::text, 'boost_produit'::text, 'abonnement_mensuel'::text]));

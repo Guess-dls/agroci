@@ -40,16 +40,12 @@ export const Header = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_type, credits')
+        .select('user_type')
         .eq('user_id', user!.id)
         .single();
 
       if (!error && data?.user_type === 'admin') {
         setIsAdmin(true);
-      }
-      
-      if (!error && data?.credits !== undefined) {
-        setUserCredits(data.credits);
       }
     } catch (error) {
       console.error('Error checking admin status:', error);

@@ -105,6 +105,8 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string | null
+          deleted_by_buyer: boolean
+          deleted_by_producer: boolean
           id: string
           message: string | null
           producer_id: string
@@ -115,6 +117,8 @@ export type Database = {
         Insert: {
           buyer_id: string
           created_at?: string | null
+          deleted_by_buyer?: boolean
+          deleted_by_producer?: boolean
           id?: string
           message?: string | null
           producer_id: string
@@ -125,6 +129,8 @@ export type Database = {
         Update: {
           buyer_id?: string
           created_at?: string | null
+          deleted_by_buyer?: boolean
+          deleted_by_producer?: boolean
           id?: string
           message?: string | null
           producer_id?: string

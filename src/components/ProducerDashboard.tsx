@@ -175,29 +175,49 @@ export const ProducerDashboard = () => {
     setBoostLoading(productId);
     
     try {
-      const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
-        body: {
-          type: 'boost',
-          email: user?.email,
-          profileId: profile.id,
-          productId: productId
-        }
-      });
+      const isBoostPaymentRequired = profile.boost_payment_required !== false;
 
-      if (error) throw error;
-
-      if (data.authorization_url) {
-        window.open(data.authorization_url, '_blank');
-        toast({
-          title: "Redirection vers le paiement",
-          description: "Payez 1 200 FCFA pour booster ce produit pendant 1 semaine.",
+      if (isBoostPaymentRequired) {
+        // Redirect to payment
+        const { data, error } = await supabase.functions.invoke('create-paystack-payment', {
+          body: {
+            type: 'boost',
+            email: user?.email,
+            profileId: profile.id,
+            productId: productId
+          }
         });
+
+        if (error) throw error;
+
+        if (data.authorization_url) {
+          window.open(data.authorization_url, '_blank');
+          toast({
+            title: "Redirection vers le paiement",
+            description: "Payez 1 200 FCFA pour booster ce produit pendant 1 semaine.",
+          });
+        }
+      } else {
+        // Free boost - activate directly
+        const { data, error } = await supabase.rpc('activate_product_boost', {
+          p_product_id: productId,
+          p_producer_id: profile.id,
+          p_reference: 'boost_gratuit_admin'
+        });
+
+        if (error) throw error;
+
+        toast({
+          title: "Boost activé",
+          description: data || "Votre produit est maintenant boosté gratuitement !",
+        });
+        fetchProducts();
       }
     } catch (error) {
-      console.error('Error creating boost payment:', error);
+      console.error('Error creating boost:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de créer le paiement pour le boost.",
+        description: "Impossible de booster ce produit.",
         variant: "destructive",
       });
     } finally {

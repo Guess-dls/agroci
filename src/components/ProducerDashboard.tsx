@@ -470,7 +470,7 @@ export const ProducerDashboard = () => {
                             size="sm"
                             onClick={() => handleEditProduct(product)}
                             className="flex-1 sm:flex-none"
-                            disabled={!isSubscriptionActive}
+                            disabled={!canPublish}
                           >
                             <Edit className="h-4 w-4 sm:mr-0 mr-2" />
                             <span className="sm:hidden">Modifier</span>

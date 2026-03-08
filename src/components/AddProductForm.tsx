@@ -77,7 +77,7 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
     try {
       const { data: profile, error: profileError } = await supabase
         .from('profiles')
-        .select('id, subscription_active, subscription_end_date')
+        .select('id, subscription_active, subscription_end_date, subscription_required')
         .eq('user_id', user.id)
         .maybeSingle();
       
@@ -87,12 +87,14 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
         return;
       }
 
-      // Check if subscription is active and not expired
-      const hasActiveSubscription = profile.subscription_active && 
-        profile.subscription_end_date && 
-        new Date(profile.subscription_end_date) > new Date();
+      const hasActiveSubscription = !!(
+        profile.subscription_active &&
+        profile.subscription_end_date &&
+        new Date(profile.subscription_end_date) > new Date()
+      );
 
-      setSubscriptionRequired(!hasActiveSubscription);
+      const isSubscriptionEnforced = profile.subscription_required !== false;
+      setSubscriptionRequired(isSubscriptionEnforced && !hasActiveSubscription);
 
       const { count, error: countError } = await supabase
         .from('products')

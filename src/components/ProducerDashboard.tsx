@@ -11,6 +11,7 @@ import { EditProfileModal } from "./EditProfileModal";
 import { SubscriptionUpgrade } from "./SubscriptionUpgrade";
 import { ContactRequestsList } from "./ContactRequestsList";
 import { ConversationsList } from "./ConversationsList";
+import { BoostHistory } from "./BoostHistory";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";

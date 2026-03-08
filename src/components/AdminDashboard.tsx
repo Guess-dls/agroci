@@ -228,13 +228,15 @@ export const AdminDashboard = () => {
     try {
       const { data, error } = await supabase
         .from('system_settings')
-        .select('setting_value')
-        .eq('setting_key', 'subscription_restrictions_enabled')
-        .single();
+        .select('setting_key, setting_value')
+        .in('setting_key', ['subscription_restrictions_enabled', 'boost_payment_required']);
 
       if (error) throw error;
 
-      setSubscriptionRestrictionsEnabled(data.setting_value);
+      data?.forEach(s => {
+        if (s.setting_key === 'subscription_restrictions_enabled') setSubscriptionRestrictionsEnabled(s.setting_value);
+        if (s.setting_key === 'boost_payment_required') setBoostPaymentEnabled(s.setting_value);
+      });
     } catch (error: any) {
       console.error('Error fetching system settings:', error);
     } finally {

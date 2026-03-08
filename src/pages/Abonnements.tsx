@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { formatTransactionError } from '@/lib/utils';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
@@ -77,11 +78,11 @@ const Abonnements = () => {
       } else {
         throw new Error('URL de paiement non reçue');
       }
-    } catch (error) {
-      console.error('Erreur lors de l\'achat:', error);
+    } catch (error: any) {
+      const userMessage = formatTransactionError(error, 'handleSubscribe:Abonnements');
       toast({
-        title: "Erreur",
-        description: "Impossible de procéder au paiement",
+        title: "Erreur de paiement",
+        description: userMessage,
         variant: "destructive",
       });
     } finally {

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { formatTransactionError } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -226,10 +227,10 @@ export const ProducerDashboard = () => {
         fetchProducts();
       }
     } catch (error: any) {
-      console.error('Error creating boost:', error);
+      const userMessage = formatTransactionError(error, 'handleBoostProduct');
       toast({
-        title: "Erreur",
-        description: error?.message || "Impossible de booster ce produit.",
+        title: "Erreur lors du boost",
+        description: userMessage,
         variant: "destructive",
       });
     } finally {

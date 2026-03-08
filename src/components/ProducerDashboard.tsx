@@ -277,20 +277,32 @@ export const ProducerDashboard = () => {
     <div className="space-y-6">
       {/* Subscription warning */}
       {isSubscriptionRequired && !isSubscriptionActive && (
-        <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-start gap-3">
-          <Crown className="h-5 w-5 text-amber-600 flex-shrink-0 mt-0.5" />
+        <div className={`${hasFreeSlotsLeft ? 'bg-blue-50 border-blue-200' : 'bg-amber-50 border-amber-200'} border rounded-lg p-4 flex items-start gap-3`}>
+          <Crown className={`h-5 w-5 ${hasFreeSlotsLeft ? 'text-blue-600' : 'text-amber-600'} flex-shrink-0 mt-0.5`} />
           <div>
-            <h4 className="font-semibold text-amber-800">Abonnement requis</h4>
-            <p className="text-sm text-amber-700">
-              Vous devez souscrire un abonnement mensuel (3 000 FCFA/mois) pour publier vos produits et les rendre visibles aux acheteurs.
-            </p>
+            {hasFreeSlotsLeft ? (
+              <>
+                <h4 className="font-semibold text-blue-800">Essai gratuit</h4>
+                <p className="text-sm text-blue-700">
+                  Vous pouvez publier <strong>{FREE_PRODUCT_LIMIT - freeProductsUsed} produit{FREE_PRODUCT_LIMIT - freeProductsUsed > 1 ? 's' : ''}</strong> gratuitement sur {FREE_PRODUCT_LIMIT}. 
+                  Après cela, un abonnement mensuel (3 000 FCFA/mois) sera requis.
+                </p>
+              </>
+            ) : (
+              <>
+                <h4 className="font-semibold text-amber-800">Abonnement requis</h4>
+                <p className="text-sm text-amber-700">
+                  Vous avez utilisé vos {FREE_PRODUCT_LIMIT} publications gratuites. Souscrivez un abonnement mensuel (3 000 FCFA/mois) pour continuer à publier.
+                </p>
+              </>
+            )}
             <Button 
               variant="outline" 
               size="sm" 
-              className="mt-2 border-amber-300 text-amber-700 hover:bg-amber-100"
+              className={`mt-2 ${hasFreeSlotsLeft ? 'border-blue-300 text-blue-700 hover:bg-blue-100' : 'border-amber-300 text-amber-700 hover:bg-amber-100'}`}
               onClick={() => setActiveTab("subscription")}
             >
-              S'abonner maintenant
+              {hasFreeSlotsLeft ? "Voir les abonnements" : "S'abonner maintenant"}
             </Button>
           </div>
         </div>

@@ -116,7 +116,7 @@ const TransactionHistory = () => {
           Historique des transactions
         </CardTitle>
         <CardDescription>
-          Consultez l'historique de vos achats et utilisations de crédits
+          Consultez l'historique de vos paiements (abonnements et boosts)
         </CardDescription>
       </CardHeader>
       <CardContent>

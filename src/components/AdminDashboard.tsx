@@ -1430,6 +1430,40 @@ export const AdminDashboard = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="conversations" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <MessageSquare className="h-5 w-5 text-primary" />
+                Surveillance des conversations
+              </CardTitle>
+              <CardDescription>
+                Toutes les demandes de contact et messages échangés sur la plateforme
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminConversations />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="activity" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Activity className="h-5 w-5 text-primary" />
+                Journal d'activité
+              </CardTitle>
+              <CardDescription>
+                Vues de produits, clics contact et transactions des utilisateurs
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <AdminActivityLog />
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="boosts" className="space-y-4">
           <Card>
             <CardHeader>

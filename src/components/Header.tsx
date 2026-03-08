@@ -26,7 +26,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userCredits, setUserCredits] = useState<number | null>(null);
+  
 
   useEffect(() => {
     if (user) {

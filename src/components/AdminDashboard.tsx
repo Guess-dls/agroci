@@ -1009,8 +1009,19 @@ export const AdminDashboard = () => {
                               disabled={updatingUser === user.id}
                               className={`text-xs h-8 ${user.subscription_required ? "bg-purple-600 hover:bg-purple-700" : ""}`}
                             >
-                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CreditCard className="h-3 w-3 mr-1" />{user.subscription_required ? "Lever" : "Exiger"}</>}
+                              {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><CreditCard className="h-3 w-3 mr-1" />{user.subscription_required ? "Lever abo" : "Exiger abo"}</>}
                             </Button>
+                            {user.user_type === 'producteur' && (
+                              <Button
+                                size="sm"
+                                variant={user.boost_payment_required ? "default" : "outline"}
+                                onClick={() => toggleUserBoostPaymentRequirement(user.id)}
+                                disabled={updatingUser === user.id}
+                                className={`text-xs h-8 ${user.boost_payment_required ? "bg-amber-600 hover:bg-amber-700 text-white" : ""}`}
+                              >
+                                {updatingUser === user.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Rocket className="h-3 w-3 mr-1" />{user.boost_payment_required ? "Boost gratuit" : "Boost payant"}</>}
+                              </Button>
+                            )}
                             <Button
                               size="sm"
                               variant={user.suspended ? "default" : "outline"}

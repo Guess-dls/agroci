@@ -745,7 +745,7 @@ export const AdminDashboard = () => {
 
       {/* Main Content */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2 sm:grid-cols-4 h-auto gap-1 p-1">
+        <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 h-auto gap-1 p-1">
           <TabsTrigger value="overview" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">Vue d'ensemble</TabsTrigger>
           <TabsTrigger value="validation" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
             <span className="hidden sm:inline">Validation</span>
@@ -760,6 +760,10 @@ export const AdminDashboard = () => {
           <TabsTrigger value="products" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2">
             <span className="hidden sm:inline">Tous les produits</span>
             <span className="sm:hidden">Produits</span>
+          </TabsTrigger>
+          <TabsTrigger value="boosts" className="text-[10px] sm:text-xs md:text-sm py-2 px-1 sm:px-2 flex items-center gap-1">
+            <Rocket className="h-3 w-3" />
+            <span className="hidden sm:inline">Boosts</span>
           </TabsTrigger>
         </TabsList>
 

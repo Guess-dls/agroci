@@ -26,7 +26,7 @@ export const Header = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userCredits, setUserCredits] = useState<number | null>(null);
+  
 
   useEffect(() => {
     if (user) {
@@ -40,16 +40,12 @@ export const Header = () => {
     try {
       const { data, error } = await supabase
         .from('profiles')
-        .select('user_type, credits')
+        .select('user_type')
         .eq('user_id', user!.id)
         .single();
 
       if (!error && data?.user_type === 'admin') {
         setIsAdmin(true);
-      }
-      
-      if (!error && data?.credits !== undefined) {
-        setUserCredits(data.credits);
       }
     } catch (error) {
       console.error('Error checking admin status:', error);
@@ -138,11 +134,6 @@ export const Header = () => {
                 <span className="hidden lg:inline">+225 0789363442</span>
                 <span className="lg:hidden text-xs">+225...</span>
               </div>
-              {user && userCredits !== null && (
-                <div className="flex items-center space-x-1 bg-primary/10 px-2 py-1 rounded-full whitespace-nowrap">
-                  <span className="font-medium text-primary text-xs">💰 {userCredits}</span>
-                </div>
-              )}
             </div>
             
             {loading ? (
@@ -290,11 +281,6 @@ export const Header = () => {
                       <Phone className="h-4 w-4" />
                       <span>+225 0789363442</span>
                     </div>
-                    {user && userCredits !== null && (
-                      <div className="flex items-center space-x-2 bg-primary/10 px-3 py-1 rounded-full">
-                        <span className="font-medium text-primary">💰 {userCredits} crédits</span>
-                      </div>
-                    )}
                   </div>
 
                   {loading ? (

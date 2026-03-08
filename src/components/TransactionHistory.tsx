@@ -116,7 +116,7 @@ const TransactionHistory = () => {
           Historique des transactions
         </CardTitle>
         <CardDescription>
-          Consultez l'historique de vos achats et utilisations de crédits
+          Consultez l'historique de vos paiements (abonnements et boosts)
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -151,16 +151,6 @@ const TransactionHistory = () => {
 
                 <div className="text-right space-y-1">
                   <div className="flex items-center gap-2">
-                    {transaction.credits_ajoutes > 0 && (
-                      <span className="text-green-600 font-medium">
-                        +{transaction.credits_ajoutes} crédits
-                      </span>
-                    )}
-                    {transaction.credits_utilises > 0 && (
-                      <span className="text-red-600 font-medium">
-                        -{transaction.credits_utilises} crédits
-                      </span>
-                    )}
                     {transaction.montant && (
                       <span className="text-gray-900 font-medium">
                         {transaction.montant.toLocaleString()} FCFA

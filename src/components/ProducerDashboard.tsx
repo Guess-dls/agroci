@@ -333,7 +333,7 @@ export const ProducerDashboard = () => {
           <CardContent>
             <div className="text-xl sm:text-2xl font-bold text-emerald-800">{stats.totalProducts}</div>
             <p className="text-[10px] sm:text-xs text-emerald-600 truncate">
-              {canPublish ? 'Publication illimitée' : 'Abonnement requis'}
+              {isSubscriptionActive ? 'Publication illimitée' : hasFreeSlotsLeft ? `${FREE_PRODUCT_LIMIT - freeProductsUsed}/${FREE_PRODUCT_LIMIT} gratuit${FREE_PRODUCT_LIMIT - freeProductsUsed > 1 ? 's' : ''} restant${FREE_PRODUCT_LIMIT - freeProductsUsed > 1 ? 's' : ''}` : 'Abonnement requis'}
             </p>
           </CardContent>
         </Card>

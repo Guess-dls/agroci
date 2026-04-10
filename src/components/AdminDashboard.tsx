@@ -64,6 +64,8 @@ interface User {
   subscription_required: boolean;
   boost_payment_required: boolean;
   created_at: string;
+  email: string;
+  user_id: string;
 }
 
 interface AdminStats {
@@ -250,14 +252,25 @@ export const AdminDashboard = () => {
   const fetchAllUsers = async () => {
     try {
       setLoadingUsers(true);
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
+      const [{ data, error }, { data: emailData }] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('*')
+          .order('created_at', { ascending: false }),
+        supabase.rpc('get_user_emails_for_admin')
+      ]);
 
       if (error) throw error;
 
-      setUsers((data || []) as unknown as User[]);
+      const emailMap = new Map<string, string>();
+      (emailData || []).forEach((e: any) => emailMap.set(e.user_id, e.email));
+
+      const usersWithEmail = (data || []).map((u: any) => ({
+        ...u,
+        email: emailMap.get(u.user_id) || ''
+      }));
+
+      setUsers(usersWithEmail as unknown as User[]);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -462,11 +475,10 @@ export const AdminDashboard = () => {
     try {
       const newValue = !subscriptionRestrictionsEnabled;
       
-      // Update global setting
+      // Upsert global setting
       const { error: settingsError } = await supabase
         .from('system_settings')
-        .update({ setting_value: newValue })
-        .eq('setting_key', 'subscription_restrictions_enabled');
+        .upsert({ setting_key: 'subscription_restrictions_enabled', setting_value: newValue }, { onConflict: 'setting_key' });
 
       if (settingsError) throw settingsError;
 
@@ -985,6 +997,7 @@ export const AdminDashboard = () => {
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="font-medium text-sm">{user.prenom} {user.nom}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
                             <p className="text-xs text-muted-foreground">{user.whatsapp}</p>
                             <p className="text-xs text-muted-foreground">{user.pays}{user.region && `, ${user.region}`}</p>
                           </div>
@@ -1099,6 +1112,7 @@ export const AdminDashboard = () => {
                             <TableCell>
                               <div>
                                 <p className="font-medium">{user.prenom} {user.nom}</p>
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
                                 <p className="text-sm text-muted-foreground">{user.whatsapp}</p>
                               </div>
                             </TableCell>

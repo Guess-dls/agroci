@@ -475,28 +475,18 @@ export const AdminDashboard = () => {
     try {
       const newValue = !subscriptionRestrictionsEnabled;
       
-      // Upsert global setting
-      const { error: settingsError } = await supabase
-        .from('system_settings')
-        .upsert({ setting_key: 'subscription_restrictions_enabled', setting_value: newValue }, { onConflict: 'setting_key' });
+      const { data, error } = await supabase.rpc('admin_toggle_subscription_global', {
+        new_value: newValue
+      });
 
-      if (settingsError) throw settingsError;
-
-      // Update ALL producer profiles to apply the restriction globally
-      const { error: profilesError } = await supabase
-        .from('profiles')
-        .update({ subscription_required: newValue })
-        .eq('user_type', 'producteur');
-
-      if (profilesError) throw profilesError;
+      if (error) throw error;
 
       setSubscriptionRestrictionsEnabled(newValue);
       toast({
         title: "Paramètres mis à jour",
-        description: `Restrictions d'abonnement ${newValue ? 'activées' : 'désactivées'} pour tous les producteurs`,
+        description: data || `Restrictions d'abonnement ${newValue ? 'activées' : 'désactivées'}`,
       });
 
-      // Refresh users list if visible
       if (activeTab === 'users') {
         fetchAllUsers();
       }
@@ -514,19 +504,15 @@ export const AdminDashboard = () => {
   const toggleUserSubscriptionRequirement = async (userId: string) => {
     setUpdatingUser(userId);
     try {
-      const user = users.find(u => u.id === userId);
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ subscription_required: !user.subscription_required })
-        .eq('id', userId);
+      const { data, error } = await supabase.rpc('admin_toggle_subscription_user', {
+        target_profile_id: userId
+      });
 
       if (error) throw error;
 
       toast({
-        title: "Paramètre utilisateur mis à jour",
-        description: `Obligation d'abonnement ${!user.subscription_required ? 'activée' : 'désactivée'} pour ${user.prenom} ${user.nom}`,
+        title: "Paramètre mis à jour",
+        description: data,
       });
 
       fetchAllUsers();
@@ -544,19 +530,15 @@ export const AdminDashboard = () => {
   const toggleUserBoostPaymentRequirement = async (userId: string) => {
     setUpdatingUser(userId);
     try {
-      const u = users.find(u => u.id === userId);
-      if (!u) return;
-
-      const { error } = await supabase
-        .from('profiles')
-        .update({ boost_payment_required: !u.boost_payment_required })
-        .eq('id', userId);
+      const { data, error } = await supabase.rpc('admin_toggle_boost_user', {
+        target_profile_id: userId
+      });
 
       if (error) throw error;
 
       toast({
         title: "Paramètre boost mis à jour",
-        description: `Paiement boost ${!u.boost_payment_required ? 'exigé' : 'désactivé'} pour ${u.prenom} ${u.nom}`,
+        description: data,
       });
 
       fetchAllUsers();
@@ -576,25 +558,16 @@ export const AdminDashboard = () => {
     try {
       const newValue = !boostPaymentEnabled;
 
-      // Upsert global setting
-      const { error: settingsError } = await supabase
-        .from('system_settings')
-        .upsert({ setting_key: 'boost_payment_required', setting_value: newValue }, { onConflict: 'setting_key' });
+      const { data, error } = await supabase.rpc('admin_toggle_boost_global', {
+        new_value: newValue
+      });
 
-      if (settingsError) throw settingsError;
-
-      // Update ALL producer profiles
-      const { error: profilesError } = await supabase
-        .from('profiles')
-        .update({ boost_payment_required: newValue })
-        .eq('user_type', 'producteur');
-
-      if (profilesError) throw profilesError;
+      if (error) throw error;
 
       setBoostPaymentEnabled(newValue);
       toast({
         title: "Paramètres boost mis à jour",
-        description: `Paiement boost ${newValue ? 'exigé' : 'désactivé'} pour tous les producteurs`,
+        description: data || `Paiement boost ${newValue ? 'exigé' : 'désactivé'}`,
       });
 
       if (activeTab === 'users') fetchAllUsers();

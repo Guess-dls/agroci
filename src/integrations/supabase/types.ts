@@ -608,6 +608,22 @@ export type Database = {
         }
         Returns: string
       }
+      admin_toggle_boost_global: {
+        Args: { new_value: boolean }
+        Returns: string
+      }
+      admin_toggle_boost_user: {
+        Args: { target_profile_id: string }
+        Returns: string
+      }
+      admin_toggle_subscription_global: {
+        Args: { new_value: boolean }
+        Returns: string
+      }
+      admin_toggle_subscription_user: {
+        Args: { target_profile_id: string }
+        Returns: string
+      }
       create_contact_request: {
         Args: {
           message_text: string

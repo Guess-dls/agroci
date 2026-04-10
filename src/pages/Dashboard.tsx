@@ -52,7 +52,7 @@ const Dashboard = () => {
         return;
       }
 
-      setProfile(data);
+      setProfile(data as Profile);
     } catch (error) {
       console.error('Error:', error);
       navigate('/auth');

@@ -237,8 +237,8 @@ export const AdminDashboard = () => {
       if (error) throw error;
 
       data?.forEach(s => {
-        if (s.setting_key === 'subscription_restrictions_enabled') setSubscriptionRestrictionsEnabled(s.setting_value);
-        if (s.setting_key === 'boost_payment_required') setBoostPaymentEnabled(s.setting_value);
+        if (s.setting_key === 'subscription_restrictions_enabled') setSubscriptionRestrictionsEnabled(Boolean(s.setting_value));
+        if (s.setting_key === 'boost_payment_required') setBoostPaymentEnabled(Boolean(s.setting_value));
       });
     } catch (error: any) {
       console.error('Error fetching system settings:', error);
@@ -257,7 +257,7 @@ export const AdminDashboard = () => {
 
       if (error) throw error;
 
-      setUsers(data || []);
+      setUsers((data || []) as unknown as User[]);
     } catch (error: any) {
       toast({
         title: "Erreur",
@@ -297,12 +297,12 @@ export const AdminDashboard = () => {
 
       if (error) throw error;
 
-      const formattedProducts = data.map(product => ({
+      const formattedProducts = data.map((product: any) => ({
         ...product,
         producteur: product.profiles
       }));
 
-      setAllProducts(formattedProducts);
+      setAllProducts(formattedProducts as Product[]);
     } catch (error: any) {
       toast({
         title: "Erreur",

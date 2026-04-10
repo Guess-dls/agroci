@@ -997,6 +997,7 @@ export const AdminDashboard = () => {
                         <div className="flex items-start justify-between">
                           <div>
                             <p className="font-medium text-sm">{user.prenom} {user.nom}</p>
+                            <p className="text-xs text-muted-foreground">{user.email}</p>
                             <p className="text-xs text-muted-foreground">{user.whatsapp}</p>
                             <p className="text-xs text-muted-foreground">{user.pays}{user.region && `, ${user.region}`}</p>
                           </div>
@@ -1111,6 +1112,7 @@ export const AdminDashboard = () => {
                             <TableCell>
                               <div>
                                 <p className="font-medium">{user.prenom} {user.nom}</p>
+                                <p className="text-xs text-muted-foreground">{user.email}</p>
                                 <p className="text-sm text-muted-foreground">{user.whatsapp}</p>
                               </div>
                             </TableCell>

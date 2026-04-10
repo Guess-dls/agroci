@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      abonnements: {
+        Row: {
+          created_at: string
+          description: string | null
+          duree_jours: number
+          id: string
+          nom: string
+          prix: number
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          duree_jours?: number
+          id?: string
+          nom: string
+          prix?: number
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          duree_jours?: number
+          id?: string
+          nom?: string
+          prix?: number
+        }
+        Relationships: []
+      }
       categories_acheteurs: {
         Row: {
           created_at: string
@@ -35,18 +62,21 @@ export type Database = {
       categories_produits: {
         Row: {
           created_at: string
+          description: string | null
           icone: string | null
           id: string
           nom: string
         }
         Insert: {
           created_at?: string
+          description?: string | null
           icone?: string | null
           id?: string
           nom: string
         }
         Update: {
           created_at?: string
+          description?: string | null
           icone?: string | null
           id?: string
           nom?: string
@@ -121,6 +151,7 @@ export type Database = {
           created_at: string
           id: string
           read: boolean
+          receiver_id: string | null
           sender_id: string
         }
         Insert: {
@@ -129,6 +160,7 @@ export type Database = {
           created_at?: string
           id?: string
           read?: boolean
+          receiver_id?: string | null
           sender_id: string
         }
         Update: {
@@ -137,6 +169,7 @@ export type Database = {
           created_at?: string
           id?: string
           read?: boolean
+          receiver_id?: string | null
           sender_id?: string
         }
         Relationships: [
@@ -145,6 +178,13 @@ export type Database = {
             columns: ["contact_request_id"]
             isOneToOne: false
             referencedRelation: "contact_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
           {
@@ -393,6 +433,7 @@ export type Database = {
           end_date: string | null
           id: string
           nom: string | null
+          plan: string | null
           start_date: string
           status: string
           type: string
@@ -404,6 +445,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           nom?: string | null
+          plan?: string | null
           start_date?: string
           status?: string
           type?: string
@@ -415,6 +457,7 @@ export type Database = {
           end_date?: string | null
           id?: string
           nom?: string | null
+          plan?: string | null
           start_date?: string
           status?: string
           type?: string
@@ -497,6 +540,13 @@ export type Database = {
         }
         Relationships: [
           {
+            foreignKeyName: "transactions_abonnement_id_fkey"
+            columns: ["abonnement_id"]
+            isOneToOne: false
+            referencedRelation: "abonnements"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "transactions_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -546,6 +596,18 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_contact_request: {
+        Args: { request_id_param: string }
+        Returns: undefined
+      }
+      activate_product_boost: {
+        Args: {
+          p_producer_id: string
+          p_product_id: string
+          p_reference?: string
+        }
+        Returns: string
+      }
       create_contact_request: {
         Args: {
           message_text: string
@@ -554,7 +616,27 @@ export type Database = {
         }
         Returns: undefined
       }
+      delete_conversation: {
+        Args: { contact_request_id_param: string }
+        Returns: undefined
+      }
       delete_user_account: { Args: { profile_id: string }; Returns: string }
+      get_public_producer_info_for_product: {
+        Args: { product_id_param: string }
+        Returns: {
+          id: string
+          nom: string
+          prenom: string
+        }[]
+      }
+      reject_contact_request: {
+        Args: { request_id_param: string }
+        Returns: undefined
+      }
+      send_message: {
+        Args: { contact_request_id_param: string; content_param: string }
+        Returns: undefined
+      }
       toggle_product_visibility: {
         Args: { product_id: string }
         Returns: string

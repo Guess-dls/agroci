@@ -629,6 +629,13 @@ export type Database = {
           prenom: string
         }[]
       }
+      get_user_emails_for_admin: {
+        Args: never
+        Returns: {
+          email: string
+          user_id: string
+        }[]
+      }
       reject_contact_request: {
         Args: { request_id_param: string }
         Returns: undefined

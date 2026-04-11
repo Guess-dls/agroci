@@ -296,6 +296,7 @@ export type Database = {
           hidden: boolean
           id: string
           image_url: string | null
+          images: string[] | null
           is_boosted: boolean
           localisation: string | null
           nom: string
@@ -316,6 +317,7 @@ export type Database = {
           hidden?: boolean
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_boosted?: boolean
           localisation?: string | null
           nom: string
@@ -336,6 +338,7 @@ export type Database = {
           hidden?: boolean
           id?: string
           image_url?: string | null
+          images?: string[] | null
           is_boosted?: boolean
           localisation?: string | null
           nom?: string

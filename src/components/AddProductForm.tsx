@@ -250,7 +250,8 @@ export const AddProductForm = ({ onProductAdded }: AddProductFormProps) => {
           localisation: formData.localisation,
           categorie_id: formData.categorie_id,
           acheteurs_cibles: selectedAcheteurs,
-          image_url: imageUrls.length > 0 ? imageUrls[0] : null, // Use first image as main image
+          image_url: imageUrls.length > 0 ? imageUrls[0] : null,
+          images: imageUrls,
           producteur_id: profile.id
         });
 

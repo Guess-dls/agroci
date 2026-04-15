@@ -1,4 +1,4 @@
-import { Menu, Phone, LogOut, User, Shield, Download } from "lucide-react";
+import { Menu, Phone, LogOut, User, Shield, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -26,7 +26,6 @@ export const Header = () => {
   const navigate = useNavigate();
   const [isAdmin, setIsAdmin] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  
 
   useEffect(() => {
     if (user) {
@@ -43,7 +42,6 @@ export const Header = () => {
         .select('user_type')
         .eq('user_id', user!.id)
         .single();
-
       if (!error && data?.user_type === 'admin') {
         setIsAdmin(true);
       }
@@ -55,285 +53,142 @@ export const Header = () => {
   const handleSignOut = async () => {
     setMobileMenuOpen(false);
     await signOut();
-    // Attendre un court instant pour que l'état soit mis à jour
-    setTimeout(() => {
-      navigate('/');
-    }, 100);
+    setTimeout(() => { navigate('/'); }, 100);
   };
 
-  const handleHomeClick = () => {
-    console.log('Clic sur le bouton d\'accueil');
-    setMobileMenuOpen(false);
-    navigate('/');
-  };
-
-  const handleNavigate = (path: string, label: string) => {
-    console.log(`Navigation vers ${label}`);
+  const handleNavigate = (path: string) => {
     setMobileMenuOpen(false);
     navigate(path);
   };
 
   return (
-    <header className="bg-background border-b shadow-soft sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-4">
+    <header className="bg-background/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50">
+      <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <button onClick={handleHomeClick} className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent hover:opacity-80 transition-opacity">
-              AgroCI
-            </button>
-          </div>
-          
+          <button onClick={() => handleNavigate('/')} className="flex items-center gap-2 group">
+            <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-medium transition-shadow">
+              <Sparkles className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="text-2xl font-bold tracking-tight text-gradient-primary">
+              Fehi
+            </span>
+          </button>
+
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            <button 
-              onClick={() => {
-                console.log('Clic sur le bouton d\'accueil dans nav');
-                navigate('/');
-              }} 
-              className="text-foreground hover:text-primary transition-colors font-medium"
-            >
-              Accueil
-            </button>
-            <button 
-              onClick={() => {
-                console.log('Clic sur Produits');
-                navigate('/products');
-              }} 
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              Produits
-            </button>
-            <button 
-              onClick={() => {
-                console.log('Clic sur Producteurs');
-                navigate('/producers');
-              }} 
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              Producteurs
-            </button>
-            <button 
-              onClick={() => {
-                console.log('Clic sur Acheteurs');
-                navigate('/buyers');
-              }} 
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              Acheteurs
-            </button>
+          <nav className="hidden md:flex items-center gap-1">
+            {[
+              { label: 'Accueil', path: '/' },
+              { label: 'Produits', path: '/products' },
+              { label: 'Producteurs', path: '/producers' },
+              { label: 'Acheteurs', path: '/buyers' },
+            ].map(({ label, path }) => (
+              <button
+                key={path}
+                onClick={() => navigate(path)}
+                className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+              >
+                {label}
+              </button>
+            ))}
           </nav>
 
-          {/* Desktop Auth Buttons */}
-          <div className="hidden md:flex items-center space-x-2 lg:space-x-4">
-            {/* Bouton d'installation PWA */}
+          {/* Desktop Auth */}
+          <div className="hidden md:flex items-center gap-3">
             <PWAInstallButton variant="compact" />
-            
-            <div className="flex items-center space-x-2 lg:space-x-4 text-xs lg:text-sm text-muted-foreground">
-              <div className="flex items-center space-x-1 lg:space-x-2">
-                <Phone className="h-3 w-3 lg:h-4 lg:w-4 flex-shrink-0" />
-                <span className="hidden lg:inline">+225 0789363442</span>
-                <span className="lg:hidden text-xs">+225...</span>
-              </div>
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <Phone className="h-3.5 w-3.5" />
+              <span className="hidden lg:inline">+225 0789363442</span>
             </div>
-            
+
             {loading ? (
-              <div className="flex space-x-2">
-                <div className="w-16 h-8 bg-muted rounded animate-pulse" />
-                <div className="w-20 h-8 bg-muted rounded animate-pulse" />
+              <div className="flex gap-2">
+                <div className="w-16 h-8 bg-muted rounded-lg animate-pulse" />
+                <div className="w-20 h-8 bg-muted rounded-lg animate-pulse" />
               </div>
             ) : user ? (
-              <DropdownMenu modal={false} onOpenChange={(open) => console.log('Dropdown open state:', open)}>
+              <DropdownMenu modal={false}>
                 <DropdownMenuTrigger asChild>
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    className="flex items-center space-x-2"
-                  >
+                  <Button variant="outline" size="sm" className="gap-2 rounded-xl">
                     <User className="h-4 w-4" />
                     <span>Mon compte</span>
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent 
-                  align="end" 
-                  className="w-48 z-[100] bg-popover border shadow-lg"
-                  sideOffset={8}
-                >
-                  <DropdownMenuItem 
-                    onClick={(e) => {
-                      console.log('Dashboard clicked');
-                      e.preventDefault();
-                      navigate('/dashboard');
-                    }}
-                    className="cursor-pointer"
-                  >
+                <DropdownMenuContent align="end" className="w-48 z-[100] bg-popover border shadow-elevated rounded-xl" sideOffset={8}>
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); navigate('/dashboard'); }} className="cursor-pointer rounded-lg">
                     <User className="mr-2 h-4 w-4" />
-                    <span>Tableau de bord</span>
+                    Tableau de bord
                   </DropdownMenuItem>
                   {isAdmin && (
-                    <DropdownMenuItem 
-                      onClick={(e) => {
-                        console.log('Admin clicked');
-                        e.preventDefault();
-                        navigate('/admin');
-                      }}
-                      className="cursor-pointer"
-                    >
+                    <DropdownMenuItem onClick={(e) => { e.preventDefault(); navigate('/admin'); }} className="cursor-pointer rounded-lg">
                       <Shield className="mr-2 h-4 w-4" />
-                      <span>Administration</span>
+                      Administration
                     </DropdownMenuItem>
                   )}
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem 
-                    onClick={(e) => {
-                      console.log('Logout clicked');
-                      e.preventDefault();
-                      handleSignOut();
-                    }}
-                    className="cursor-pointer"
-                  >
+                  <DropdownMenuItem onClick={(e) => { e.preventDefault(); handleSignOut(); }} className="cursor-pointer rounded-lg text-destructive">
                     <LogOut className="mr-2 h-4 w-4" />
-                    <span>Déconnexion</span>
+                    Déconnexion
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={() => {
-                    console.log('Bouton Connexion cliqué');
-                    navigate('/auth');
-                  }}
-                >
+              <div className="flex gap-2">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/auth')} className="rounded-xl">
                   Connexion
                 </Button>
-                <Button 
-                  variant="accent" 
-                  size="sm" 
-                  onClick={() => {
-                    console.log('Bouton Inscription cliqué');
-                    navigate('/auth');
-                  }}
-                >
+                <Button size="sm" onClick={() => navigate('/auth')} className="rounded-xl bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-soft">
                   Inscription
                 </Button>
-              </>
+              </div>
             )}
           </div>
 
           {/* Mobile Menu */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
             <SheetTrigger asChild>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="md:hidden"
-                onClick={() => console.log('Menu mobile ouvert')}
-              >
+              <Button variant="ghost" size="icon" className="md:hidden rounded-xl">
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-80">
               <SheetHeader>
-                <SheetTitle>Menu</SheetTitle>
-                <SheetDescription>
-                  Navigation et compte utilisateur
-                </SheetDescription>
+                <SheetTitle className="text-gradient-primary text-left">Fehi</SheetTitle>
+                <SheetDescription>Navigation</SheetDescription>
               </SheetHeader>
-              
-              <div className="mt-6 space-y-4">
-                {/* Navigation Links */}
-                <div className="space-y-3">
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleNavigate('/', 'Accueil')}
-                  >
-                    Accueil
+              <div className="mt-6 space-y-2">
+                {['/', '/products', '/producers', '/buyers'].map((path, i) => (
+                  <Button key={path} variant="ghost" className="w-full justify-start rounded-xl" onClick={() => handleNavigate(path)}>
+                    {['Accueil', 'Produits', 'Producteurs', 'Acheteurs'][i]}
                   </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleNavigate('/products', 'Produits')}
-                  >
-                    Produits
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleNavigate('/producers', 'Producteurs')}
-                  >
-                    Producteurs
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    className="w-full justify-start"
-                    onClick={() => handleNavigate('/buyers', 'Acheteurs')}
-                  >
-                    Acheteurs
-                  </Button>
-                </div>
-
-                <div className="border-t pt-4">
-                  <div className="flex flex-col space-y-2 text-sm text-muted-foreground mb-4">
-                    <div className="flex items-center space-x-2">
-                      <Phone className="h-4 w-4" />
-                      <span>+225 0789363442</span>
-                    </div>
+                ))}
+                <div className="border-t pt-4 mt-4 space-y-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground px-4">
+                    <Phone className="h-4 w-4" />
+                    <span>+225 0789363442</span>
                   </div>
-
                   {loading ? (
-                    <div className="space-y-2">
-                      <div className="w-full h-10 bg-muted rounded animate-pulse" />
-                      <div className="w-full h-10 bg-muted rounded animate-pulse" />
+                    <div className="space-y-2 px-4">
+                      <div className="w-full h-10 bg-muted rounded-xl animate-pulse" />
                     </div>
                   ) : user ? (
-                    <div className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full justify-start"
-                        onClick={() => handleNavigate('/dashboard', 'Tableau de bord')}
-                      >
-                        <User className="mr-2 h-4 w-4" />
-                        Tableau de bord
+                    <>
+                      <Button variant="outline" className="w-full justify-start rounded-xl" onClick={() => handleNavigate('/dashboard')}>
+                        <User className="mr-2 h-4 w-4" /> Tableau de bord
                       </Button>
                       {isAdmin && (
-                        <Button
-                          variant="outline"
-                          className="w-full justify-start"
-                          onClick={() => handleNavigate('/admin', 'Administration')}
-                        >
-                          <Shield className="mr-2 h-4 w-4" />
-                          Administration
+                        <Button variant="outline" className="w-full justify-start rounded-xl" onClick={() => handleNavigate('/admin')}>
+                          <Shield className="mr-2 h-4 w-4" /> Administration
                         </Button>
                       )}
-                      <Button
-                        variant="destructive"
-                        className="w-full justify-start"
-                        onClick={handleSignOut}
-                      >
-                        <LogOut className="mr-2 h-4 w-4" />
-                        Déconnexion
+                      <Button variant="destructive" className="w-full justify-start rounded-xl" onClick={handleSignOut}>
+                        <LogOut className="mr-2 h-4 w-4" /> Déconnexion
                       </Button>
-                    </div>
+                    </>
                   ) : (
-                    <div className="space-y-3">
-                      <Button
-                        variant="outline"
-                        className="w-full"
-                        onClick={() => handleNavigate('/auth', 'Connexion')}
-                      >
-                        Connexion
-                      </Button>
-                      <Button
-                        variant="accent"
-                        className="w-full"
-                        onClick={() => handleNavigate('/auth', 'Inscription')}
-                      >
-                        Inscription
-                      </Button>
-                    </div>
+                    <>
+                      <Button variant="outline" className="w-full rounded-xl" onClick={() => handleNavigate('/auth')}>Connexion</Button>
+                      <Button className="w-full rounded-xl bg-gradient-primary text-primary-foreground" onClick={() => handleNavigate('/auth')}>Inscription</Button>
+                    </>
                   )}
                 </div>
               </div>

@@ -93,7 +93,7 @@ const Abonnements = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur AgroCI" canonicalUrl="https://agroci.lovable.app/abonnements" />
+        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://agroci.lovable.app/abonnements" />
         <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -106,11 +106,11 @@ const Abonnements = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur AgroCI" canonicalUrl="https://agroci.lovable.app/abonnements" />
+        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://agroci.lovable.app/abonnements" />
         <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
-            <h1 className="text-3xl font-bold mb-4">Abonnements AgroCI</h1>
+            <h1 className="text-3xl font-bold mb-4">Abonnements Fehi</h1>
             <p className="text-muted-foreground mb-8">Connectez-vous pour voir nos offres</p>
             <Button asChild><a href="/auth">Se connecter</a></Button>
           </div>
@@ -124,15 +124,15 @@ const Abonnements = () => {
     <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
       <SEOHead 
         title="Abonnements et tarifs"
-        description="Abonnement mensuel producteur AgroCI : 3 000 FCFA/mois pour publier vos produits. Boost produit : 1 200 FCFA/semaine."
-        keywords="abonnement AgroCI, producteur, boost produit, Côte d'Ivoire"
+        description="Abonnement mensuel producteur Fehi : 3 000 FCFA/mois pour publier vos produits. Boost produit : 1 200 FCFA/semaine."
+        keywords="abonnement Fehi, producteur, boost produit, Côte d'Ivoire"
         canonicalUrl="https://agroci.lovable.app/abonnements"
       />
       <Header />
       <main className="container mx-auto px-4 py-8">
         <header className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent">
-            Tarifs AgroCI
+            Tarifs Fehi
           </h1>
           <p className="text-muted-foreground mb-4">
             Des offres simples et accessibles pour les producteurs agricoles

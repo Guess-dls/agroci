@@ -19,22 +19,22 @@ interface SignupConfirmationEmailProps {
 export const SignupConfirmationEmail = ({ confirmUrl, userName }: SignupConfirmationEmailProps) => (
   <Html>
     <Head />
-    <Preview>Confirmez votre inscription sur AgroCi</Preview>
+    <Preview>Confirmez votre inscription sur Fehi</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>🌾 AgroCi</Heading>
+          <Heading style={logo}>🌾 Fehi</Heading>
         </Section>
         
         <Section style={content}>
-          <Heading style={h1}>Bienvenue sur AgroCi !</Heading>
+          <Heading style={h1}>Bienvenue sur Fehi !</Heading>
           
           <Text style={text}>
             {userName ? `Bonjour ${userName},` : 'Bonjour,'}
           </Text>
           
           <Text style={text}>
-            Merci de vous être inscrit sur AgroCi, la marketplace agricole qui connecte les producteurs et les acheteurs en Côte d'Ivoire.
+            Merci de vous être inscrit sur Fehi, la marketplace agricole qui connecte les producteurs et les acheteurs en Côte d'Ivoire.
           </Text>
           
           <Text style={text}>
@@ -48,12 +48,12 @@ export const SignupConfirmationEmail = ({ confirmUrl, userName }: SignupConfirma
           </Section>
           
           <Text style={textMuted}>
-            Si vous n'avez pas créé de compte sur AgroCi, vous pouvez ignorer cet email.
+            Si vous n'avez pas créé de compte sur Fehi, vous pouvez ignorer cet email.
           </Text>
         </Section>
         
         <Section style={features}>
-          <Heading style={h2}>Ce que vous pouvez faire sur AgroCi :</Heading>
+          <Heading style={h2}>Ce que vous pouvez faire sur Fehi :</Heading>
           <Text style={featureItem}>🌱 Découvrir des produits agricoles locaux</Text>
           <Text style={featureItem}>🤝 Contacter directement les producteurs</Text>
           <Text style={featureItem}>📍 Trouver des produits près de chez vous</Text>
@@ -62,7 +62,7 @@ export const SignupConfirmationEmail = ({ confirmUrl, userName }: SignupConfirma
         
         <Section style={footer}>
           <Text style={footerText}>
-            © 2024 AgroCi - La marketplace agricole de Côte d'Ivoire
+            © 2024 Fehi - La marketplace agricole de Côte d'Ivoire
           </Text>
           <Text style={footerText}>
             Connecter producteurs et acheteurs pour une agriculture prospère

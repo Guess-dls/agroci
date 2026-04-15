@@ -22,7 +22,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">1. Informations légales</h2>
             <div className="space-y-2">
-              <p><strong>Nom de la plateforme :</strong> AgroCI</p>
+              <p><strong>Nom de la plateforme :</strong> Fehi</p>
               <p><strong>Forme juridique :</strong> Société de services numériques</p>
               <p><strong>Siège social :</strong> Abidjan, Côte d'Ivoire</p>
               <p><strong>Téléphone / WhatsApp :</strong> +225 0789363442</p>
@@ -33,7 +33,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">2. Responsable de publication</h2>
             <p>
-              Le responsable de la publication est le directeur de la publication d'AgroCI.
+              Le responsable de la publication est le directeur de la publication d'Fehi.
               Il peut être contacté à l'adresse email : josephguessanbi@gmail.com
             </p>
           </section>
@@ -53,8 +53,8 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">4. Propriété intellectuelle</h2>
             <p>
-              Tous les éléments du site AgroCI (textes, images, graphismes, logo, icônes, sons, logiciels) 
-              sont la propriété exclusive d'AgroCI, à l'exception des marques, logos ou contenus 
+              Tous les éléments du site Fehi (textes, images, graphismes, logo, icônes, sons, logiciels) 
+              sont la propriété exclusive d'Fehi, à l'exception des marques, logos ou contenus 
               appartenant à d'autres sociétés partenaires ou auteurs.
             </p>
           </section>
@@ -62,7 +62,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">5. Responsabilité</h2>
             <p>
-              AgroCI agit en tant qu'intermédiaire technique permettant la mise en relation 
+              Fehi agit en tant qu'intermédiaire technique permettant la mise en relation 
               entre producteurs et acheteurs. La plateforme ne peut être tenue responsable :
             </p>
             <ul className="list-disc list-inside space-y-1 ml-4">
@@ -76,7 +76,7 @@ const MentionsLegales = () => {
           <section className="space-y-4">
             <h2 className="text-2xl font-semibold text-primary">6. Protection des données</h2>
             <p>
-              Conformément à la réglementation en vigueur, AgroCI s'engage à protéger 
+              Conformément à la réglementation en vigueur, Fehi s'engage à protéger 
               les données personnelles de ses utilisateurs. Pour plus d'informations, 
               consultez notre <a href="/politique-confidentialite" className="text-accent hover:underline">
               Politique de confidentialité</a>.

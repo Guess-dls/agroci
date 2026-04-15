@@ -31,7 +31,7 @@ const PolitiqueConfidentialite = () => {
             </CardHeader>
             <CardContent>
               <p className="text-muted-foreground">
-                AgroCI s'engage à protéger votre vie privée et vos données personnelles. 
+                Fehi s'engage à protéger votre vie privée et vos données personnelles. 
                 Cette politique explique comment nous collectons, utilisons et protégeons vos informations.
               </p>
             </CardContent>
@@ -216,7 +216,7 @@ const PolitiqueConfidentialite = () => {
             <div className="bg-muted/50 rounded-lg p-4 space-y-2">
               <p><strong>Email :</strong> josephguessanbi@gmail.com</p>
               <p><strong>WhatsApp :</strong> +225 0789363442</p>
-              <p><strong>Courrier :</strong> Service Protection des Données - AgroCI, Abidjan, Côte d'Ivoire</p>
+              <p><strong>Courrier :</strong> Service Protection des Données - Fehi, Abidjan, Côte d'Ivoire</p>
             </div>
           </section>
 

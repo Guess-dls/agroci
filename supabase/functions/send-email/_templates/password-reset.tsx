@@ -18,11 +18,11 @@ interface PasswordResetEmailProps {
 export const PasswordResetEmail = ({ resetUrl }: PasswordResetEmailProps) => (
   <Html>
     <Head />
-    <Preview>Réinitialisez votre mot de passe AgroCi</Preview>
+    <Preview>Réinitialisez votre mot de passe Fehi</Preview>
     <Body style={main}>
       <Container style={container}>
         <Section style={header}>
-          <Heading style={logo}>🌾 AgroCi</Heading>
+          <Heading style={logo}>🌾 Fehi</Heading>
         </Section>
         
         <Section style={content}>
@@ -45,7 +45,7 @@ export const PasswordResetEmail = ({ resetUrl }: PasswordResetEmailProps) => (
         
         <Section style={footer}>
           <Text style={footerText}>
-            © 2024 AgroCi - La marketplace agricole de Côte d'Ivoire
+            © 2024 Fehi - La marketplace agricole de Côte d'Ivoire
           </Text>
           <Text style={footerText}>
             Connecter producteurs et acheteurs pour une agriculture prospère

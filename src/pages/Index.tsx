@@ -10,8 +10,8 @@ const Index = () => {
     <div className="min-h-screen bg-background">
       <SEOHead 
         title="Vente de produits vivriers en gros"
-        description="AgroCI est la plateforme de référence pour la vente de produits vivriers en gros en Côte d'Ivoire. Connectez producteurs et acheteurs directement via WhatsApp. Maïs, riz, manioc, igname."
-        keywords="produits vivriers, agriculture Côte d'Ivoire, vente en gros, maïs, riz, manioc, igname, producteurs agricoles, acheteurs, WhatsApp, Abidjan"
+        description="Fehi est la plateforme de référence pour la vente de produits vivriers en gros en Côte d'Ivoire. Connectez producteurs et acheteurs directement via WhatsApp. Maïs, riz, manioc, igname."
+        keywords="produits vivriers, agriculture Côte d'Ivoire, vente en gros, maïs, riz, manioc, igname, producteurs agricoles, acheteurs, WhatsApp, Abidjan, Fehi"
         canonicalUrl="https://agroci.lovable.app/"
       />
       <Header />

@@ -17,8 +17,8 @@ const FAQ = () => {
       icon: HelpCircle,
       questions: [
         {
-          question: "Qu'est-ce qu'AgroCI ?",
-          answer: "AgroCI est une plateforme de mise en relation directe entre producteurs agricoles et acheteurs de produits vivriers en gros. Notre mission est de faciliter le commerce des produits agricoles en Côte d'Ivoire et en Afrique de l'Ouest."
+          question: "Qu'est-ce qu'Fehi ?",
+          answer: "Fehi est une plateforme de mise en relation directe entre producteurs agricoles et acheteurs de produits vivriers en gros. Notre mission est de faciliter le commerce des produits agricoles en Côte d'Ivoire et en Afrique de l'Ouest."
         },
         {
           question: "Comment fonctionne la plateforme ?",
@@ -30,7 +30,7 @@ const FAQ = () => {
         },
         {
           question: "Dans quels pays la plateforme est-elle disponible ?",
-          answer: "AgroCI est principalement active en Côte d'Ivoire mais accueille également des utilisateurs d'autres pays d'Afrique de l'Ouest comme le Burkina Faso, le Mali, le Sénégal, le Ghana, etc."
+          answer: "Fehi est principalement active en Côte d'Ivoire mais accueille également des utilisateurs d'autres pays d'Afrique de l'Ouest comme le Burkina Faso, le Mali, le Sénégal, le Ghana, etc."
         }
       ]
     },
@@ -120,7 +120,7 @@ const FAQ = () => {
     }
   ];
 
-  const whatsappLink = "https://wa.me/2250789363442?text=Bonjour%2C%20j%27ai%20une%20question%20concernant%20AgroCI";
+  const whatsappLink = "https://wa.me/2250789363442?text=Bonjour%2C%20j%27ai%20une%20question%20concernant%20Fehi";
 
   return (
     <div className="min-h-screen bg-background">
@@ -138,7 +138,7 @@ const FAQ = () => {
           </Button>
           <h1 className="text-4xl font-bold text-foreground mb-4">Foire Aux Questions</h1>
           <p className="text-muted-foreground">
-            Trouvez des réponses aux questions les plus fréquentes sur AgroCI
+            Trouvez des réponses aux questions les plus fréquentes sur Fehi
           </p>
         </div>
 

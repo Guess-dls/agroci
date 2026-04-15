@@ -599,7 +599,7 @@ export const AdminDashboard = () => {
                 <h1 className="text-xl md:text-3xl font-bold bg-gradient-to-r from-primary to-blue-600 bg-clip-text text-transparent">
                   Administration
                 </h1>
-                <p className="text-xs md:text-sm text-muted-foreground">Gestion de la plateforme AgroConnect</p>
+                <p className="text-xs md:text-sm text-muted-foreground">Gestion de la plateforme Fehi</p>
               </div>
             </div>
             

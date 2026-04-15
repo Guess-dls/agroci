@@ -5,11 +5,27 @@ import { useNavigate } from "react-router-dom";
 
 export const UserSections = () => {
   const navigate = useNavigate();
+
+  const features = {
+    producer: [
+      { icon: CheckCircle, title: "Inscription simple", desc: "Créez votre profil en quelques minutes" },
+      { icon: CheckCircle, title: 'Badge "Vérifié"', desc: "Gagnez la confiance des acheteurs" },
+      { icon: CheckCircle, title: "Contact WhatsApp", desc: "Communication directe et rapide" },
+      { icon: BarChart3, title: "Statistiques", desc: "Suivez vos vues et contacts" },
+    ],
+    buyer: [
+      { icon: CheckCircle, title: "Recherche avancée", desc: "Filtres par produit, prix, localisation" },
+      { icon: CheckCircle, title: "Producteurs vérifiés", desc: "Qualité et traçabilité garanties" },
+      { icon: CheckCircle, title: "Favoris & Historique", desc: "Retrouvez vos producteurs préférés" },
+      { icon: CheckCircle, title: "Contact direct", desc: "Négociation via WhatsApp" },
+    ],
+  };
+
   return (
-    <section className="py-20">
+    <section className="py-24">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+          <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 tracking-tight">
             Rejoignez Notre Communauté
           </h2>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
@@ -18,52 +34,30 @@ export const UserSections = () => {
           </p>
         </div>
 
-        <div className="grid lg:grid-cols-2 gap-12">
-          {/* Section Producteurs */}
-          <Card id="producteurs" className="border-2 border-primary/20 hover:border-primary/40 transition-colors">
-            <CardHeader className="text-center pb-6">
-              <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-full flex items-center justify-center mb-4">
+        <div className="grid lg:grid-cols-2 gap-8">
+          {/* Producteurs */}
+          <Card id="producteurs" className="border-0 shadow-soft hover:shadow-elevated transition-shadow rounded-3xl overflow-hidden">
+            <CardHeader className="text-center pb-6 pt-10">
+              <div className="mx-auto w-16 h-16 bg-gradient-primary rounded-2xl flex items-center justify-center mb-4 shadow-success">
                 <Leaf className="h-8 w-8 text-primary-foreground" />
               </div>
               <CardTitle className="text-2xl text-foreground">Espace Producteur</CardTitle>
-              <p className="text-muted-foreground">
-                Vendez vos produits directement aux acheteurs professionnels
-              </p>
+              <p className="text-muted-foreground">Vendez vos produits directement aux acheteurs professionnels</p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 px-8 pb-8">
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Inscription simple</h4>
-                    <p className="text-sm text-muted-foreground">Créez votre profil en quelques minutes</p>
+                {features.producer.map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="flex items-start gap-3">
+                    <Icon className="h-5 w-5 text-primary mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-foreground">{title}</h4>
+                      <p className="text-sm text-muted-foreground">{desc}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Badge "Vérifié"</h4>
-                    <p className="text-sm text-muted-foreground">Gagnez la confiance des acheteurs</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Contact WhatsApp</h4>
-                    <p className="text-sm text-muted-foreground">Communication directe et rapide</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <BarChart3 className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Statistiques</h4>
-                    <p className="text-sm text-muted-foreground">Suivez vos vues et contacts</p>
-                  </div>
-                </div>
+                ))}
               </div>
-              
               <Button 
-                className="w-full bg-primary hover:bg-primary-dark text-primary-foreground"
+                className="w-full rounded-xl bg-gradient-primary hover:opacity-90 text-primary-foreground shadow-soft"
                 onClick={() => navigate('/auth?type=producteur')}
               >
                 S'inscrire comme producteur
@@ -72,52 +66,29 @@ export const UserSections = () => {
             </CardContent>
           </Card>
 
-          {/* Section Acheteurs */}
-          <Card id="acheteurs" className="border-2 border-accent/20 hover:border-accent/40 transition-colors">
-            <CardHeader className="text-center pb-6">
-              <div className="mx-auto w-16 h-16 bg-gradient-accent rounded-full flex items-center justify-center mb-4">
+          {/* Acheteurs */}
+          <Card id="acheteurs" className="border-0 shadow-soft hover:shadow-elevated transition-shadow rounded-3xl overflow-hidden">
+            <CardHeader className="text-center pb-6 pt-10">
+              <div className="mx-auto w-16 h-16 bg-gradient-accent rounded-2xl flex items-center justify-center mb-4 shadow-glow">
                 <ShoppingCart className="h-8 w-8 text-accent-foreground" />
               </div>
               <CardTitle className="text-2xl text-foreground">Espace Acheteur</CardTitle>
-              <p className="text-muted-foreground">
-                Trouvez les meilleurs produits directement chez les producteurs
-              </p>
+              <p className="text-muted-foreground">Trouvez les meilleurs produits directement chez les producteurs</p>
             </CardHeader>
-            <CardContent className="space-y-6">
+            <CardContent className="space-y-6 px-8 pb-8">
               <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Recherche avancée</h4>
-                    <p className="text-sm text-muted-foreground">Filtres par produit, prix, localisation</p>
+                {features.buyer.map(({ icon: Icon, title, desc }) => (
+                  <div key={title} className="flex items-start gap-3">
+                    <Icon className="h-5 w-5 text-accent mt-0.5 flex-shrink-0" />
+                    <div>
+                      <h4 className="font-medium text-foreground">{title}</h4>
+                      <p className="text-sm text-muted-foreground">{desc}</p>
+                    </div>
                   </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Producteurs vérifiés</h4>
-                    <p className="text-sm text-muted-foreground">Qualité et traçabilité garanties</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Favoris & Historique</h4>
-                    <p className="text-sm text-muted-foreground">Retrouvez vos producteurs préférés</p>
-                  </div>
-                </div>
-                <div className="flex items-start space-x-3">
-                  <CheckCircle className="h-5 w-5 text-accent mt-1 flex-shrink-0" />
-                  <div>
-                    <h4 className="font-medium text-foreground">Contact direct</h4>
-                    <p className="text-sm text-muted-foreground">Négociation via WhatsApp</p>
-                  </div>
-                </div>
+                ))}
               </div>
-              
               <Button 
-                variant="accent" 
-                className="w-full"
+                className="w-full rounded-xl bg-gradient-accent hover:opacity-90 text-accent-foreground shadow-soft"
                 onClick={() => navigate('/auth?type=acheteur')}
               >
                 S'inscrire comme acheteur

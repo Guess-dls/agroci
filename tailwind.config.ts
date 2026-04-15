@@ -76,6 +76,8 @@ export default {
         'soft': 'var(--shadow-soft)',
         'medium': 'var(--shadow-medium)',
         'glow': 'var(--shadow-glow)',
+        'elevated': 'var(--shadow-elevated)',
+        'success': 'var(--shadow-success)',
       },
       keyframes: {
         "accordion-down": {

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,6 +35,11 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
   const { user } = useAuth();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
+  // Reset index when product changes or modal opens
+  useEffect(() => {
+    if (isOpen) setCurrentImageIndex(0);
+  }, [isOpen, product?.id]);
+
   if (!product) return null;
 
   const allImages = product.images && product.images.length > 0
@@ -42,7 +47,6 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
     : product.image_url ? [product.image_url] : [];
 
   const producer = product.profiles;
-
   const formatDate = (dateString: string) => new Date(dateString).toLocaleDateString('fr-FR');
 
   const handleContactClick = () => {
@@ -54,8 +58,8 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
   const nextImage = () => setCurrentImageIndex(i => (i === allImages.length - 1 ? 0 : i + 1));
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) { setCurrentImageIndex(0); onClose(); } }}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl">
         <DialogHeader>
           <DialogTitle className="text-2xl">{product.nom}</DialogTitle>
           <DialogDescription>Détails complets du produit</DialogDescription>
@@ -63,7 +67,7 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
 
         <div className="space-y-6">
           {/* Image Gallery */}
-          <div className="relative aspect-video bg-muted rounded-lg overflow-hidden">
+          <div className="relative aspect-video bg-muted rounded-xl overflow-hidden">
             {allImages.length > 0 ? (
               <>
                 <img
@@ -73,19 +77,18 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
                 />
                 {allImages.length > 1 && (
                   <>
-                    <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-1.5 shadow">
+                    <button onClick={prevImage} className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-medium transition-colors">
                       <ChevronLeft className="h-5 w-5" />
                     </button>
-                    <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-1.5 shadow">
+                    <button onClick={nextImage} className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 hover:bg-background rounded-full p-2 shadow-medium transition-colors">
                       <ChevronRight className="h-5 w-5" />
                     </button>
-                    {/* Dots */}
-                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5">
+                    <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-2">
                       {allImages.map((_, idx) => (
                         <button
                           key={idx}
                           onClick={() => setCurrentImageIndex(idx)}
-                          className={`w-2.5 h-2.5 rounded-full transition-colors ${idx === currentImageIndex ? 'bg-primary' : 'bg-background/60'}`}
+                          className={`w-2.5 h-2.5 rounded-full transition-all ${idx === currentImageIndex ? 'bg-primary scale-125' : 'bg-background/60'}`}
                         />
                       ))}
                     </div>
@@ -94,19 +97,19 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
               </>
             ) : (
               <div className="flex items-center justify-center h-full">
-                <Package className="h-16 w-16 text-muted-foreground" />
+                <Package className="h-16 w-16 text-muted-foreground/40" />
               </div>
             )}
           </div>
 
           {/* Thumbnails */}
           {allImages.length > 1 && (
-            <div className="flex gap-2 overflow-x-auto">
+            <div className="flex gap-2 overflow-x-auto pb-1">
               {allImages.map((url, idx) => (
                 <button
                   key={idx}
                   onClick={() => setCurrentImageIndex(idx)}
-                  className={`flex-shrink-0 w-16 h-16 rounded-lg overflow-hidden border-2 transition-colors ${idx === currentImageIndex ? 'border-primary' : 'border-transparent'}`}
+                  className={`flex-shrink-0 w-16 h-16 rounded-xl overflow-hidden border-2 transition-all ${idx === currentImageIndex ? 'border-primary shadow-soft' : 'border-transparent opacity-60 hover:opacity-100'}`}
                 >
                   <img src={url} alt={`Miniature ${idx + 1}`} className="w-full h-full object-cover" />
                 </button>
@@ -116,7 +119,7 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
 
           {/* Prix et quantité */}
           <div className="flex items-center justify-between">
-            <Badge variant="secondary" className="text-2xl font-bold px-4 py-2">
+            <Badge variant="secondary" className="text-2xl font-bold px-4 py-2 rounded-xl bg-primary/10 text-primary">
               {product.prix.toLocaleString()} FCFA
             </Badge>
             <div className="text-right">
@@ -134,23 +137,23 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
 
           {product.localisation && (
             <div className="flex items-center text-muted-foreground">
-              <MapPin className="h-5 w-5 mr-2" />
+              <MapPin className="h-5 w-5 mr-2 text-primary" />
               <span className="font-medium">{product.localisation}</span>
             </div>
           )}
 
           {producer && (
-            <div className="bg-muted/50 p-4 rounded-lg">
+            <div className="bg-muted/50 p-5 rounded-2xl">
               <h3 className="text-lg font-semibold mb-3 flex items-center">
-                <User className="h-5 w-5 mr-2" />
+                <User className="h-5 w-5 mr-2 text-primary" />
                 Producteur
               </h3>
               <div className="flex items-center justify-between">
                 <div>
                   <p className="font-medium text-lg">{producer.prenom} {producer.nom}</p>
-                  {producer.verified && <Badge variant="default" className="mt-1">✓ Vérifié</Badge>}
+                  {producer.verified && <Badge className="mt-1 rounded-lg bg-primary/10 text-primary">✓ Vérifié</Badge>}
                 </div>
-                <Button onClick={handleContactClick} className="ml-4" disabled={!user}>
+                <Button onClick={handleContactClick} className="ml-4 rounded-xl" disabled={!user}>
                   <MessageSquare className="h-4 w-4 mr-2" />
                   {user ? "Contacter" : "Connexion requise"}
                 </Button>
@@ -164,9 +167,9 @@ export const ProductDetailsModal = ({ product, isOpen, onClose, onContactProduce
           </div>
 
           <div className="flex gap-3 pt-4 border-t">
-            <Button variant="outline" onClick={onClose} className="flex-1">Fermer</Button>
+            <Button variant="outline" onClick={onClose} className="flex-1 rounded-xl">Fermer</Button>
             {user && (
-              <Button onClick={handleContactClick} className="flex-1">
+              <Button onClick={handleContactClick} className="flex-1 rounded-xl bg-gradient-primary text-primary-foreground hover:opacity-90">
                 <MessageSquare className="h-4 w-4 mr-2" />
                 Contacter le producteur
               </Button>

@@ -17,8 +17,8 @@ export default defineConfig(({ mode }) => ({
       registerType: "autoUpdate",
       includeAssets: ["favicon.ico", "favicon.png", "pwa-192x192.png", "pwa-512x512.png", "pwa-maskable-512x512.png"],
       manifest: {
-        name: "AgroCI - Produits Vivriers en Gros",
-        short_name: "AgroCI",
+        name: "Fehi - Produits Vivriers en Gros",
+        short_name: "Fehi",
         description: "Plateforme de vente de produits vivriers en gros en Côte d'Ivoire.",
         theme_color: "#16a34a",
         background_color: "#ffffff",
@@ -35,7 +35,7 @@ export default defineConfig(({ mode }) => ({
           { src: "/pwa-maskable-512x512.png", sizes: "512x512", type: "image/png", purpose: "maskable" }
         ],
         screenshots: [
-          { src: "/og-image.png", sizes: "1200x630", type: "image/png", form_factor: "wide", label: "AgroCI" }
+          { src: "/og-image.png", sizes: "1200x630", type: "image/png", form_factor: "wide", label: "Fehi" }
         ],
         shortcuts: [
           { name: "Voir les produits", short_name: "Produits", url: "/products", icons: [{ src: "/pwa-192x192.png", sizes: "192x192" }] },

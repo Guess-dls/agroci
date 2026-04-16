@@ -1,4 +1,5 @@
-import { Menu, Phone, LogOut, User, Shield, Sparkles } from "lucide-react";
+import { Menu, Phone, LogOut, User, Shield } from "lucide-react";
+import logoFehi from "@/assets/logo-fehi.png";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
@@ -66,9 +67,7 @@ export const Header = () => {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <button onClick={() => handleNavigate('/')} className="flex items-center gap-2 group">
-            <div className="w-9 h-9 rounded-xl bg-gradient-primary flex items-center justify-center shadow-soft group-hover:shadow-medium transition-shadow">
-              <Sparkles className="h-5 w-5 text-primary-foreground" />
-            </div>
+            <img src={logoFehi} alt="Fehi" className="w-9 h-9 rounded-xl shadow-soft group-hover:shadow-medium transition-shadow" />
             <span className="text-2xl font-bold tracking-tight text-gradient-primary">
               Fehi
             </span>

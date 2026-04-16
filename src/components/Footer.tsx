@@ -1,4 +1,5 @@
-import { Mail, MessageCircle, Sparkles } from "lucide-react";
+import { Mail, MessageCircle } from "lucide-react";
+import logoFehi from "@/assets/logo-fehi.png";
 
 const WHATSAPP_NUMBER = "+225 0789363442";
 const WHATSAPP_LINK = "https://wa.me/2250789363442?text=Bonjour%2C%20j%27ai%20besoin%20d%27aide%20concernant%20Fehi";
@@ -11,9 +12,7 @@ export const Footer = () => {
         <div className="grid md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-xl bg-gradient-primary flex items-center justify-center">
-                <Sparkles className="h-4 w-4 text-primary-foreground" />
-              </div>
+              <img src={logoFehi} alt="Fehi" className="w-8 h-8 rounded-xl" />
               <h3 className="text-xl font-bold text-gradient-primary">Fehi</h3>
             </div>
             <p className="text-sm text-muted-foreground">

@@ -106,17 +106,37 @@ Deno.serve(async (req) => {
       </body></html>
     `;
 
-    const emailRes = await fetch(`${Deno.env.get("SUPABASE_URL")}/functions/v1/send-email`, {
+    // Envoyer l'email via Resend directement
+    const resendKey = Deno.env.get("RESEND_API_KEY");
+    if (!resendKey) {
+      console.error("RESEND_API_KEY non configurée");
+      return new Response(JSON.stringify({ error: "Service email non configuré. Contactez l'administrateur." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    const emailRes = await fetch("https://api.resend.com/emails", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")}`,
+        Authorization: `Bearer ${resendKey}`,
       },
-      body: JSON.stringify({ to: email, subject, html }),
+      body: JSON.stringify({
+        from: "Fehi <onboarding@resend.dev>",
+        to: [email],
+        subject,
+        html,
+      }),
     });
 
     if (!emailRes.ok) {
-      console.error("Email send failed:", await emailRes.text());
+      const errText = await emailRes.text();
+      console.error("Resend send failed:", errText);
+      return new Response(JSON.stringify({ error: "Échec d'envoi de l'email. Vérifiez votre adresse." }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
     return new Response(JSON.stringify({ success: true }), {

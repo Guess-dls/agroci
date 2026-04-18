@@ -284,7 +284,7 @@ const Auth = () => {
                     <div className="text-center mb-4">
                       <Mail className="h-12 w-12 mx-auto text-primary mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        Entrez votre adresse email pour recevoir un lien de réinitialisation
+                        Entrez votre adresse email pour recevoir un code à 6 chiffres
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -309,7 +309,7 @@ const Auth = () => {
                           Envoi en cours...
                         </>
                       ) : (
-                        'Envoyer le lien'
+                        'Envoyer le code'
                       )}
                     </Button>
                     <Button 

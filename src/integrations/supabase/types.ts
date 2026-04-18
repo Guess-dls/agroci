@@ -372,6 +372,7 @@ export type Database = {
           boost_payment_required: boolean
           created_at: string
           credits: number
+          email_verified: boolean
           id: string
           nom: string
           pays: string | null
@@ -392,6 +393,7 @@ export type Database = {
           boost_payment_required?: boolean
           created_at?: string
           credits?: number
+          email_verified?: boolean
           id?: string
           nom?: string
           pays?: string | null
@@ -412,6 +414,7 @@ export type Database = {
           boost_payment_required?: boolean
           created_at?: string
           credits?: number
+          email_verified?: boolean
           id?: string
           nom?: string
           pays?: string | null
@@ -558,6 +561,39 @@ export type Database = {
           },
         ]
       }
+      verification_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed: boolean
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          type: string
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed?: boolean
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: string
+          type: string
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed?: boolean
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          type?: string
+        }
+        Relationships: []
+      }
       whatsapp_clicks: {
         Row: {
           clicked_at: string
@@ -655,6 +691,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      is_email_verified: { Args: { email_param: string }; Returns: boolean }
       reject_contact_request: {
         Args: { request_id_param: string }
         Returns: undefined

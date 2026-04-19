@@ -77,19 +77,6 @@ const Auth = () => {
       });
 
       if (error) {
-        // Si email non confirmé → rediriger vers vérification OTP
-        if (error.message.toLowerCase().includes('email not confirmed') || error.message.toLowerCase().includes('not confirmed')) {
-          // Envoyer un nouveau code OTP automatiquement
-          await supabase.functions.invoke('send-otp-code', {
-            body: { email: loginForm.email, type: 'signup' }
-          });
-          toast({
-            title: "Compte non vérifié",
-            description: "Un code de vérification vient d'être envoyé à votre email",
-          });
-          navigate('/verify-otp', { state: { email: loginForm.email, type: 'signup' } });
-          return;
-        }
         if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Erreur de connexion",
@@ -108,6 +95,7 @@ const Auth = () => {
           title: "Connexion réussie",
           description: "Bienvenue sur Fehi !",
         });
+        // Attendre que l'état soit mis à jour avant de naviguer
         setTimeout(() => {
           navigate('/dashboard');
         }, 100);
@@ -138,27 +126,28 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke('send-otp-code', {
-        body: { email: forgotPasswordEmail, type: 'recovery' }
+      const { error } = await supabase.auth.resetPasswordForEmail(forgotPasswordEmail, {
+        redirectTo: `${window.location.origin}/reset-password`,
       });
 
-      if (error || data?.error) {
+      if (error) {
         toast({
           title: "Erreur",
-          description: data?.error || error?.message || "Impossible d'envoyer le code",
+          description: error.message,
           variant: "destructive"
         });
       } else {
         toast({
-          title: "Code envoyé",
-          description: "Vérifiez votre email pour le code à 6 chiffres",
+          title: "Email envoyé",
+          description: "Un lien de réinitialisation a été envoyé à votre adresse email",
         });
-        navigate('/verify-otp', { state: { email: forgotPasswordEmail, type: 'recovery' } });
+        setShowForgotPassword(false);
+        setForgotPasswordEmail("");
       }
-    } catch (error: any) {
+    } catch (error) {
       toast({
         title: "Erreur",
-        description: error.message || "Une erreur inattendue s'est produite",
+        description: "Une erreur inattendue s'est produite",
         variant: "destructive"
       });
     } finally {
@@ -190,11 +179,11 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      // Inscription SANS emailRedirectTo (on évite le lien Lovable)
       const { error } = await supabase.auth.signUp({
         email: signupForm.email,
         password: signupForm.password,
         options: {
+          emailRedirectTo: `${window.location.origin}/`,
           data: {
             nom: signupForm.nom,
             prenom: signupForm.prenom,
@@ -222,24 +211,11 @@ const Auth = () => {
           });
         }
       } else {
-        // Envoyer le code OTP custom
-        const { data: otpData, error: otpError } = await supabase.functions.invoke('send-otp-code', {
-          body: { email: signupForm.email, type: 'signup' }
+        toast({
+          title: "Inscription réussie",
+          description: "Vérifiez votre email pour confirmer votre compte",
         });
-
-        if (otpError || otpData?.error) {
-          toast({
-            title: "Compte créé",
-            description: "Mais l'envoi du code a échoué. Réessayez depuis la page de vérification.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Code envoyé",
-            description: "Un code à 6 chiffres a été envoyé à votre email",
-          });
-        }
-        navigate('/verify-otp', { state: { email: signupForm.email, type: 'signup' } });
+        setActiveTab("login");
       }
     } catch (error) {
       toast({
@@ -284,7 +260,7 @@ const Auth = () => {
                     <div className="text-center mb-4">
                       <Mail className="h-12 w-12 mx-auto text-primary mb-2" />
                       <p className="text-sm text-muted-foreground">
-                        Entrez votre adresse email pour recevoir un code à 6 chiffres
+                        Entrez votre adresse email pour recevoir un lien de réinitialisation
                       </p>
                     </div>
                     <div className="space-y-2">
@@ -309,7 +285,7 @@ const Auth = () => {
                           Envoi en cours...
                         </>
                       ) : (
-                        'Envoyer le code'
+                        'Envoyer le lien'
                       )}
                     </Button>
                     <Button 

@@ -15,7 +15,7 @@ const Buyers = () => {
         title="Espace Acheteurs - Achats de produits vivriers en gros"
         description="Achetez des produits vivriers en gros directement auprès de producteurs vérifiés. Maïs, riz, manioc, igname. Contact WhatsApp, transactions sécurisées."
         keywords="acheteurs produits vivriers, achats en gros, grossistes, maïs, riz, manioc, igname, Côte d'Ivoire"
-        canonicalUrl="https://agroci.lovable.app/buyers"
+        canonicalUrl="https://fehi.vercel.app/buyers"
       />
       <Header />
       <main className="container mx-auto px-4 py-8">

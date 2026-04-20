@@ -178,7 +178,7 @@ const Producers = () => {
         title="Producteurs agricoles vérifiés"
         description="Trouvez des producteurs agricoles vérifiés en Côte d'Ivoire. Maïs, riz, manioc, igname et autres produits vivriers. Contact direct."
         keywords="producteurs agricoles, agriculteurs Côte d'Ivoire, producteurs vérifiés, maïs, riz, manioc"
-        canonicalUrl="https://agroci.lovable.app/producers"
+        canonicalUrl="https://fehi.vercel.app/producers"
       />
       <Header />
       <main className="container mx-auto px-4 py-8">

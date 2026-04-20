@@ -65,7 +65,7 @@ serve(async (req) => {
 
     // Pricing in kobo (1 XOF = 100 kobo for Paystack)
     const pricing = {
-      'subscription': { amount: 300000, name: 'Abonnement mensuel AgroCI' },  // 3 000 FCFA
+      'subscription': { amount: 300000, name: 'Abonnement mensuel Fehi' },  // 3 000 FCFA
       'boost': { amount: 120000, name: 'Boost produit (1 semaine)' },          // 1 200 FCFA
     };
 

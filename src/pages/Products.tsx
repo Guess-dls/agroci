@@ -214,7 +214,7 @@ const Products = () => {
         title="Catalogue des produits agricoles"
         description="Découvrez notre catalogue de produits vivriers en gros : maïs, riz, manioc, igname, tomates, oignons. Produits frais de producteurs vérifiés en Côte d'Ivoire."
         keywords="catalogue produits agricoles, maïs en gros, riz en gros, manioc, igname, légumes frais, Côte d'Ivoire"
-        canonicalUrl="https://agroci.lovable.app/products"
+        canonicalUrl="https://fehi.vercel.app/products"
       />
       <Header />
       <main className="container mx-auto px-4 py-8">

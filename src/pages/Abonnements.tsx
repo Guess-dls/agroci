@@ -93,7 +93,7 @@ const Abonnements = () => {
   if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://agroci.lovable.app/abonnements" />
+        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://fehi.vercel.app/abonnements" />
         <Header />
         <div className="flex items-center justify-center min-h-[50vh]">
           <Loader2 className="h-8 w-8 animate-spin" />
@@ -106,7 +106,7 @@ const Abonnements = () => {
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50">
-        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://agroci.lovable.app/abonnements" />
+        <SEOHead title="Abonnements et tarifs" description="Abonnement producteur Fehi" canonicalUrl="https://fehi.vercel.app/abonnements" />
         <Header />
         <main className="container mx-auto px-4 py-8">
           <div className="text-center">
@@ -126,7 +126,7 @@ const Abonnements = () => {
         title="Abonnements et tarifs"
         description="Abonnement mensuel producteur Fehi : 3 000 FCFA/mois pour publier vos produits. Boost produit : 1 200 FCFA/semaine."
         keywords="abonnement Fehi, producteur, boost produit, Côte d'Ivoire"
-        canonicalUrl="https://agroci.lovable.app/abonnements"
+        canonicalUrl="https://fehi.vercel.app/abonnements"
       />
       <Header />
       <main className="container mx-auto px-4 py-8">

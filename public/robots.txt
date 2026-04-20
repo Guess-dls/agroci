@@ -1,5 +1,5 @@
-# AgroCI - Plateforme de vente de produits vivriers en gros
-# https://agroci.lovable.app
+# Fehi - Plateforme de vente de produits vivriers en gros
+# https://fehi.vercel.app
 # Mise à jour: 2026-01-29
 
 # Autoriser tous les robots
@@ -88,7 +88,7 @@ Allow: /pwa-*.png
 Allow: /sitemap.xml
 
 # Sitemap location
-Sitemap: https://agroci.lovable.app/sitemap.xml
+Sitemap: https://fehi.vercel.app/sitemap.xml
 
 # Host
-Host: https://agroci.lovable.app
+Host: https://fehi.vercel.app

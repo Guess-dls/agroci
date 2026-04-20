@@ -324,7 +324,7 @@ export const AdminTractionReport = () => {
       const element = reportRef.current;
       const opt = {
         margin: [10, 10, 10, 10] as [number, number, number, number],
-        filename: `rapport-traction-agroci-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
+        filename: `rapport-traction-fehi-${format(new Date(), 'yyyy-MM-dd')}.pdf`,
         image: { type: 'jpeg' as const, quality: 0.98 },
         html2canvas: { 
           scale: 2, 

@@ -10,7 +10,7 @@ interface SEOHeadProps {
   noIndex?: boolean;
 }
 
-const BASE_URL = 'https://agroci.lovable.app';
+const BASE_URL = 'https://fehi.vercel.app';
 const DEFAULT_OG_IMAGE = `${BASE_URL}/og-image.png`;
 const SITE_NAME = 'Fehi';
 

@@ -12,7 +12,7 @@ const Index = () => {
         title="Vente de produits vivriers en gros"
         description="Fehi est la plateforme de référence pour la vente de produits vivriers en gros en Côte d'Ivoire. Connectez producteurs et acheteurs directement via WhatsApp. Maïs, riz, manioc, igname."
         keywords="produits vivriers, agriculture Côte d'Ivoire, vente en gros, maïs, riz, manioc, igname, producteurs agricoles, acheteurs, WhatsApp, Abidjan, Fehi"
-        canonicalUrl="https://agroci.lovable.app/"
+        canonicalUrl="https://fehi.vercel.app/"
       />
       <Header />
       <main>

@@ -64,7 +64,7 @@ Deno.serve(async (req) => {
       html = await renderAsync(
         React.createElement(PasswordResetEmail, { resetUrl })
       )
-      subject = 'Réinitialisation de votre mot de passe AgroCi'
+      subject = 'Réinitialisation de votre mot de passe Fehi'
       
     } else if (email_action_type === 'signup' || email_action_type === 'email_confirmation') {
       // Signup confirmation email
@@ -73,7 +73,7 @@ Deno.serve(async (req) => {
       html = await renderAsync(
         React.createElement(SignupConfirmationEmail, { confirmUrl, userName })
       )
-      subject = 'Confirmez votre inscription sur AgroCi'
+      subject = 'Confirmez votre inscription sur Fehi'
       
     } else if (email_action_type === 'magiclink') {
       // Magic link email (using password reset template style)
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
       html = await renderAsync(
         React.createElement(PasswordResetEmail, { resetUrl: magicLinkUrl })
       )
-      subject = 'Votre lien de connexion AgroCi'
+      subject = 'Votre lien de connexion Fehi'
       
     } else {
       // Default fallback
@@ -91,13 +91,13 @@ Deno.serve(async (req) => {
       html = await renderAsync(
         React.createElement(PasswordResetEmail, { resetUrl: verifyUrl })
       )
-      subject = 'Notification AgroCi'
+      subject = 'Notification Fehi'
     }
 
     console.log(`Sending ${email_action_type} email to ${user.email}`)
 
     const { error } = await resend.emails.send({
-      from: 'AgroCi <noreply@votre-domaine.com>', // Remplacez par votre domaine vérifié
+      from: 'Fehi <onboarding@resend.dev>',
       to: [user.email],
       subject,
       html,

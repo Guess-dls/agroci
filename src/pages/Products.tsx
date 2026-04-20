@@ -261,7 +261,7 @@ const Products = () => {
           </Card>
         ) : (
           <section aria-label="Liste des produits agricoles">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
               {filteredProducts.map((product) => {
                 const producer = product.profiles;
                 const category = product.categories_produits;
@@ -284,7 +284,7 @@ const Products = () => {
                         )}
                         {category && (
                           <div className="absolute top-2 left-2">
-                            <Badge className="bg-white/90 text-gray-800 hover:bg-white">
+                            <Badge className="bg-white/90 text-gray-800 hover:bg-white text-xs">
                               <span className="mr-1" aria-hidden="true">{category.icone}</span>
                               {category.nom}
                             </Badge>
@@ -299,17 +299,17 @@ const Products = () => {
                           </div>
                         )}
                       </div>
-                      <CardHeader>
-                        <div className="flex items-start justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <h2 className="text-lg font-semibold text-gray-800">{product.nom}</h2>
-                            {producer?.id && <ProducerBadge producerId={producer.id} />}
-                          </div>
-                          <Badge className="text-lg font-bold bg-gradient-to-r from-green-600 to-blue-600 text-white">
-                            {product.prix.toLocaleString()} FCFA
-                          </Badge>
+                      <CardHeader className="pb-3">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
+                          <h2 className="text-base md:text-lg font-semibold text-gray-800 line-clamp-1 flex-1 min-w-0">{product.nom}</h2>
+                          {producer?.id && <ProducerBadge producerId={producer.id} />}
                         </div>
-                        <CardDescription className="text-gray-600">
+                        <div className="mb-2">
+                          <span className="inline-block text-base md:text-lg font-bold bg-gradient-to-r from-green-600 to-blue-600 bg-clip-text text-transparent whitespace-nowrap">
+                            {product.prix.toLocaleString('fr-FR')} FCFA
+                          </span>
+                        </div>
+                        <CardDescription className="text-gray-600 line-clamp-2 text-sm">
                           {product.description}
                         </CardDescription>
                       </CardHeader>

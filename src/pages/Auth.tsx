@@ -183,7 +183,7 @@ const Auth = () => {
         email: signupForm.email,
         password: signupForm.password,
         options: {
-          emailRedirectTo: `${window.location.origin}/`,
+          emailRedirectTo: 'https://fehi.vercel.app/',
           data: {
             nom: signupForm.nom,
             prenom: signupForm.prenom,

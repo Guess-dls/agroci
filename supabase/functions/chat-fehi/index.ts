@@ -1,70 +1,108 @@
-const SYSTEM_PROMPT = `Tu es l'assistant officiel de FEHI, une plateforme de mise en relation entre agriculteurs et acheteurs en Côte d'Ivoire.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-🚨 RÈGLE ABSOLUE PRIORITAIRE (NON NÉGOCIABLE) :
-Le seul domaine autorisé est :
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+};
+
+// 🔐 ENV
+const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY")!;
+
+// 🧩 CLIENT DB
+const supabase = createClient(supabaseUrl, supabaseKey);
+
+// 🧠 SYSTEM PROMPT (PROPRE + CORRIGÉ)
+const SYSTEM_PROMPT = `Tu es l'assistant officiel de FEHI.
+
+🚨 DOMAINE AUTORISÉ :
 https://fehi.vercel.app
 
-❌ Interdiction totale :
-- Ne jamais générer un autre domaine (ex: fehi-market.com, fehi.app, etc.)
-- Ne jamais modifier le domaine
-- Ne jamais inventer de lien
-
-✅ Liens autorisés UNIQUEMENT :
+LIENS AUTORISÉS :
 - https://fehi.vercel.app
 - https://fehi.vercel.app/products
 
-👉 Si tu dois donner un lien :
-- Utilise uniquement un des deux ci-dessus
-- Sinon NE DONNE PAS de lien
+RÈGLES :
+- Ne jamais inventer de lien
+- Toujours utiliser ce domaine
+- Réponses courtes et claires
+- Demander la ville si absente
+- Proposer contact WhatsApp
 
-🎯 Rôle :
-- Aider à acheter ou vendre des produits agricoles
-- Mettre en relation acheteurs et producteurs
-- Diriger vers WhatsApp
+FEHI :
+- Plateforme de mise en relation
+- Pas de paiement
+- Pas de livraison
 
-⚙️ Fonctionnement :
-- Les vendeurs publient (prix, localisation, contact)
-- Les acheteurs contactent via WhatsApp
-- Fehi ne vend pas, ne livre pas, ne gère pas les paiements
-
-👥 Utilisateurs :
-- Producteurs
-- Acheteurs
-
-🌾 Produits :
-Riz, Maïs, Manioc, Igname, Banane plantain, Tomates, Oignons
-
-💬 Comportement :
-- Court, clair, direct
-- Pose des questions (ville, produit, quantité)
-- Ne jamais inventer
-- Toujours proposer une action
-
-📌 Règles :
-- Toujours proposer WhatsApp
-- Toujours demander la localisation si absente
-- Ne jamais parler de paiement
-
-🧪 Cas :
-
-Acheter :
-- Demande localisation
-- Utilise uniquement : https://fehi.vercel.app/products
-- Propose WhatsApp
-
-Vendre :
-- Demande produit
-- Utilise uniquement : https://fehi.vercel.app
-
-Lien :
-Répond EXACTEMENT :
-"Voici le site officiel de Fehi : https://fehi.vercel.app"
-
-📱 WhatsApp :
-+225 0789363442
-
-🎨 Style :
-- Simple
-- Africain moderne
-- Pas de longs textes
+Produits : Riz, Maïs, Manioc, Igname, Banane plantain, Tomates, Oignons
 `;
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const { messages } = await req.json();
+    const userMessage = messages[messages.length - 1].content.toLowerCase();
+
+    // 🔎 RECHERCHE PRODUITS
+    let products: any[] = [];
+
+    const keywords = ["tomate", "riz", "maïs", "manioc", "igname", "oignon", "banane"];
+
+    for (const keyword of keywords) {
+      if (userMessage.includes(keyword)) {
+        const { data } = await supabase
+          .from("products")
+          .select("id, name, city, price")
+          .ilike("name", `%${keyword}%`)
+          .limit(5);
+
+        products = data || [];
+        break;
+      }
+    }
+
+    // 🧠 CONTEXTE PRODUITS POUR IA
+    let productContext = "";
+
+    if (products.length > 0) {
+      productContext = "Produits disponibles:\n";
+
+      for (const p of products) {
+        productContext += `- ${p.name} (${p.city}) - ${p.price} FCFA\n`;
+        productContext += `https://fehi.vercel.app/product/${p.id}\n`;
+      }
+    }
+
+    // 🤖 APPEL IA
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          { role: "system", content: productContext || "Aucun produit trouvé" },
+          ...messages,
+        ],
+        stream: true,
+      }),
+    });
+
+    return new Response(response.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
+
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "Erreur serveur" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  }
+});

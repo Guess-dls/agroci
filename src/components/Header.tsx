@@ -63,18 +63,18 @@ export const Header = () => {
   };
 
   return (
-    <header className="bg-background/80 backdrop-blur-lg border-b border-border/50 sticky top-0 z-50">
-      <div className="container mx-auto px-4 py-3">
+    <header className="sticky top-0 z-50 px-2 sm:px-4 pt-2 sm:pt-3">
+      <div className="container mx-auto glass rounded-2xl px-3 sm:px-5 py-2.5">
         <div className="flex items-center justify-between">
-          <button onClick={() => handleNavigate('/')} className="flex items-center gap-2 group">
-            <img src={logoFehi} alt="Fehi" className="w-9 h-9 rounded-xl shadow-soft group-hover:shadow-medium transition-shadow" />
-            <span className="text-2xl font-bold tracking-tight text-gradient-primary">
-              Fehi
+          <button onClick={() => handleNavigate('/')} className="flex items-center gap-2.5 group">
+            <img src={logoFehi} alt="Fehi" className="w-9 h-9 rounded-xl ring-1 ring-white/40 shadow-soft group-hover:scale-105 transition-transform" />
+            <span className="display-serif text-2xl font-semibold tracking-tight text-foreground">
+              Fehi<span className="text-primary">.</span>
             </span>
           </button>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 glass rounded-full px-1.5 py-1">
             {[
               { label: 'Accueil', path: '/' },
               { label: 'Produits', path: '/products' },
@@ -84,7 +84,7 @@ export const Header = () => {
               <button
                 key={path}
                 onClick={() => navigate(path)}
-                className="px-4 py-2 rounded-lg text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors"
+                className="px-4 py-1.5 rounded-full text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-white/60 transition-all"
               >
                 {label}
               </button>

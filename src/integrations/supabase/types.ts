@@ -747,6 +747,10 @@ export type Database = {
         Args: { request_id_param: string }
         Returns: undefined
       }
+      activate_producer_subscription: {
+        Args: { producer_profile_id: string; reference?: string }
+        Returns: string
+      }
       activate_product_boost: {
         Args: {
           p_producer_id: string

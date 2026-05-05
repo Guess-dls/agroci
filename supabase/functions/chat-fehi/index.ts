@@ -62,7 +62,7 @@ Deno.serve(async (req) => {
     );
     const token = authHeader.replace(/^Bearer\s+/i, '');
     const { data: claimsData, error: authError } = await supabase.auth.getClaims(token);
-    if (authError || !claimsData?.claims) {
+    if (authError || !claimsData?.claims || claimsData.claims.role !== 'authenticated') {
       return new Response(JSON.stringify({ error: "Session invalide" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });

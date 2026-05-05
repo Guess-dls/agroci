@@ -94,6 +94,22 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Sanitize messages to prevent prompt injection: only allow user/assistant roles,
+    // limit content length, and coerce content to string.
+    const sanitizedMessages = messages
+      .filter((m: any) => m && typeof m === "object" && (m.role === "user" || m.role === "assistant"))
+      .map((m: any) => ({
+        role: m.role,
+        content: String(m.content ?? "").slice(0, 2000),
+      }))
+      .filter((m: any) => m.content.length > 0);
+
+    if (sanitizedMessages.length === 0) {
+      return new Response(JSON.stringify({ error: "Message invalide" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY non configuré");
 
@@ -105,7 +121,7 @@ Deno.serve(async (req) => {
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
-        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+        messages: [{ role: "system", content: SYSTEM_PROMPT }, ...sanitizedMessages],
         stream: true,
       }),
     });

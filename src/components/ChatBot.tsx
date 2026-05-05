@@ -6,6 +6,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import ReactMarkdown from "react-markdown";
 import logoFehi from "@/assets/logo-fehi.png";
+import { supabase } from "@/integrations/supabase/client";
 
 type Msg = { role: "user" | "assistant"; content: string };
 
@@ -30,6 +31,11 @@ export const ChatBot = () => {
   const send = async () => {
     const text = input.trim();
     if (!text || loading) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session?.access_token) {
+      toast.error("Connecte-toi pour utiliser l'assistant.");
+      return;
+    }
     setInput("");
     const userMsg: Msg = { role: "user", content: text };
     setMessages((p) => [...p, userMsg]);
@@ -40,7 +46,8 @@ export const ChatBot = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY}`,
+          Authorization: `Bearer ${session.access_token}`,
+          apikey: import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY,
         },
         body: JSON.stringify({ messages: [...messages, userMsg].filter((m, i) => !(i === 0 && m.role === "assistant")) }),
       });

@@ -40,6 +40,8 @@ Important :
 
 Style : court, humain, africain moderne. Pas de longs paragraphes. Utilise des emojis avec modération.`;
 
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.57.2';
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -48,6 +50,20 @@ Deno.serve(async (req) => {
     const authHeader = req.headers.get("authorization") || req.headers.get("Authorization");
     if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return new Response(JSON.stringify({ error: "Connexion requise" }), {
+        status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    // Validate the JWT against Supabase Auth
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL')!,
+      Deno.env.get('SUPABASE_ANON_KEY')!,
+      { global: { headers: { Authorization: authHeader } } }
+    );
+    const token = authHeader.replace(/^Bearer\s+/i, '');
+    const { data: claimsData, error: authError } = await supabase.auth.getClaims(token);
+    if (authError || !claimsData?.claims) {
+      return new Response(JSON.stringify({ error: "Session invalide" }), {
         status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" },
       });
     }

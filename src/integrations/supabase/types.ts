@@ -803,6 +803,7 @@ export type Database = {
           user_id: string
         }[]
       }
+      is_admin: { Args: { _uid: string }; Returns: boolean }
       is_email_verified: { Args: { email_param: string }; Returns: boolean }
       reject_contact_request: {
         Args: { request_id_param: string }

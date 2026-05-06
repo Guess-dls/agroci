@@ -809,6 +809,7 @@ export type Database = {
         Args: { request_id_param: string }
         Returns: undefined
       }
+      request_free_boost: { Args: { p_product_id: string }; Returns: string }
       send_message: {
         Args: { contact_request_id_param: string; content_param: string }
         Returns: undefined

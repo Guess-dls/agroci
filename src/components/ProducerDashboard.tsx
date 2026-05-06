@@ -212,11 +212,9 @@ export const ProducerDashboard = () => {
           });
         }
       } else {
-        // Free boost - activate directly
-        const { data, error } = await supabase.rpc('activate_product_boost', {
+        // Free boost - validated server-side via dedicated RPC
+        const { data, error } = await supabase.rpc('request_free_boost', {
           p_product_id: productId,
-          p_producer_id: profile.id,
-          p_reference: 'boost_gratuit_admin'
         });
 
         if (error) throw error;
